@@ -1,12 +1,9 @@
 <template>
   <h1>Test</h1>
   <button @click="getLiveTrainData">Show</button>
-
   <button @click="postLiveTrainData">Populate Database</button>
 
-
   <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 1000px">
-
     <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" />
 
     <ol-tile-layer>
@@ -33,9 +30,9 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref } from 'vue';
 import {fromLonLat, toLonLat} from 'ol/proj.js';
-import axios from 'axios'
+import axios from 'axios';
 
 export default {
   name: "Map",
@@ -66,7 +63,6 @@ export default {
   },
 
   methods: {
-
     // fetch live train data from the Firestore database
     getLiveTrainData() {
       axios.get('https://us-central1-concept-d5be1.cloudfunctions.net/getLiveTrainData')
@@ -74,9 +70,9 @@ export default {
         this.dbLiveTrainData = response.data;
 
         // create a Hashmap with the key-values as {TrainCode: JSON}
-        for(var i=0; i<this.dbLiveTrainData.length; i++) {
-          this.allDataMap[this.dbLiveTrainData[i]["TrainCode"][0]] = this.dbLiveTrainData[i];
-          this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData[i]["TrainLongitude"][0], this.dbLiveTrainData[i]["TrainLatitude"][0]]))
+        for(var i=0; i<this.dbLiveTrainData.data.length; i++) {
+          this.allDataMap[this.dbLiveTrainData.data[i]["TrainCode"][0]] = this.dbLiveTrainData.data[i];
+          this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData.data[i]["TrainLongitude"][0], this.dbLiveTrainData.data[i]["TrainLatitude"][0]]))
         }
       })
       .catch((error) => {
