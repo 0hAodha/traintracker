@@ -4,7 +4,7 @@
     <p>Date: {{ selectedDataMap["TrainDate"] }}</p>
     <p>Status: {{ selectedDataMap["TrainStatus"] }}</p>
     <p>Longitude: {{ selectedDataMap["TrainLongitude"] }}</p>
-    <p>Longitude: {{ selectedDataMap["TrainLatitude"] }}</p>
+    <p>Latitude: {{ selectedDataMap["TrainLatitude"] }}</p>
     <p>Direction: {{ selectedDataMap["Direction"] }}</p>
     <p>Public Message: {{ selectedDataMap["PublicMessage"] }}</p>
   </div>
