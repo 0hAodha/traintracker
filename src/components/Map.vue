@@ -1,5 +1,5 @@
 <template>
-  <button @click="getLiveTrainData">Show</button>
+  <button @click="getLiveTrainData">Fetch Data</button>
   <button @click="postLiveTrainData">Populate Database</button>
 
   <!--Sidebar, fades out on click of X button-->
@@ -75,11 +75,26 @@ export default {
     }
   },
 
-  methods: {
+  created() {
+    // initial request of fata
+    this.getLiveTrainData()
+
+    // request new data every 60 seconds
+    // window.setInterval(this.getLiveTrainData, 60000);
+  },
+
+  methods: { 
     // fetch live train data from the Firestore database
     getLiveTrainData() {
+      let loader = this.$loading.show({
+        loader: 'dots',
+        container: this.$refs.container,
+        canCancel: false
+      });
+
       axios.get('https://us-central1-concept-d5be1.cloudfunctions.net/getLiveTrainData')
       .then((response) => {
+        loader.hide();
         this.dbLiveTrainData = response.data;
 
         // create an array of coordinates and hashmap with the key-values {index: JSON obj}
