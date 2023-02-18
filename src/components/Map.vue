@@ -43,7 +43,8 @@
 <script>
 import { ref } from 'vue';
 import {fromLonLat, toLonLat} from 'ol/proj.js';
-import axios from 'axios';
+import app from '../api/firebase';
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 export default {
   name: "MapsOverlay",
@@ -86,25 +87,24 @@ export default {
   methods: { 
     // fetch live train data from the Firestore database
     getLiveTrainData() {
+      const functions = getFunctions(app);
+      const getData = httpsCallable(functions, 'getLiveTrainData');
+
       let loader = this.$loading.show({
         loader: 'dots',
         container: this.$refs.container,
         canCancel: false
       });
 
-      axios.get('https://us-central1-concept-d5be1.cloudfunctions.net/getLiveTrainData')
-      .then((response) => {
-        loader.hide();
+      getData().then((response) => {
         this.dbLiveTrainData = response.data;
-
+        
         // create an array of coordinates and hashmap with the key-values {index: JSON obj}
-        for(var i=0; i<this.dbLiveTrainData.data.length; i++) {
-          this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData.data[i]["TrainLongitude"][0], this.dbLiveTrainData.data[i]["TrainLatitude"][0]]))
-          this.allDataMap[i] = this.dbLiveTrainData.data[i];
+        for(var i=0; i<this.dbLiveTrainData.length; i++) {
+          this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData[i]["TrainLongitude"][0], this.dbLiveTrainData[i]["TrainLatitude"][0]]))
+          this.allDataMap[i] = this.dbLiveTrainData[i];
         }
-      })
-      .catch((error) => {
-        console.log(error)
+        loader.hide();
       })
     },
 
@@ -122,12 +122,11 @@ export default {
 
     // ---------------- TESTING ----------------
     postLiveTrainData() {
-      axios.get('https://us-central1-concept-d5be1.cloudfunctions.net/postLiveTrainData')
-      .then((response) => {
-        console.log(response.data)
-      })
-      .catch((error) => {
-        console.log(error)
+      const functions = getFunctions(app);
+      const postData = httpsCallable(functions, 'postLiveTrainData');
+
+      postData().then((response) => {
+        console.log("Test")
       })
     }
     // ---------------- TESTING ----------------
