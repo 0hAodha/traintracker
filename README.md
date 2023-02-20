@@ -1,4 +1,4 @@
-# Running Build & Depoloying it to Firebase
+# Running Build & Deploying it to Firebase
 `npm run build && firebase deploy`
 
 # Committing 
