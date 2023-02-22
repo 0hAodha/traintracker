@@ -18,7 +18,7 @@ exports.getLiveTrainData = functions.https.onRequest((request, response) => {
     // fetch the "liveTrainData" collection
     admin.firestore().collection('liveTrainData').get().then((snapshot) => {
       if (snapshot.empty) {
-        response.send("Error fetching data from the database");
+        response.send({data: "Error fetching data from the database"});
         return;
       }
       // iterate through each of the collection's documents
