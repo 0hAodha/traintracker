@@ -44,7 +44,7 @@
 import { ref } from 'vue';
 import {fromLonLat, toLonLat} from 'ol/proj.js';
 import app from '../api/firebase';
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
 
 export default {
   name: "MapsOverlay",
@@ -77,9 +77,10 @@ export default {
   },
 
   created() {
-    // initial request of fata
+    // initial request of data
+    console.log("jere")
     this.getLiveTrainData()
-
+    
     // request new data every 60 seconds
     // window.setInterval(this.getLiveTrainData, 60000);
   },
@@ -88,8 +89,10 @@ export default {
     // fetch live train data from the Firestore database
     getLiveTrainData() {
       const functions = getFunctions(app);
+      if (window.location.hostname === '127.0.0.1') {
+        connectFunctionsEmulator(functions, "localhost", 5001);
+      }
       const getData = httpsCallable(functions, 'getLiveTrainData');
-
       let loader = this.$loading.show({
         loader: 'dots',
         container: this.$refs.container,
@@ -97,14 +100,18 @@ export default {
       });
 
       getData().then((response) => {
-        this.dbLiveTrainData = response.data;
-        
-        // create an array of coordinates and hashmap with the key-values {index: JSON obj}
-        for(var i=0; i<this.dbLiveTrainData.length; i++) {
-          this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData[i]["TrainLongitude"][0], this.dbLiveTrainData[i]["TrainLatitude"][0]]))
-          this.allDataMap[i] = this.dbLiveTrainData[i];
+        try {
+          this.dbLiveTrainData = response.data;
+          // create an array of coordinates and hashmap with the key-values {index: JSON obj}
+          for(var i=0; i<this.dbLiveTrainData.length; i++) {
+            this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData[i]["TrainLongitude"][0], this.dbLiveTrainData[i]["TrainLatitude"][0]]))
+            this.allDataMap[i] = this.dbLiveTrainData[i];
+          }
+          loader.hide();
         }
-        loader.hide();
+        catch (error) {
+          loader.hide();
+        }
       })
     },
 
@@ -123,6 +130,9 @@ export default {
     // ---------------- TESTING ----------------
     postLiveTrainData() {
       const functions = getFunctions(app);
+      if (window.location.hostname === '127.0.0.1') {
+        connectFunctionsEmulator(functions, "localhost", 5001);
+      }
       const postData = httpsCallable(functions, 'postLiveTrainData');
 
       postData().then((response) => {

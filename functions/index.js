@@ -18,14 +18,13 @@ exports.getLiveTrainData = functions.https.onRequest((request, response) => {
     // fetch the "liveTrainData" collection
     admin.firestore().collection('liveTrainData').get().then((snapshot) => {
       if (snapshot.empty) {
-        response.send("Error fetching data from the database");
+        response.send({data: "Error fetching data from the database"});
         return;
       }
       // iterate through each of the collection's documents
       snapshot.forEach(doc => {
         jsonData.push(doc.data());
       });
-      // response.send(jsonData);
       response.json({data: jsonData});
     })
   });
@@ -56,21 +55,25 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
                   batchDelete.commit().then(function() {
                     // batch write all train JSON objects to the "liveTrainData" collection
                     var batchWrite = db.batch();
+                    
                     jsonData.forEach((doc) => {
-                      // set the train's code as the document ID
-                      var docID = db.collection('liveTrainData').doc(doc["TrainCode"][0]);
-                      batchWrite.set(docID, doc);
+                      // ignore trains with longitudes or latitudes equal zero
+                      if (!(doc["TrainLongitude"] == 0 || doc["TrainLatitude"] == 0)) {
+                        // set the train's code as the document ID
+                        var docID = db.collection('liveTrainData').doc(doc["TrainCode"][0]);
+                        batchWrite.set(docID, doc);
+                      }
                     });
 
                     batchWrite.commit().then(function () {
-                      response.send("Successfully fetched and uploaded data from Irish Rail");
+                      response.send({data: "Successfully fetched and uploaded data from Irish Rail"});
                     });
                   })
               })
             })
           })
           .catch((error) => {;
-            response.send("Error fetching data from the IrishRail API");
+            response.send({data: "Error fetching data from the IrishRail API"});
           })
   });
 })
