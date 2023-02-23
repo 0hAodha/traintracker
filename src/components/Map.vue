@@ -7,7 +7,7 @@
       <div v-if="this.display" id= "sidebarDiv">
 
         <div id = "sidebarHeader">
-          <img id = "headerImage" src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png">
+          <img id = "headerImage" src="../assets/train-solid.svg" alt="Train Icon">
           <div v-on:click="this.display = false" id="xButton">X</div>
         </div>
 
@@ -30,11 +30,12 @@
     </ol-tile-layer>
 
     <template v-for="coordinate, i in coordinates" :position="inline-block">
-      <ol-overlay :position="coordinate">
+      <!-- overlay offset is the size of the image so that it is centered-->
+      <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-16,-16]">
         <div class="overlay-content" @click="getSelectedTrain(i)">
-          <img src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png" class="trainMapIcon">
+          <img src="../assets/train-solid.svg" class="trainMapIcon" alt="Train Icon">
         </div>
-        
+
     </ol-overlay>
     </template>
   </ol-map>
@@ -140,14 +141,14 @@ export default {
 }
 
 .trainMapIcon {
-  height: 5.5vh;
-  width: 3.5vw;
+  height: 32px;
+  width: 32px;
 }
 
 .slideLeft-enter-active, .slideLeft-leave-active {
   transition: opacity .5s;
   transition: all 0.8s;
-  
+
 }
 .slideLeft-enter-from, .slideLeft-leave-to{
   opacity: 0;
@@ -198,7 +199,7 @@ export default {
 #headerImage{
   height: 100%;
   width: auto;
-  overflow: hidden;   
+  overflow: hidden;
 }
 
 #xButton{
