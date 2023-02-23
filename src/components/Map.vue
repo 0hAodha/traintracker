@@ -7,12 +7,17 @@
       <div v-if="this.display" id= "sidebarDiv">
 
         <div id = "sidebarHeader">
-          <img id = "headerImage" src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png">
-          <div v-on:click="this.display = false" id="xButton">X</div>
+          <div id="headerTop">
+            <div style="font-size: 24px">Code: {{ selectedDataMap["TrainCode"] }}</div><div v-on:click="this.display = false" id="xButton">X</div>
+          </div>
+          <div id="departStation"><div class="stationCode">DP452</div><div class="stationName">Dublin Heuston</div></div><img id = "headerImage" src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png"><div id="destinationStation"><div class="stationCode">DS223</div><div class="stationName">Athenry</div></div>
+          
         </div>
 
-        <div id= "sidebarDiv">
-          <h2>Train Code: {{ selectedDataMap["TrainCode"] }}</h2>
+        <div id = "expectedArrive"><div class = "verticalCenter">Expected Arrival:</div></div>
+        <div id = "actualArrive"><div class = "verticalCenter">Actual Arrival: </div></div>
+
+        <div id= "sidebarContent">
           <p>Date: {{ selectedDataMap["TrainDate"] }}</p>
           <p>Status: {{ selectedDataMap["TrainStatus"] }}</p>
           <p>Longitude: {{ selectedDataMap["TrainLongitude"] }}</p>
@@ -89,7 +94,7 @@ export default {
     // fetch live train data from the Firestore database
     getLiveTrainData() {
       const functions = getFunctions(app);
-      if (window.location.hostname === '127.0.0.1') {
+      if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
         connectFunctionsEmulator(functions, "localhost", 5001);
       }
       const getData = httpsCallable(functions, 'getLiveTrainData');
@@ -130,7 +135,7 @@ export default {
     // ---------------- TESTING ----------------
     postLiveTrainData() {
       const functions = getFunctions(app);
-      if (window.location.hostname === '127.0.0.1') {
+      if (window.location.hostname === '127.0.0.1'|| window.location.hostname === 'localhost') {
         connectFunctionsEmulator(functions, "localhost", 5001);
       }
       const postData = httpsCallable(functions, 'postLiveTrainData');
@@ -188,27 +193,47 @@ export default {
   background: linear-gradient(45deg, #000000, #111111, #222222, #333333, #444444, #555555);
   background-size: 400%, 400%;
   box-shadow: 0 0 4px 2px #333333;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 #sidebarDiv{
   position: relative;
-  height: 100%;
+  height: 95%;
+  top:10px;
   width: 100%;
   color: white;
+  background-color: aqua;
 }
 
 #sidebarHeader{
   position: relative;
   top:0%;
-  height: 10%;
+  height: 18%;
   width: 100%;
-  overflow: hidden;
+}
+
+#headerTop{
+  position: relative;
+  width: 100%;
+  height: 50%;
+  text-align: left;
+  color: yellow;
+  font-weight: bold;
+  background-color: #444444;
+  box-sizing: border-box;
+  padding: 10px;
+  
 }
 
 #headerImage{
-  height: 100%;
+  height: 70%;
   width: auto;
-  overflow: hidden;   
+  position: relative;
+  background-color: black;
+  border-radius: 50%;
+  display: inline-block;
+  top: 20px;
+  z-index: 1;
 }
 
 #xButton{
@@ -224,27 +249,19 @@ export default {
   color:red;
 }
 
+#sidebarContent{
+  color: white;
+  top:50px;
+  position: relative;
+  font-weight: normal;
+}
+
 #sidebarFooter{
   position: relative;
   bottom:0%;
   height:10%;
   text-align: center;
   color: azure;
-}
-
-#sidebarMain{
-  position: relative;
-  height:80%;
-  width:100%;
-  overflow: hidden;
-}
-
-#sidebarContent{
-  position: relative;
-  size: 6px;
-  color: white;
-  overflow-wrap: break-word;
-  font-family: Georgia, 'Times New Roman', Times, serif ;
 }
 
 #mapDiv{
@@ -258,27 +275,67 @@ export default {
   height: 100%;
 }
 
-#mapIFrame{
-  position: relative;
+
+#departStation{
+  background-color: rgb(206, 206, 206);
+  width: 49.5%;
   height: 100%;
-  width: 100%;
-  top: 0%;
-  z-index: 0;
-}
-
-#buttonDiv{
+  z-index: -1;
   position: absolute;
-  float: right;
-  right: 10%;
-  top: 0%;
-  width:10%;
-  height:10px;
+  left:0px;
+  
 }
 
-#buttonElement{
+#expectedArrive{
   position: relative;
-  top: 50%;
-  left: 50%;
-  z-index: 0;
+  top: 9.2%;
+  background-color: #555555;
+  text-align: left;
+  height: 8%;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+#actualArrive{
+  position: relative;
+  background-color: #555555;
+  top: 9.3%;
+  vertical-align: middle;
+  text-align: left;
+  height: 8%;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+#destinationStation{
+  background-color: rgb(206, 206, 206);
+  width: 49.5%;
+  height: 100%;
+  z-index: -1;
+  position: absolute;
+  right:0px;
+  top:54px;
+  overflow: hidden;
+}
+
+.stationCode{
+  color: #222222;
+  text-align: center;
+  font-size: 35px;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  z-index: 10;
+  position: relative;
+  overflow: hidden;
+  left: 0px;
+
+}
+
+.stationName{
+  position: relative;
+  width: 40%;
+  left:32%;
+}
+
+.verticalCenter{
+  top: 30%;
+  position: absolute;
 }
 </style>
