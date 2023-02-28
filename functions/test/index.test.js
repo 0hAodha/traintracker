@@ -25,5 +25,25 @@ describe('Firebase cloud function tests', function() {
         const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
         .get('/postLiveTrainData')
         expect(result.statusCode).to.equal(200);
+    }),
+
+    this.timeout(100000);
+    it('test getting station data', async() => {
+        const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
+        .get('/getStationData')
+        expect(result.statusCode).to.equal(200);
+        expect(result.body.data).to.be.an('Array');
+        expect(result.body.data[0]).haveOwnProperty('StationDesc');
+        expect(result.body.data[0]).haveOwnProperty('StationLatitude');
+        expect(result.body.data[0]).haveOwnProperty('StationLongitude');
+        expect(result.body.data[0]).haveOwnProperty('StationCode');
+        expect(result.body.data[0]).haveOwnProperty('StationId');
+    })
+
+    this.timeout(100000);
+    it('Test updating the database with live station data', async() => {
+        const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
+        .get('/postStationData')
+        expect(result.statusCode).to.equal(200);
     })
 })
