@@ -18,7 +18,7 @@ exports.getLiveTrainData = functions.https.onRequest((request, response) => {
     // fetch the "liveTrainData" collection
     admin.firestore().collection('liveTrainData').get().then((snapshot) => {
       if (snapshot.empty) {
-        response.send({data: "Error fetching live train data from the database"});
+        response.status(404).send({data: "Error fetching live train data from the database"});
         return;
       }
       // iterate through each of the collection's documents
@@ -40,7 +40,7 @@ exports.getStationData = functions.https.onRequest((request, response) => {
     // fetch the "stations" collection
     admin.firestore().collection('stations').get().then((snapshot) => {
       if (snapshot.empty) {
-        response.send({data: "Error fetching station data from the database"})
+        response.status(404).send({data: "Error fetching station data from the database"})
         return;
       }
       // iterate through each of the collection's documents

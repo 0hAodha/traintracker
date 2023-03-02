@@ -4,9 +4,8 @@
   <p>Number of actively running trains: {{ this.numRunningTrains }}</p>
   <p>Percentage late: {{ this.percentageLate }}%</p>
   <p>Percentage early or ontime: {{ this.percentageEarly }}%</p>
-
-  <p>Latest train: {{ this.latestTrain["TrainCode"][0] }}, {{ this.latestTrain["Direction"][0] }}, {{ this.latestTime }} mins late</p>
-  <p>Earliest train: {{ this.earliestTrain["TrainCode"][0] }}, {{ this.earliestTrain["Direction"][0] }}, {{ this.earliestTime * -1 }} mins early</p>
+  <p v-if="this.latestTrain['TrainCode']">Latest train: {{ this.latestTrain["TrainCode"][0] }}, {{ this.latestTrain["Direction"][0] }}, {{ this.latestTime }} mins late</p>
+  <p v-if="this.earliestTrain['TrainCode']">Earliest train: {{ this.earliestTrain["TrainCode"][0] }}, {{ this.earliestTrain["Direction"][0] }}, {{ this.earliestTime * -1 }} mins early</p>
 
   <button @click="getLiveTrainData">Fetch Data</button>
   <button @click="postLiveTrainData">Populate Database</button>
@@ -32,7 +31,7 @@
       </div>
     </transition>
 
-  <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 1000px">
+    <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 100vh; width: 100vw">
     <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" />
     <ol-tile-layer>
       <ol-source-osm />
@@ -78,6 +77,7 @@ export default {
       strokeWidth,
       strokeColor,
       fillColor,
+
       coordinates: [],
       dbLiveTrainData: [],
       allDataMap: {},
@@ -97,9 +97,12 @@ export default {
   },
 
   created() {
-    // initial request of data
-    this.getLiveTrainData()
-    
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+      this.postLiveTrainData()
+    }
+    else {
+      this.getLiveTrainData()
+    }
     // request new data every 60 seconds
     // window.setInterval(this.getLiveTrainData, 60000);
   },
@@ -108,8 +111,9 @@ export default {
     // fetch live train data from the Firestore database
     getLiveTrainData() {
       const functions = getFunctions(app);
-      if (window.location.hostname === '127.0.0.1') {
-        connectFunctionsEmulator(functions, "localhost", 5001);
+      let host = window.location.hostname
+      if (host === '127.0.0.1' || host === 'localhost') {
+        connectFunctionsEmulator(functions, host, 5001);
       }
       const getData = httpsCallable(functions, 'getLiveTrainData');
       let loader = this.$loading.show({
@@ -121,10 +125,11 @@ export default {
       getData().then((response) => {
         try {
           this.dbLiveTrainData = response.data;
+          console.log(this.dbLiveTrainData)
+
           this.numRunningTrains = 0;
           this.numTrains = 0;
           this.numLateRunningTrains = 0;
-
           var latest = null
           var currLatestTime = 0
           var earliest = null
@@ -134,7 +139,7 @@ export default {
           for(var i=0; i<this.dbLiveTrainData.length; i++) {
             this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData[i]["TrainLongitude"][0], this.dbLiveTrainData[i]["TrainLatitude"][0]]))
             this.allDataMap[i] = this.dbLiveTrainData[i];
-
+            
             // check if the train is running
             if (this.dbLiveTrainData[i]["TrainStatus"][0] == "R") {
               this.numRunningTrains += 1;
@@ -178,7 +183,6 @@ export default {
           this.percentageLate = ((this.numLateRunningTrains / this.numRunningTrains) * 100).toFixed(2);
           this.percentageEarly = 100 - this.percentageLate;
           this.numTrains = Object.keys(this.allDataMap).length;
-
           this.latestTrain = latest;
           this.earliestTrain = earliest;
           this.latestTime = currLatestTime;
@@ -206,13 +210,14 @@ export default {
     // ---------------- TESTING ----------------
     postLiveTrainData() {
       const functions = getFunctions(app);
-      if (window.location.hostname === '127.0.0.1') {
-        connectFunctionsEmulator(functions, "localhost", 5001);
+      let host = window.location.hostname
+      if (host === '127.0.0.1' || host === 'localhost') {
+        connectFunctionsEmulator(functions, host, 5001);
       }
       const postData = httpsCallable(functions, 'postLiveTrainData');
 
       postData().then((response) => {
-        console.log("Test")
+        this.getLiveTrainData()
       })
     }
     // ---------------- TESTING ----------------
