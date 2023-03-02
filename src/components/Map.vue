@@ -1,4 +1,12 @@
 <template>
+  <h2>Insights:</h2>
+  <p>Total number of trains: {{ this.numTrains }}</p>
+  <p>Number of actively running trains: {{ this.numRunningTrains }}</p>
+  <p>Percentage late: {{ this.percentageLate }}%</p>
+  <p>Percentage early or ontime: {{ this.percentageEarly }}%</p>
+  <p v-if="this.latestTrain['TrainCode']">Latest train: {{ this.latestTrain["TrainCode"][0] }}, {{ this.latestTrain["Direction"][0] }}, {{ this.latestTime }} mins late</p>
+  <p v-if="this.earliestTrain['TrainCode']">Earliest train: {{ this.earliestTrain["TrainCode"][0] }}, {{ this.earliestTrain["Direction"][0] }}, {{ this.earliestTime * -1 }} mins early</p>
+
   <button @click="getLiveTrainData">Fetch Data</button>
   <button @click="postLiveTrainData">Populate Database</button>
 
@@ -69,19 +77,32 @@ export default {
       strokeWidth,
       strokeColor,
       fillColor,
+
       coordinates: [],
       dbLiveTrainData: [],
       allDataMap: {},
       selectedDataMap: {},
       display: false,
+
+      numTrains: 0,
+      numRunningTrains: 0,
+      numLateRunningTrains: 0,
+      latestTrain: {},
+      earliestTrain: {},
+      percentageEarly: 0,
+      percentageLate: 0,
+      latestTime: 0,
+      earliestTime: 0,
     }
   },
 
   created() {
-    // initial request of data
-    console.log("jere")
-    this.getLiveTrainData()
-    
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+      this.postLiveTrainData()
+    }
+    else {
+      this.getLiveTrainData()
+    }
     // request new data every 60 seconds
     // window.setInterval(this.getLiveTrainData, 60000);
   },
@@ -90,8 +111,9 @@ export default {
     // fetch live train data from the Firestore database
     getLiveTrainData() {
       const functions = getFunctions(app);
-      if (window.location.hostname === '127.0.0.1') {
-        connectFunctionsEmulator(functions, "localhost", 5001);
+      let host = window.location.hostname
+      if (host === '127.0.0.1' || host === 'localhost') {
+        connectFunctionsEmulator(functions, host, 5001);
       }
       const getData = httpsCallable(functions, 'getLiveTrainData');
       let loader = this.$loading.show({
@@ -103,11 +125,68 @@ export default {
       getData().then((response) => {
         try {
           this.dbLiveTrainData = response.data;
+          console.log(this.dbLiveTrainData)
+
+          this.numRunningTrains = 0;
+          this.numTrains = 0;
+          this.numLateRunningTrains = 0;
+          var latest = null
+          var currLatestTime = 0
+          var earliest = null
+          var currEarliestTime = 0
+
           // create an array of coordinates and hashmap with the key-values {index: JSON obj}
           for(var i=0; i<this.dbLiveTrainData.length; i++) {
             this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData[i]["TrainLongitude"][0], this.dbLiveTrainData[i]["TrainLatitude"][0]]))
             this.allDataMap[i] = this.dbLiveTrainData[i];
+            
+            // check if the train is running
+            if (this.dbLiveTrainData[i]["TrainStatus"][0] == "R") {
+              this.numRunningTrains += 1;
+              
+              let publicMessage = this.dbLiveTrainData[i]["PublicMessage"][0];
+              let startTimeStr = publicMessage.indexOf("(")
+
+              // late
+              if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
+                this.numLateRunningTrains += 1;
+                if (!latest) {
+                  latest = this.dbLiveTrainData[i];
+                }
+
+                let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
+                let num = parseInt(publicMessage.substring(startTimeStr+1, timeEnd))
+
+                // new latest train
+                if (num > currLatestTime) {
+                  latest = this.dbLiveTrainData[i]
+                  currLatestTime = num
+                }
+              }
+              // early or ontime
+              else {
+                if (!earliest) {
+                  earliest = this.dbLiveTrainData[i];
+                }
+                let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
+                let num = parseInt(publicMessage.substring(startTimeStr+1, timeEnd))
+                
+                // new earliest train, negative as early trains defined as negative x mins late
+                if (num < currEarliestTime) {
+                  earliest = this.dbLiveTrainData[i]
+                  currEarliestTime = num
+                }
+              }
+            }
           }
+
+          this.percentageLate = ((this.numLateRunningTrains / this.numRunningTrains) * 100).toFixed(2);
+          this.percentageEarly = 100 - this.percentageLate;
+          this.numTrains = Object.keys(this.allDataMap).length;
+          this.latestTrain = latest;
+          this.earliestTrain = earliest;
+          this.latestTime = currLatestTime;
+          this.earliestTime = currEarliestTime;
           loader.hide();
         }
         catch (error) {
@@ -131,13 +210,14 @@ export default {
     // ---------------- TESTING ----------------
     postLiveTrainData() {
       const functions = getFunctions(app);
-      if (window.location.hostname === '127.0.0.1') {
-        connectFunctionsEmulator(functions, "localhost", 5001);
+      let host = window.location.hostname
+      if (host === '127.0.0.1' || host === 'localhost') {
+        connectFunctionsEmulator(functions, host, 5001);
       }
       const postData = httpsCallable(functions, 'postLiveTrainData');
 
       postData().then((response) => {
-        console.log("Test")
+        this.getLiveTrainData()
       })
     }
     // ---------------- TESTING ----------------
