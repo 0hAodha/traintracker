@@ -52,47 +52,40 @@ exports.getStationData = functions.https.onRequest((request, response) => {
   });
 })
 
-// function to populate the Firestore database with station data from Irish Rail
-exports.postStationData = functions.https.onRequest((request, response) => {
-  response.set('Access-Control-Allow-Origin', '*');
-  response.set('Access-Control-Allow-Credentials', 'true');
-
+// helper function to fetch data from Irish Rail given a train type (mainland, suburban, dart)
+function callIrishRail(request, response, db, trainTypeCode) {
   cors(request, response, () => {
-    axios.get('http://api.irishrail.ie/realtime/realtime.asmx/getAllStationsXML')
+    let url = 'https://api.irishrail.ie/realtime/realtime.asmx/getCurrentTrainsXML_WithTrainType?TrainType=' + trainTypeCode
+    axios.get(url)
     .then((res) => {
+      var batchWrite = db.batch();
       // XML to JSON
       parseString(res.data, function(err, result) {
         let jsonStr = JSON.stringify(result);
         let jsonObj = JSON.parse(jsonStr);
-        let jsonData = jsonObj.ArrayOfObjStation.objStation;
+        let jsonData = jsonObj.ArrayOfObjTrainPositions.objTrainPositions;
 
-        // batch delete all of the "stations" collection's documents
-        var db = admin.firestore();
-        admin.firestore().collection('stations').get().then((snapshot) => {
-          var batchDelete = db.batch();
-          snapshot.forEach(doc => {
-            batchDelete.delete(doc.ref);
-          });
+        jsonData.forEach((doc) => {
+          // ignore trains with longitudes or latitudes equal zero
+          if (!(doc["TrainLongitude"] == 0 || doc["TrainLatitude"] == 0)) {
+            doc["TrainType"] = [trainTypeCode]
+            // set the train's code as the document ID
+            var docID = db.collection('liveTrainData').doc(doc["TrainCode"][0]);
+            batchWrite.set(docID, doc);
+          }
+        });
 
-          batchDelete.commit().then(function() {
-            // batch write all station JSON objects to the "stations" collection
-            var batchWrite = db.batch();
-
-            jsonData.forEach((doc) => {
-              // set the station's ID as the document ID
-              var docID = db.collection('stations').doc(doc["StationCode"][0]);
-              batchWrite.set(docID, doc);
-            });
-
-            batchWrite.commit().then(function () {
-              response.send({data: "Successfully fetched and uploaded station data from Irish Rail"});
-            });
-          })
+        batchWrite.commit()
+        .catch((error) => {
+          return false;
         })
       })
     })
+    .catch((error) => {
+      return false;
+    })
   })
-})
+}
 
 // function to populate the Firestore database with live train data from Irish Rail
 exports.postLiveTrainData = functions.https.onRequest((request, response) => {
@@ -100,44 +93,23 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
   response.set('Access-Control-Allow-Credentials', 'true');
 
   cors(request, response, () => {
-    axios.get('http://api.irishrail.ie/realtime/realtime.asmx/getCurrentTrainsXML')
-          .then((res) => {
-            // XML to JSON
-            parseString(res.data, function(err, result) {
-              let jsonStr = JSON.stringify(result);
-              let jsonObj = JSON.parse(jsonStr);
-              let jsonData = jsonObj.ArrayOfObjTrainPositions.objTrainPositions;
+    // batch delete all of the "liveTrainData" collections's documents
+    var db = admin.firestore();
+    admin.firestore().collection('liveTrainData').get().then((snapshot) => {
+      var batchDelete = db.batch();
+      snapshot.forEach(doc => {
+        batchDelete.delete(doc.ref);
+      });
 
-              // batch delete all of the "liveTrainData" collections's documents
-              var db = admin.firestore();
-              admin.firestore().collection('liveTrainData').get().then((snapshot) => {
-                  var batchDelete = db.batch();
-                  snapshot.forEach(doc => {
-                    batchDelete.delete(doc.ref);
-                  });
-
-                  batchDelete.commit().then(function() {
-                    // batch write all train JSON objects to the "liveTrainData" collection
-                    var batchWrite = db.batch();
-                    
-                    jsonData.forEach((doc) => {
-                      // ignore trains with longitudes or latitudes equal zero
-                      if (!(doc["TrainLongitude"] == 0 || doc["TrainLatitude"] == 0)) {
-                        // set the train's code as the document ID
-                        var docID = db.collection('liveTrainData').doc(doc["TrainCode"][0]);
-                        batchWrite.set(docID, doc);
-                      }
-                    });
-
-                    batchWrite.commit().then(function () {
-                      response.send({data: "Successfully fetched and uploaded live train data from Irish Rail"});
-                    });
-                  })
-              })
-            })
-          })
-          .catch((error) => {;
-            response.send({data: "Error fetching data from the IrishRail API"});
-          })
-  });
+      // fetch data using codes M (mainland), S (suburban), D (dart)
+      batchDelete.commit().then(function() {
+        if (callIrishRail(request, response, db, "M") == false ||
+            callIrishRail(request, response, db, "S") == false ||
+            callIrishRail(request, response, db, "D") == false) {
+              response.send({data: "Error fetching data from the IrishRail API"});
+        }
+        response.send({data: "Successfully fetched and uploaded live train data from Irish Rail"});
+      })
+    })
+  })
 })
