@@ -39,9 +39,10 @@
 
     <template v-for="coordinate, i in coordinates" :position="inline-block">
       <!-- overlay offset is the size of the image so that it is centered-->
-      <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-16,-16]">
+      <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
         <div class="overlay-content" @click="getSelectedTrain(i)">
-          <img src="../assets/train-solid.svg" class="trainMapIcon" alt="Train Icon">
+          <img v-if="isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Train Icon">
+          <img v-else src="../assets/green-train-solid.png" class="trainMapIcon" alt="Train Icon">
         </div>
 
     </ol-overlay>
@@ -207,6 +208,22 @@ export default {
       this.selectedDataMap["PublicMessage"] = this.allDataMap[i]["PublicMessage"][0];
     },
 
+    // method to determine whether or not a selected train is late 
+    isTrainLate(i) {
+        // check if the train is running
+        if (this.allDataMap[i]["TrainStatus"][0] == "R") {
+            let publicMessage = this.allDataMap[i]["PublicMessage"][0];
+            let startTimeStr = publicMessage.indexOf("(");
+
+            // checking if the train is late
+            if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
+            return true;
+            }
+        }
+
+        return false;
+    },
+
     // ---------------- TESTING ----------------
     postLiveTrainData() {
       const functions = getFunctions(app);
@@ -231,8 +248,8 @@ export default {
 }
 
 .trainMapIcon {
+  width: 28px;
   height: 32px;
-  width: 32px;
 }
 
 .slideLeft-enter-active, .slideLeft-leave-active {
