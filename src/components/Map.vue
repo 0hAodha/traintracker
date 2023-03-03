@@ -211,12 +211,14 @@ export default {
     // method to determine whether or not a selected train is late 
     isTrainLate(i) {
         // check if the train is running
-        let publicMessage = this.allDataMap[i]["PublicMessage"][0];
-        let startTimeStr = publicMessage.indexOf("(");
+        if (this.allDataMap[i]["TrainStatus"][0] == "R") {
+            let publicMessage = this.allDataMap[i]["PublicMessage"][0];
+            let startTimeStr = publicMessage.indexOf("(");
 
-        // checking if the train is late
-        if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
-        return true;
+            // checking if the train is late
+            if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
+            return true;
+            }
         }
 
         return false;
