@@ -4,6 +4,8 @@ export const store = reactive({
     insights: {},
     latestTrain: {},
     earliestTrain: {},
+    orderedTrains: [],
+    rawData: {},
 
     setInsights(insights) {
         this.insights = insights
@@ -13,5 +15,15 @@ export const store = reactive({
     },
     setEarliestTrain(earliestTrain) {
         this.earliestTrain = earliestTrain
+    },
+    setRawData(rawData) {
+        this.rawData = rawData
+    },
+    setOrderedTrains(unorderedTrains) {
+        // sort in ascending order
+        unorderedTrains.sort((a, b) => {
+            return a.time - b.time
+        })
+        this.orderedTrains = unorderedTrains
     }
 })
