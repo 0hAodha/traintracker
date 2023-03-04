@@ -3,6 +3,8 @@
 <router-link to="/insights">Insights</router-link>
 <button @click="postLiveTrainData">Populate Database</button>
 
+<div><SidebarPanel /></div>
+
 <!--Sidebar, fades out on click of X button-->
 <transition id="sidebar" name="slideLeft">
 <div v-if="this.display" id= "sidebarDiv">
@@ -47,6 +49,8 @@ import { ref } from 'vue';
 import {fromLonLat, toLonLat} from 'ol/proj.js';
 import app from '../api/firebase';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+import SidebarPanel from '../components/SidebarPanel.vue'
+import { set } from 'ol/transform';
 
 export default {
     name: "MapPage",
@@ -78,6 +82,10 @@ export default {
             display: false,
             store
         }
+    },
+
+    components: {
+      SidebarPanel
     },
 
     created() {
@@ -138,6 +146,7 @@ export default {
                                   "numMainland": 0,
                                   "numSuburban": 0,
                                   "numDart": 0}
+                    var unorderedTrains = []
                     var latest = null
                     var earliest = null
                     var currLatestTime = null
@@ -158,14 +167,15 @@ export default {
                             insights["numRunningTrains"] += 1;
                             let publicMessage = train["PublicMessage"][0];
                             let startTimeStr = publicMessage.indexOf("(");
+                            let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
+                            let num = parseInt(publicMessage.substring(startTimeStr+1, timeEnd))
+                            unorderedTrains.push({"time": num, "jsonIndex": i})
 
                             // check if the train is late
                             if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
                                 insights["numLateRunningTrains"] += 1;
 
                                 if (!latest) latest = train;
-                                let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
-                                let num = parseInt(publicMessage.substring(startTimeStr+1, timeEnd))
 
                                 // check for a new latest train
                                 if (num > currLatestTime) {
@@ -176,10 +186,8 @@ export default {
                             // train is early or ontime
                             else {
                                 if (!earliest) earliest = train;
-                                let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
-                                let num = parseInt(publicMessage.substring(startTimeStr+1, timeEnd))
                                 
-                                // check for a new earliest train (early trains a -x mins late)
+                                // check for a new earliest train (early trains are -x mins late)
                                 if (num < currEarliestTime) {
                                     earliest = train
                                     currEarliestTime = num
@@ -198,6 +206,8 @@ export default {
                     store.setInsights(insights);
                     store.setEarliestTrain(earliest);
                     store.setLatestTrain(latest);
+                    store.setRawData(this.dbLiveTrainData);
+                    store.setOrderedTrains(unorderedTrains);
                     loader.hide();
               }
               catch (error) {
