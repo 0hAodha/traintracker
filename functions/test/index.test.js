@@ -6,7 +6,7 @@ const expect = chai.expect;
 
 describe('Firebase cloud function tests', function() {
     this.timeout(100000);
-    it('Test getting live train data', async() => {
+    it('Test getting live train data from the database', async() => {
         const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
         .get('/getLiveTrainData')
         expect(result.statusCode).to.equal(200);
@@ -18,17 +18,11 @@ describe('Firebase cloud function tests', function() {
         expect(result.body.data[0]).haveOwnProperty('TrainLongitude');
         expect(result.body.data[0]).haveOwnProperty('TrainCode');
         expect(result.body.data[0]).haveOwnProperty('TrainDate');
+        expect(result.body.data[0]).haveOwnProperty('TrainType');
     }),
 
     this.timeout(100000);
-    it('Test updating the database with live train data', async() => {
-        const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
-        .get('/postLiveTrainData')
-        expect(result.statusCode).to.equal(200);
-    }),
-
-    this.timeout(100000);
-    it('test getting station data', async() => {
+    it('Test getting station data from the database', async() => {
         const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
         .get('/getStationData')
         expect(result.statusCode).to.equal(200);
@@ -38,7 +32,14 @@ describe('Firebase cloud function tests', function() {
         expect(result.body.data[0]).haveOwnProperty('StationLongitude');
         expect(result.body.data[0]).haveOwnProperty('StationCode');
         expect(result.body.data[0]).haveOwnProperty('StationId');
-    })
+    }),
+
+    this.timeout(100000);
+    it('Test updating the database with live train data', async() => {
+        const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
+        .get('/postLiveTrainData')
+        expect(result.statusCode).to.equal(200);
+    }),
 
     this.timeout(100000);
     it('Test updating the database with live station data', async() => {
