@@ -1,11 +1,14 @@
 <template>
   <h2>Insights:</h2>
-  <p>Total number of trains: {{ this.numTrains }}</p>
-  <p>Number of actively running trains: {{ this.numRunningTrains }}</p>
-  <p>Percentage late: {{ this.percentageLate }}%</p>
-  <p>Percentage early or ontime: {{ this.percentageEarly }}%</p>
-  <p v-if="this.latestTrain['TrainCode']">Latest train: {{ this.latestTrain["TrainCode"][0] }}, {{ this.latestTrain["Direction"][0] }}, {{ this.latestTime }} mins late</p>
-  <p v-if="this.earliestTrain['TrainCode']">Earliest train: {{ this.earliestTrain["TrainCode"][0] }}, {{ this.earliestTrain["Direction"][0] }}, {{ this.earliestTime * -1 }} mins early</p>
+  <p>Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
+  <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
+  <p>Percentage late: {{ this.insights["percentageLate"] }}%</p>
+  <p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p>
+  <p v-if="this.latestTrain['TrainCode']">Latest train: {{ this.latestTrain["TrainCode"][0] }}, {{ this.latestTrain["Direction"][0] }}, {{ this.insights["latestTime"] }} mins late</p>
+  <p v-if="this.earliestTrain['TrainCode']">Earliest train: {{ this.earliestTrain["TrainCode"][0] }}, {{ this.earliestTrain["Direction"][0] }}, {{ this.insights["earliestTime"] * -1 }} mins early</p>
+  <p>Mainland: {{ this.insights["numMainland"] }}</p>
+  <p>Suburban: {{ this.insights["numSuburban"] }}</p>
+  <p>Darts: {{ this.insights["numDart"] }}</p>
 
   <button @click="getLiveTrainData">Fetch Data</button>
   <button @click="postLiveTrainData">Populate Database</button>
@@ -31,16 +34,17 @@
       </div>
     </transition>
 
-  <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 100vh; width: 100vw">
-    <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" />
-    <ol-tile-layer>
-      <ol-source-osm />
-    </ol-tile-layer>
+    <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 100vh; width: 100vw">
+      <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" />
+      <ol-tile-layer>
+        <ol-source-osm />
+      </ol-tile-layer>
 
-    <template v-for="coordinate, i in coordinates" :position="inline-block">
+      <template v-for="coordinate, i in coordinates" :position="inline-block">
       <!-- overlay offset is the size of the image so that it is centered-->
       <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
         <div class="overlay-content" @click="getSelectedTrain(i)">
+          <img src="../assets/red-train-solid.png" class="trainMapIcon" alt="Train Icon">
           <img v-if="isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Train Icon">
           <img v-else src="../assets/green-train-solid.png" class="trainMapIcon" alt="Train Icon">
         </div>
@@ -85,15 +89,9 @@ export default {
       selectedDataMap: {},
       display: false,
 
-      numTrains: 0,
-      numRunningTrains: 0,
-      numLateRunningTrains: 0,
+      insights: {},
       latestTrain: {},
       earliestTrain: {},
-      percentageEarly: 0,
-      percentageLate: 0,
-      latestTime: 0,
-      earliestTime: 0,
     }
   },
 
@@ -126,33 +124,44 @@ export default {
       getData().then((response) => {
         try {
           this.dbLiveTrainData = response.data;
-          console.log(this.dbLiveTrainData)
-
-          this.numRunningTrains = 0;
-          this.numTrains = 0;
-          this.numLateRunningTrains = 0;
+          this.insights = {"numRunningTrains": 0,
+                           "numLateRunningTrains": 0,
+                           "numMainland": 0,
+                           "numSuburban": 0,
+                           "numDart": 0}
           var latest = null
-          var currLatestTime = 0
           var earliest = null
-          var currEarliestTime = 0
+          var currLatestTime = null
+          var currEarliestTime = null
 
           // create an array of coordinates and hashmap with the key-values {index: JSON obj}
           for(var i=0; i<this.dbLiveTrainData.length; i++) {
-            this.coordinates[i] = ref(fromLonLat([this.dbLiveTrainData[i]["TrainLongitude"][0], this.dbLiveTrainData[i]["TrainLatitude"][0]]))
-            this.allDataMap[i] = this.dbLiveTrainData[i];
+            let train = this.dbLiveTrainData[i];
+            this.coordinates[i] = ref(fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]]))
+            this.allDataMap[i] = train;
+
+            if (train["TrainType"][0] == "M") {
+              this.insights["numMainland"] += 1;
+            }
+            else if (train["TrainType"][0] == "S") {
+              this.insights["numSuburban"] += 1;
+            }
+            else if (train["TrainType"][0] == "D") {
+              this.insights["numDart"] += 1;
+            }
             
             // check if the train is running
             if (this.dbLiveTrainData[i]["TrainStatus"][0] == "R") {
-              this.numRunningTrains += 1;
-              
-              let publicMessage = this.dbLiveTrainData[i]["PublicMessage"][0];
-              let startTimeStr = publicMessage.indexOf("(")
+              this.insights["numRunningTrains"] += 1;
+              let publicMessage = train["PublicMessage"][0];
+              let startTimeStr = publicMessage.indexOf("(");
 
               // late
               if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
-                this.numLateRunningTrains += 1;
+                this.insights["numLateRunningTrains"] += 1;
+
                 if (!latest) {
-                  latest = this.dbLiveTrainData[i];
+                  latest = train;
                 }
 
                 let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
@@ -160,34 +169,34 @@ export default {
 
                 // new latest train
                 if (num > currLatestTime) {
-                  latest = this.dbLiveTrainData[i]
+                  latest = train
                   currLatestTime = num
                 }
               }
               // early or ontime
               else {
                 if (!earliest) {
-                  earliest = this.dbLiveTrainData[i];
+                  earliest = train;
                 }
                 let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
                 let num = parseInt(publicMessage.substring(startTimeStr+1, timeEnd))
                 
                 // new earliest train, negative as early trains defined as negative x mins late
                 if (num < currEarliestTime) {
-                  earliest = this.dbLiveTrainData[i]
+                  earliest = train
                   currEarliestTime = num
                 }
               }
             }
           }
 
-          this.percentageLate = ((this.numLateRunningTrains / this.numRunningTrains) * 100).toFixed(2);
-          this.percentageEarly = 100 - this.percentageLate;
-          this.numTrains = Object.keys(this.allDataMap).length;
+          this.insights["percentageLate"] = ((this.insights["numLateRunningTrains"] / this.insights["numRunningTrains"]) * 100).toFixed(2);
+          this.insights["percentageNotLate"] = (100 - this.insights["percentageLate"]).toFixed(2);
+          this.insights["totalNumTrains"] = Object.keys(this.allDataMap).length;
+          this.insights["latestTime"] = currLatestTime;
+          this.insights["earliestTime"] = currEarliestTime
           this.latestTrain = latest;
           this.earliestTrain = earliest;
-          this.latestTime = currLatestTime;
-          this.earliestTime = currEarliestTime;
           loader.hide();
         }
         catch (error) {
@@ -223,8 +232,8 @@ export default {
 
         return false;
     },
-
-    // ---------------- TESTING ----------------
+    
+    // used for mobile
     postLiveTrainData() {
       const functions = getFunctions(app);
       let host = window.location.hostname
@@ -232,12 +241,10 @@ export default {
         connectFunctionsEmulator(functions, host, 5001);
       }
       const postData = httpsCallable(functions, 'postLiveTrainData');
-
       postData().then((response) => {
         this.getLiveTrainData()
       })
     }
-    // ---------------- TESTING ----------------
   }
 }
 </script>
@@ -351,6 +358,7 @@ export default {
   float: right;
   right: 0%;
   top: 0%;
+  
   width:100%;
   overflow: hidden;
   height: 100%;
