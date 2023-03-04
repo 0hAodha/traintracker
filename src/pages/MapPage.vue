@@ -49,7 +49,7 @@ import { ref } from 'vue';
 import {fromLonLat, toLonLat} from 'ol/proj.js';
 import app from '../api/firebase';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
-import SidebarPanel from '../components/SidebarPanel.vue'
+// import SidebarPanel from '../components/SidebarPanel.vue'
 import { set } from 'ol/transform';
 
 export default {
@@ -85,7 +85,7 @@ export default {
     },
 
     components: {
-      SidebarPanel
+      // SidebarPanel
     },
 
     created() {
