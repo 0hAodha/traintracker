@@ -16,6 +16,13 @@
     <p>Suburban: {{ this.insights["numSuburban"] }}</p>
     <p>Darts: {{ this.insights["numDart"] }}</p>
 </div>
+
+<h1>Leaderboard</h1>
+<div v-for="item in orderedTrains">
+    <h2>{{ this.rawData[item.jsonIndex]["TrainCode"][0] }}</h2>
+    <p v-if="item.time > 0">{{ item.time }} mins late</p>
+    <p v-else>{{ item.time * -1}} mins early</p>
+</div>
 </template>
     
 <script>
@@ -28,6 +35,8 @@ export default {
             insights: {},
             latestTrain: {},
             earliestTrain: {},
+            rawData: {},
+            orderedTrains: [],
             store
         }
     },
@@ -36,6 +45,8 @@ export default {
         this.insights = store.insights
         this.latestTrain = store.latestTrain
         this.earliestTrain = store.earliestTrain
+        this.rawData = store.rawData
+        this.orderedTrains = store.orderedTrains
     }
 }
 </script>
