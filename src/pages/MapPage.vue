@@ -1,6 +1,6 @@
 <template>
 <Navbar />
-<button id="hoverButton" @click="postLiveTrainData">Populate Database</button>
+<!-- <button id="hoverButton" @click="postLiveTrainData">Populate Database</button> -->
 
 <!--Sidebar, fades out on click of X button-->
 <transition id="sidebar" name="slideLeft">
@@ -37,6 +37,11 @@
     </ol-overlay>
     </template>
 </ol-map>
+
+<MarqueeText v-if="publicMessages.length > 0" id="publicMessageTicker" :paused="isPaused" :duration="500"
+@mouseenter="isPaused = !isPaused" @mouseleave="isPaused = false">
+  <span v-for="message in publicMessages"> {{ "---" + message + "---" }} </span> 
+</MarqueeText>
 </template>
 
 <script>
@@ -46,6 +51,7 @@ import {fromLonLat, toLonLat} from 'ol/proj.js';
 import app from '../api/firebase';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
 import Navbar from '../components/Navbar.vue'
+import MarqueeText from 'vue-marquee-text-component'
 
 export default {
     name: "MapPage",
@@ -75,12 +81,16 @@ export default {
             allDataMap: {},
             selectedDataMap: {},
             display: false,
-            store
-        }
+            store,
+
+            publicMessages: [],
+            isPaused: false,
+       }
     },
 
     components: {
-      Navbar
+      Navbar,
+      MarqueeText
     },
 
     created() {
@@ -147,6 +157,8 @@ export default {
                     var currLatestTime = null
                     var currEarliestTime = null
 
+                    var currentMessages = []
+
                     // create an array of coordinates and hashmap with the key-values {index: JSON obj}
                     for (var i=0; i<this.dbLiveTrainData.length; i++) {
                         let train = this.dbLiveTrainData[i];
@@ -157,10 +169,12 @@ export default {
                         else if (train["TrainType"][0] == "S") insights["numSuburban"] += 1;
                         else if (train["TrainType"][0] == "D") insights["numDart"] += 1;
                         
+                        let publicMessage = train["PublicMessage"][0];
+                        currentMessages.push(publicMessage)
+
                         // check if the train is running
                         if (this.dbLiveTrainData[i]["TrainStatus"][0] == "R") {
                             insights["numRunningTrains"] += 1;
-                            let publicMessage = train["PublicMessage"][0];
                             let startTimeStr = publicMessage.indexOf("(");
                             let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
                             let num = parseInt(publicMessage.substring(startTimeStr+1, timeEnd))
@@ -196,6 +210,7 @@ export default {
                     insights["totalNumTrains"] = Object.keys(this.allDataMap).length;
                     insights["latestTime"] = currLatestTime;
                     insights["earliestTime"] = currEarliestTime
+                    this.publicMessages = currentMessages
 
                     // assign the results to the Vue Store
                     store.setInsights(insights);
@@ -312,10 +327,18 @@ export default {
   color:red;
 }
 
-#hoverButton{
+/* #hoverButton{
   z-index: 3;
   position: absolute;
   bottom:0px;
   width:100%;
+} */
+
+#publicMessageTicker {
+  z-index: 3;
+  position: absolute;
+  bottom:0px;
+  width:100%;
+  background-color: aliceblue;
 }
 </style>
