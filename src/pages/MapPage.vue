@@ -1,7 +1,8 @@
 <template>
-<router-link to="/">Home</router-link>
-<router-link to="/insights">Insights</router-link>
-<button @click="postLiveTrainData">Populate Database</button>
+  <navbar></navbar>
+
+  <button id="hoverButton" @click="postLiveTrainData">Populate Database</button>
+
 
 <div><SidebarPanel /></div>
 
@@ -15,17 +16,16 @@
 
     <div id= "sidebarDiv">
         <h2>Train Code: {{ selectedDataMap["TrainCode"] }}</h2>
-        <p>Date: {{ selectedDataMap["TrainDate"] }}</p>
-        <p>Status: {{ selectedDataMap["TrainStatus"] }}</p>
-        <p>Longitude: {{ selectedDataMap["TrainLongitude"] }}</p>
-        <p>Latitude: {{ selectedDataMap["TrainLatitude"] }}</p>
-        <p>Direction: {{ selectedDataMap["Direction"] }}</p>
-        <p>Public Message: {{ selectedDataMap["PublicMessage"] }}</p>
+        <p id = "dateP">Date: {{ selectedDataMap["TrainDate"] }}</p>
+        <p id = "dateP">Status: {{ selectedDataMap["TrainStatus"] }}</p>
+        <p id = "dateP">Train Position - Long: {{ selectedDataMap["TrainLongitude"] }} Lat: {{ selectedDataMap["TrainLatitude"] }}</p>
+        <p id = "directionP">Direction: {{ selectedDataMap["Direction"] }}</p>
+        <p id = "messageP">Public Message: {{ selectedDataMap["PublicMessage"] }}</p>
     </div>
 </div>
 </transition>
 
-<ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 100vh; width: 100vw">
+<ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="position:absolute; height:90.7vh; width:100%;">
     <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" />
     <ol-tile-layer>
     <ol-source-osm />
@@ -50,6 +50,7 @@ import {fromLonLat, toLonLat} from 'ol/proj.js';
 import app from '../api/firebase';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
 // import SidebarPanel from '../components/SidebarPanel.vue'
+import navbar from '../components/navbar.vue'
 import { set } from 'ol/transform';
 
 export default {
@@ -86,6 +87,7 @@ export default {
 
     components: {
       // SidebarPanel
+      navbar
     },
 
     created() {
@@ -277,27 +279,31 @@ export default {
   background: linear-gradient(45deg, #000000, #111111, #222222, #333333, #444444, #555555);
   background-size: 400%, 400%;
   box-shadow: 0 0 4px 2px #333333;
-}
-
-#sidebarDiv{
-  position: relative;
-  height: 100%;
-  width: 100%;
-  color: white;
+  overflow: hidden;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 
 #sidebarHeader{
   position: relative;
   top:0%;
-  height: 10%;
+  height: 15%;
   width: 100%;
   overflow: hidden;
 }
 
+#sidebarDiv{
+  position: absolute;
+  height: 80%;
+  width: 100%;
+  color: white;
+}
+
 #headerImage{
-  height: 100%;
+  height: 80%;
   width: auto;
   overflow: hidden;
+  position: relative;
+  top: 10px;
 }
 
 #xButton{
@@ -313,62 +319,10 @@ export default {
   color:red;
 }
 
-#sidebarFooter{
-  position: relative;
-  bottom:0%;
-  height:10%;
-  text-align: center;
-  color: azure;
-}
-
-#sidebarMain{
-  position: relative;
-  height:80%;
-  width:100%;
-  overflow: hidden;
-}
-
-#sidebarContent{
-  position: relative;
-  size: 6px;
-  color: white;
-  overflow-wrap: break-word;
-  font-family: Georgia, 'Times New Roman', Times, serif ;
-}
-
-#mapDiv{
-  background-color: black;
+#hoverButton{
+  z-index: 3;
   position: absolute;
-  float: right;
-  right: 0%;
-  top: 0%;
-  
-  width:100%;
-  overflow: hidden;
-  height: 100%;
 }
 
-#mapIFrame{
-  position: relative;
-  height: 100%;
-  width: 100%;
-  top: 0%;
-  z-index: 0;
-}
 
-#buttonDiv{
-  position: absolute;
-  float: right;
-  right: 10%;
-  top: 0%;
-  width:10%;
-  height:10px;
-}
-
-#buttonElement{
-  position: relative;
-  top: 50%;
-  left: 50%;
-  z-index: 0;
-}
 </style>
