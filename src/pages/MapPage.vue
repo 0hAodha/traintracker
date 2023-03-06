@@ -322,6 +322,8 @@ export default {
 #hoverButton{
   z-index: 3;
   position: absolute;
+  bottom:0px;
+  width:100%;
 }
 
 
