@@ -3,24 +3,24 @@
 <div id="background">
   <div class="loginbox">
     <img src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png" class="avatar">
-    <h1>Login</h1>
+    <h1>Sign Up</h1>
     <p>Email Address</p>
     <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
     <p>Password</p>
     <input type="password" v-model="password" placeholder="Enter password">
-    <input @click="login" type="submit" name="" value="Login">
-    <a><router-link to="/signup">Don't have an account?</router-link></a>
+    <input @click="signup" type="submit" name="" value="Sign Up">
+    <a><router-link to="/login">Already have an account?</router-link></a>
   </div>
 </div>
 </template>
 
 <script>
 import app from '../api/firebase';
-import {getAuth, signInWithEmailAndPassword} from "firebase/auth"
+import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
 import Navbar from '../components/Navbar.vue'
 
 export default {
-  name: "LoginPage",
+  name: "SignupPage",
 
   data() {
     return {
@@ -34,9 +34,9 @@ export default {
   },
 
   methods: {
-    login() {
+    signup() {
       const auth = getAuth(app)
-      signInWithEmailAndPassword(auth, this.email, this.password)
+      createUserWithEmailAndPassword(auth, this.email, this.password)
       .then((userCredential) => {
           const user = userCredential.user
           this.$router.push({path:'/secure'})
@@ -54,13 +54,13 @@ export default {
 
 <style scoped>
 #background {
-  margin: 0;
-  padding: 0;
-  width:100%;
-  height: 100%;
-  position: absolute;
-  background-color: #e0e0e0;
-  font-family: sans-serif;
+margin: 0;
+padding: 0;
+width:100%;
+height: 100%;
+position: absolute;
+background-color: #e0e0e0;
+font-family: sans-serif;
 }
 
 .loginbox {

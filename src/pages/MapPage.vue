@@ -1,10 +1,6 @@
 <template>
-  <navbar></navbar>
-
-  <button id="hoverButton" @click="postLiveTrainData">Populate Database</button>
-
-
-<div><SidebarPanel /></div>
+<Navbar />
+<button id="hoverButton" @click="postLiveTrainData">Populate Database</button>
 
 <!--Sidebar, fades out on click of X button-->
 <transition id="sidebar" name="slideLeft">
@@ -49,9 +45,7 @@ import { ref } from 'vue';
 import {fromLonLat, toLonLat} from 'ol/proj.js';
 import app from '../api/firebase';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
-// import SidebarPanel from '../components/SidebarPanel.vue'
-import navbar from '../components/navbar.vue'
-import { set } from 'ol/transform';
+import Navbar from '../components/Navbar.vue'
 
 export default {
     name: "MapPage",
@@ -86,8 +80,7 @@ export default {
     },
 
     components: {
-      // SidebarPanel
-      navbar
+      Navbar
     },
 
     created() {
@@ -325,6 +318,4 @@ export default {
   bottom:0px;
   width:100%;
 }
-
-
 </style>
