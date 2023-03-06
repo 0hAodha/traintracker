@@ -166,3 +166,14 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
     })
   })
 })
+
+exports.securefunction = functions.https.onCall((data, context) => {
+  if (typeof context.auth === undefined) {
+    // user not logged in
+    return "User is not logged in"
+  }
+  else {
+    // user logged in
+    return "User is logged in"
+  }
+})
