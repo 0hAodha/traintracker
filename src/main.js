@@ -20,3 +20,6 @@ app.use(router);
 app.use(OpenLayersMap)
 app.use(LoadingPlugin)
 app.mount('#app')
+
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/js/bootstrap.js";
