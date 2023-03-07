@@ -15,9 +15,6 @@ You will need to click the "Populate Database" and "Fetch Data" buttons to get d
 To kill the npm process do `CTRL + C` in your terminal. 
 To kill the firebase emulators run `fg` to bring the process to the foreground, then do `CTRL + C`
 
-# Committing 
-Make sure that you exclude the Firebase API key from any commits!
-
 # Links 
 Main site: [irishrailtracker.web.app](https://irishrailtracker.web.app/) 
 
