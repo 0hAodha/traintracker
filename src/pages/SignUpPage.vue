@@ -1,0 +1,144 @@
+<template>
+<Navbar />
+<div id="background">
+  <div class="loginbox">
+    <img src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png" class="avatar">
+    <h1>Sign Up</h1>
+    <p>Email Address</p>
+    <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
+    <p>Password</p>
+    <input type="password" v-model="password" placeholder="Enter password">
+    <input @click="signup" type="submit" name="" value="Sign Up">
+    <a><router-link to="/login">Already have an account?</router-link></a>
+  </div>
+</div>
+</template>
+
+<script>
+import app from '../api/firebase';
+import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
+import Navbar from '../components/Navbar.vue'
+
+export default {
+  name: "SignupPage",
+
+  data() {
+    return {
+      email: "",
+      password: ""
+    }
+  },
+
+  components: {
+    Navbar
+  },
+
+  methods: {
+    signup() {
+      const auth = getAuth(app)
+      createUserWithEmailAndPassword(auth, this.email, this.password)
+      .then((userCredential) => {
+          const user = userCredential.user
+          this.$router.push({path:'/secure'})
+      })
+      .catch((error) => {
+        const errorCode = error.code
+        const errorMessage = error.message
+        console.log(errorCode)
+        console.log(errorMessage)
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+#background {
+margin: 0;
+padding: 0;
+width:100%;
+height: 100%;
+position: absolute;
+background-color: #e0e0e0;
+font-family: sans-serif;
+}
+
+.loginbox {
+  height: 420px;
+  width: 320px;
+  background: #000;
+  color: #fff;
+  top: 50%;
+  left:50%;
+  position: absolute;
+  transform: translate(-50%,-50%);
+  box-sizing: border-box;
+  padding: 70px 30px;
+}
+
+h1 {
+  margin: 0;
+  padding: 0 0 20px;
+  font-size: 22px;
+  text-align:center;
+}
+
+.loginbox p {
+  margin: 0;
+  padding:0;
+  font-weight: bold;
+
+}
+
+.loginbox input {
+  width:100%;
+  margin-bottom: 20px;
+}
+
+.loginbox input[type="email"], input[type="password"] {
+  border: none;
+  border-bottom: 1px solid #fff;
+  background: transparent;
+  outline: none;
+  height: 40px;
+  color: #fff;
+  font-size: 16px;
+
+}
+
+.loginbox input[type="submit"]:hover {
+  cursor: pointer;
+  background: #66a3ff;
+  color: #000;
+
+}
+
+.loginbox a {
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 20px;
+  color: darkgray;
+}
+
+.loginbox a:hover {
+  color: #ffc107;
+}
+
+.loginbox input[type="submit"] {
+  border: none;
+  outline: none;
+  height:40px;
+  background: #0052cc;
+  font-size: 18px;
+  border-radius:20px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  position: absolute;
+  top:-50px;
+  left: calc(50% - 50px);
+}
+</style>

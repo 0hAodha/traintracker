@@ -1,6 +1,5 @@
 <template>
-    <navbar></navbar>
-
+<Navbar />
 
 <h1>Insights</h1>
 <div v-if="this.insights">
@@ -27,7 +26,7 @@
     
 <script>
 import {store} from '../store/store'
-import navbar from '../components/navbar.vue'
+import Navbar from '../components/Navbar.vue'
 export default {
     name: "InsightsPage",
 
@@ -43,8 +42,7 @@ export default {
     },
 
     components: {
-      // SidebarPanel
-      navbar
+      Navbar
     },
 
     created() {
@@ -58,14 +56,7 @@ export default {
 </script>
     
 <style scoped>
-.navbarLink{
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-  font-size: 24px;
-  
-}
-
 body{
     background-color: rgb(44, 102, 102);
 }
-
 </style>
