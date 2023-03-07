@@ -38,10 +38,12 @@
     </template>
 </ol-map>
 
-<MarqueeText v-if="publicMessages.length > 0" id="publicMessageTicker" :paused="isPaused" :duration="500"
-@mouseenter="isPaused = !isPaused" @mouseleave="isPaused = false">
-  <span v-for="message in publicMessages"> {{ "---" + message + "---" }} </span> 
-</MarqueeText>
+<div>
+  <MarqueeText v-if="publicMessages.length > 0" id="publicMessageTicker" :paused="isPaused" :duration="800" :repeat="1"
+    @mouseenter="isPaused = !isPaused" @mouseleave="isPaused = false">
+    <span v-for="message in publicMessages"> {{ "---" + message + "---" }} </span> 
+  </MarqueeText>
+</div>
 </template>
 
 <script>
@@ -327,18 +329,15 @@ export default {
   color:red;
 }
 
-/* #hoverButton{
-  z-index: 3;
-  position: absolute;
-  bottom:0px;
-  width:100%;
-} */
-
 #publicMessageTicker {
   z-index: 3;
   position: absolute;
   bottom:0px;
   width:100%;
-  background-color: aliceblue;
+  background-color: rgb(255, 255, 125);
+  color: black;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  text-align: bottom;
+  font-size: 17px;
 }
 </style>
