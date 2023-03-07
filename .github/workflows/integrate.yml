@@ -8,12 +8,20 @@ jobs:
   test_pull_request:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: 16
-      - run: npm ci
-      - run: cd functions && npm ci
-      - run: npm run test
-      - run: cd ..
-      - run: npm run build
+      
+      - name: Install dependencies
+      - run: |
+          npm ci
+          cd functions && npm ci
+
+      - name: Run tests
+        run: npm run test
+        working-directory: ./functions
+
+      - name: Build environment
+        run: npm run build
