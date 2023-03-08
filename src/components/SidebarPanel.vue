@@ -7,6 +7,7 @@
 
     <div id= "sidebarDiv">
         <h2>Train Code: {{ store.selectedDataMap["TrainCode"] }}</h2>
+        <p id = "typeP">Type: {{ store.selectedDataMap["TrainType"] }}</p>
         <p id = "dateP">Date: {{ store.selectedDataMap["TrainDate"] }}</p>
         <p id = "dateP">Status: {{ store.selectedDataMap["TrainStatus"] }}</p>
         <p id = "dateP">Train Position - Long: {{ store.selectedDataMap["TrainLongitude"] }} Lat: {{ store.selectedDataMap["TrainLatitude"] }}</p>
