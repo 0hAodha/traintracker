@@ -19,9 +19,17 @@
     <!-- overlay offset is the size of the image so that it is centered-->
     <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
         <div class="overlay-content" @click="getSelectedTrain(i)">
-            <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
-            <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
-            <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
+            <div v-if="getTrainType(i) === 'D'">
+                <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
+                <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-tram-solid.png" class="trainMapIcon" alt="On-Time DART Icon">
+                <img v-else src="../assets/train-tram-solid.svg" class="trainMapIcon" alt="Not Running DART Icon">
+            </div>
+            <div v-else>
+                <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
+                <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
+                <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
+            </div>
+
         </div>
     </ol-overlay>
     </template>
@@ -127,6 +135,11 @@ export default {
             else {
                 return false;
             }
+        },
+
+        // method that returns the type of train in string form "D" for dart, "S" for suburban, "M" for mainland
+        getTrainType(i) {
+            return this.allDataMap[i]["TrainType"][0];
         },
 
         // method to fetch live train data from the database
