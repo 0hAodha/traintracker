@@ -31,8 +31,9 @@
     <!-- overlay offset is the size of the image so that it is centered-->
     <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
         <div class="overlay-content" @click="getSelectedTrain(i)">
-            <img v-if="isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Train Icon">
-            <img v-else src="../assets/green-train-solid.png" class="trainMapIcon" alt="Train Icon">
+            <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
+            <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
+            <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
         </div>
     </ol-overlay>
     </template>
@@ -127,6 +128,16 @@ export default {
                 }
             }
             return false;
+        },
+
+        // method to determine whether or not a selected train is running
+        isTrainRunning(i) {
+            if (this.allDataMap[i]["TrainStatus"][0] == "R") {
+                return true; 
+            } 
+            else {
+                return false;
+            }
         },
 
         // method to fetch live train data from the database
