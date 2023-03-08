@@ -4,21 +4,9 @@
 
 <!--Sidebar, fades out on click of X button-->
 <transition id="sidebar" name="slideLeft">
-<div v-if="this.display" id= "sidebarDiv">
-    <div id = "sidebarHeader">
-        <img id = "headerImage" src="../assets/train-solid.svg" alt="Train Icon">
-        <div v-on:click="this.display = false" id="xButton">X</div>
-    </div>
-
-    <div id= "sidebarDiv">
-        <h2>Train Code: {{ selectedDataMap["TrainCode"] }}</h2>
-        <p id = "dateP">Date: {{ selectedDataMap["TrainDate"] }}</p>
-        <p id = "dateP">Status: {{ selectedDataMap["TrainStatus"] }}</p>
-        <p id = "dateP">Train Position - Long: {{ selectedDataMap["TrainLongitude"] }} Lat: {{ selectedDataMap["TrainLatitude"] }}</p>
-        <p id = "directionP">Direction: {{ selectedDataMap["Direction"] }}</p>
-        <p id = "messageP">Public Message: {{ selectedDataMap["PublicMessage"] }}</p>
-    </div>
-</div>
+  <div v-if="store.display && store.selectedDataMap">
+    <SidebarPanel />
+  </div>
 </transition>
 
 <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="position:absolute; height:90.7vh; width:100%;">
@@ -54,6 +42,7 @@ import app from '../api/firebase';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
 import Navbar from '../components/Navbar.vue'
 import MarqueeText from 'vue-marquee-text-component'
+import SidebarPanel from '../components/SidebarPanel.vue';
 
 export default {
     name: "MapPage",
@@ -81,8 +70,6 @@ export default {
             coordinates: [],
             dbLiveTrainData: [],
             allDataMap: {},
-            selectedDataMap: {},
-            display: false,
             store,
 
             publicMessages: [],
@@ -92,7 +79,8 @@ export default {
 
     components: {
       Navbar,
-      MarqueeText
+      MarqueeText,
+      SidebarPanel
     },
 
     created() {
@@ -110,8 +98,8 @@ export default {
     methods: {
         // method to assign a single train's data to the selected hashmap
         getSelectedTrain(i) {
-            this.display = true;
-            this.selectedDataMap = this.allDataMap[i];
+          store.setSelectedDataMap(this.allDataMap[i]);
+          store.setDisplay(true)
         },
 
         // method to determine whether or not a selected train is late 
@@ -255,6 +243,22 @@ export default {
   height: 32px;
 }
 
+#sidebar{
+  position: absolute;
+  height: 85%;
+  width: 20%;
+  left: 2%;
+  top: 12%;
+  z-index: 2;
+  text-align: center;
+  animation: gradient 15s ease infinite;
+  background: linear-gradient(45deg, #000000, #111111, #222222, #333333, #444444, #555555);
+  background-size: 400%, 400%;
+  box-shadow: 0 0 4px 2px #333333;
+  overflow: hidden;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+}
+
 .slideLeft-enter-active, .slideLeft-leave-active {
   transition: opacity .5s;
   transition: all 0.8s;
@@ -275,58 +279,6 @@ export default {
     100% {
   background-position: 0% 50%;
   }
-}
-
-#sidebar{
-  position: absolute;
-  height: 85%;
-  width: 20%;
-  left: 2%;
-  top: 12%;
-  z-index: 2;
-  text-align: center;
-  animation: gradient 15s ease infinite;
-  background: linear-gradient(45deg, #000000, #111111, #222222, #333333, #444444, #555555);
-  background-size: 400%, 400%;
-  box-shadow: 0 0 4px 2px #333333;
-  overflow: hidden;
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
-}
-
-#sidebarHeader{
-  position: relative;
-  top:0%;
-  height: 15%;
-  width: 100%;
-  overflow: hidden;
-}
-
-#sidebarDiv{
-  position: absolute;
-  height: 80%;
-  width: 100%;
-  color: white;
-}
-
-#headerImage{
-  height: 80%;
-  width: auto;
-  overflow: hidden;
-  position: relative;
-  top: 10px;
-}
-
-#xButton{
-  font-size: 80%;
-  font-family: Georgia;
-  color: white;
-  position: absolute;
-  top:10px;
-  right:10px;
-}
-
-#xButton:hover{
-  color:red;
 }
 
 #publicMessageTicker {
