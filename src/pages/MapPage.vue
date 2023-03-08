@@ -41,7 +41,8 @@
 <div>
   <MarqueeText v-if="publicMessages.length > 0" id="publicMessageTicker" :paused="isPaused" :duration="800" :repeat="1"
     @mouseenter="isPaused = !isPaused" @mouseleave="isPaused = false">
-    <span v-for="message in publicMessages"> {{ "---" + message + "---" }} </span> 
+    <!-- <span v-for="message in publicMessages"> {{ "---" + message + "---" }} </span>  -->
+    <span v-for="message in publicMessages"> {{ message + " • " }} </span> 
   </MarqueeText>
 </div>
 </template>
@@ -148,22 +149,28 @@ export default {
                     this.dbLiveTrainData = response.data;
                     if (!this.dbLiveTrainData) throw new Error("Error fetching live train data from the database");
 
-                    var insights = {"numRunningTrains": 0,
-                                  "numLateRunningTrains": 0,
-                                  "numMainland": 0,
-                                  "numSuburban": 0,
-                                  "numDart": 0}
-                    var unorderedTrains = []
-                    var latest = null
-                    var earliest = null
-                    var currLatestTime = null
-                    var currEarliestTime = null
+                    var insights =  {
+                                        "numRunningTrains": 0,
+                                        "numLateRunningTrains": 0,
+                                        "numMainland": 0,
+                                        "numSuburban": 0,
+                                        "numDart": 0
+                                    };
+                    var unorderedTrains = [];
+                    var latest = null;
+                    var earliest = null;
+                    var currLatestTime = null;
+                    var currEarliestTime = null;
 
-                    var currentMessages = []
+                    var currentMessages = [];
 
                     // create an array of coordinates and hashmap with the key-values {index: JSON obj}
                     for (var i=0; i<this.dbLiveTrainData.length; i++) {
                         let train = this.dbLiveTrainData[i];
+
+                        // filtering out \n in public message 
+                        train["PublicMessage"][0] = train["PublicMessage"][0].replace(/\\n/g, ". ");
+
                         this.coordinates[i] = ref(fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]]))
                         this.allDataMap[i] = train;
 
@@ -172,7 +179,7 @@ export default {
                         else if (train["TrainType"][0] == "D") insights["numDart"] += 1;
                         
                         let publicMessage = train["PublicMessage"][0];
-                        currentMessages.push(publicMessage)
+                        currentMessages.push(publicMessage);
 
                         // check if the train is running
                         if (this.dbLiveTrainData[i]["TrainStatus"][0] == "R") {
@@ -190,8 +197,8 @@ export default {
 
                                 // check for a new latest train
                                 if (num > currLatestTime) {
-                                    latest = train
-                                    currLatestTime = num
+                                    latest = train;
+                                    currLatestTime = num;
                                 }
                             }
                             // train is early or ontime
@@ -200,8 +207,8 @@ export default {
                                 
                                 // check for a new earliest train (early trains are -x mins late)
                                 if (num < currEarliestTime) {
-                                    earliest = train
-                                    currEarliestTime = num
+                                    earliest = train;
+                                    currEarliestTime = num;
                                 }
                             }
                         }
@@ -211,8 +218,8 @@ export default {
                     insights["percentageNotLate"] = (100 - insights["percentageLate"]).toFixed(2);
                     insights["totalNumTrains"] = Object.keys(this.allDataMap).length;
                     insights["latestTime"] = currLatestTime;
-                    insights["earliestTime"] = currEarliestTime
-                    this.publicMessages = currentMessages
+                    insights["earliestTime"] = currEarliestTime;
+                    this.publicMessages = currentMessages;
 
                     // assign the results to the Vue Store
                     store.setInsights(insights);
