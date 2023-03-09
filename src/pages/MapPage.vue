@@ -269,9 +269,17 @@ export default {
   width: 1%;
 }
 
+
+
 .trainMapIcon {
   width: 28px;
   height: 32px;
+}
+
+.trainMapIcon:hover{
+  width:30px;
+  height:34px;
+  cursor: pointer;
 }
 
 #sidebar{
