@@ -19,4 +19,9 @@ jobs:
           cd functions && npm ci
       
       - name: Firebase deploy
-        run: npm run build && firebase deploy
+        run: npm run build
+        uses: w9jds/firebase-action@main
+        with:
+          args: deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
