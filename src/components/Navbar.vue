@@ -1,24 +1,41 @@
 <template>
-<nav class="navbar navbar-light bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-    <router-link to="/" class="navbar-brand">
+    <router-link tag="a" style="text-decoration: none; color: black; font-weight: 100;" to="/" class="navbar-brand">
       <img src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png" alt="mascot" width="55" height="40" class="d-inline-block align-text-middle">
       <b>Irish Rail Tracker</b>
     </router-link>
-    
-    <a class="navbarLink"><router-link to="/">Home</router-link></a>
-    <a class="navbarLink"><router-link to="/insights">Insights</router-link></a>
-    <a v-if="isLoggedIn" class="navbarLink"><router-link to="/secure">Secure</router-link></a>
-    <a v-if="isLoggedIn" class="navbarLink"><router-link @click="logout" to="/">Logout</router-link></a>
-    <a v-if="!isLoggedIn" class="navbarLink"><router-link to="/login">Login</router-link></a>
-    <a v-if="!isLoggedIn" class="navbarLink"><router-link to="/signup">Sign Up</router-link></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link"><router-link to="/">Home</router-link></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link"><router-link to="/insights">Insights</router-link></a>
+        </li>
+        <li class="nav-item">
+          <a v-if="!isLoggedIn" class="nav-link"><router-link to="/signup">Sign Up</router-link></a>
+          <a v-if="isLoggedIn" class="nav-link"><router-link to="/secure">Secure</router-link></a>
+        </li>
+        <li class="nav-item">
+          <a v-if="isLoggedIn" class="nav-link"><router-link style="text-decoration: none; color: black; font-weight: 100;"  @click="logout" to="/" class="navlink">Logout</router-link></a>
+          <a v-if="!isLoggedIn" class="nav-link"><router-link to="/login">Login</router-link></a>
+        </li>
+        
+      </ul>
+    </div>
   </div>
-</nav>
+  </nav>
 </template>
 
 <script>
 import app from "../api/firebase"
 import {getAuth, onAuthStateChanged, signOut} from "firebase/auth"
+
+
 
 export default {
   name: "Navbar",
@@ -49,8 +66,17 @@ export default {
 </script>
 
 <style scoped>
-.navbarLink{
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-  font-size: 150%;
+
+.router-link-active{
+  color: rgb(0, 0, 0);
+  font-weight: 600;
+  cursor: pointer;
 }
+
+a{
+  text-decoration: none;
+  color: black;
+  font-weight: 100;
+}
+
 </style>
