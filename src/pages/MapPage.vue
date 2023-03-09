@@ -284,10 +284,10 @@ export default {
 
 #sidebar{
   position: absolute;
-  height: 85%;
+  height: 80%;
   width: 20%;
   left: 2%;
-  top: 12%;
+  top: 14%;
   z-index: 2;
   text-align: center;
   animation: gradient 15s ease infinite;
