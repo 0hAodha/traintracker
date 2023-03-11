@@ -21,6 +21,18 @@ jobs:
       - run: npm run build
       - uses: w9jds/firebase-action@master
         with:
-          args: deploy --only hosting
+          args: deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Update Firestore database with train data
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://us-central1-irishrailtracker.cloudfunctions.net/postLiveTrainData'
+          method: 'GET'
+      
+      - name: Update Firestore database with station data
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://us-central1-irishrailtracker.cloudfunctions.net/postStationData'
+          method: 'GET'
