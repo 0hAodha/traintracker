@@ -5,9 +5,11 @@ export const store = reactive({
     latestTrain: {},
     earliestTrain: {},
     orderedTrains: [],
-    selectedDataMap: {},
+    selectedTrain: {},
+    selectedStation: {},
     rawData: {},
-    display: false,
+    displaySelectedTrain: false,
+    displayedSelectedStation: false,
 
     setInsights(insights) {
         this.insights = insights
@@ -33,11 +35,19 @@ export const store = reactive({
         this.orderedTrains = unorderedTrains
     },
 
-    setSelectedDataMap(selectedDataMap) {
-        this.selectedDataMap = selectedDataMap
+    setSelectedTrain(selectedTrain) {
+        this.selectedTrain = selectedTrain
+    },
+
+    setSelectedStation(selectedStation) {
+        this.selectedStation = selectedStation
     },
     
-    setDisplay(bool) {
-        this.display = bool
+    setDisplaySelectedTrain(bool) {
+        this.displaySelectedTrain = bool
+    },
+
+    setDisplaySelectedStation(bool) {
+        this.displaySelectedStation = bool
     }
 })

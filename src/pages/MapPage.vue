@@ -1,11 +1,11 @@
 <template>
 <Navbar />
-<!-- <button id="hoverButton" @click="postLiveTrainData">Populate Database</button> -->
-
-<!--Sidebar, fades out on click of X button-->
 <transition id="sidebar" name="slideLeft">
-  <div v-if="store.display && store.selectedDataMap">
-    <SidebarPanel />
+  <div v-if="store.displaySelectedTrain && store.selectedTrain">
+    <TrainSidebar />
+  </div>
+  <div v-else-if="store.displaySelectedStation && store.selectedStation">
+    <StationSidebar />
   </div>
 </transition>
 
@@ -15,44 +15,52 @@
     <ol-source-osm />
     </ol-tile-layer>
 
-    <template v-for="coordinate, i in coordinates" :position="inline-block">
-    <!-- overlay offset is the size of the image so that it is centered-->
-    <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
-        <div class="overlay-content" @click="getSelectedTrain(i)">
-            <div v-if="getTrainType(i) === 'D'">
-                <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
-                <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-tram-solid.png" class="trainMapIcon" alt="On-Time DART Icon">
-                <img v-else src="../assets/train-tram-solid.svg" class="trainMapIcon" alt="Not Running DART Icon">
-            </div>
-            <div v-else>
-                <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
-                <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
-                <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
-            </div>
+    <!-- train overlay -->
+    <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
+      <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
+          <div class="overlay-content" @click="getSelectedTrain(i)">
+              <div v-if="getTrainType(i) === 'Dart'">
+                  <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
+                  <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-tram-solid.png" class="trainMapIcon" alt="On-Time DART Icon">
+                  <img v-else src="../assets/train-tram-solid.svg" class="trainMapIcon" alt="Not Running DART Icon">
+              </div>
+              <div v-else>
+                  <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
+                  <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
+                  <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
+              </div>
+          </div>
+      </ol-overlay>
+    </template>
 
+    <!-- station overlay -->
+    <template v-for="coordinate, i in stationCoordinates" :position="inline-block">
+      <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
+        <div class="overlay-content" @click="getSelectedStation(i)">
+          <img src="../assets/station.png" class="stationMapIcon" alt="Station Icon">
         </div>
-    </ol-overlay>
+      </ol-overlay>
     </template>
 </ol-map>
 
 <div>
   <MarqueeText v-if="publicMessages.length > 0" id="publicMessageTicker" :paused="isPaused" :duration="800" :repeat="1"
     @mouseenter="isPaused = !isPaused" @mouseleave="isPaused = false">
-    <!-- <span v-for="message in publicMessages"> {{ "---" + message + "---" }} </span>  -->
     <span v-for="message in publicMessages"> {{ message + " • " }} </span> 
   </MarqueeText>
 </div>
 </template>
 
 <script>
-import {store} from '../store/store'
+import { store } from '../store/store'
 import { ref } from 'vue';
-import {fromLonLat, toLonLat} from 'ol/proj.js';
-import app from '../api/firebase';
+import { fromLonLat, toLonLat } from 'ol/proj.js';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+import app from '../api/firebase';
 import Navbar from '../components/Navbar.vue'
 import MarqueeText from 'vue-marquee-text-component'
-import SidebarPanel from '../components/SidebarPanel.vue';
+import TrainSidebar from '../components/TrainSidebar.vue';
+import StationSidebar from '../components/StationSidebar.vue';
 
 export default {
     name: "MapPage",
@@ -77,46 +85,55 @@ export default {
             strokeColor,
             fillColor,
 
-            coordinates: [],
-            dbLiveTrainData: [],
-            allDataMap: {},
-            store,
-
+            trainCoordinates: [],
+            stationCoordinates: [],
+            allTrains: {},
+            allStations: {},
             publicMessages: [],
             isPaused: false,
+            store,
        }
     },
 
     components: {
       Navbar,
       MarqueeText,
-      SidebarPanel
+      TrainSidebar,
+      StationSidebar
     },
 
     created() {
         let host = window.location.hostname
         if (host === '127.0.0.1' || host === 'localhost') {
-            this.postLiveTrainData();
+            this.postTrainAndStationData();
         }  
         else {
-            this.getLiveTrainData();
+            this.getTrainAndStationData();
         }
         // request new data every 60 seconds
         // window.setInterval(this.getLiveTrainData, 60000);
     },
 
     methods: {
-        // method to assign a single train's data to the selected hashmap
+        // method to display a selected train
         getSelectedTrain(i) {
-          store.setSelectedDataMap(this.allDataMap[i]);
-          store.setDisplay(true)
+          store.setSelectedTrain(this.allTrains[i]);
+          if (store.displaySelectedStation) store.setDisplaySelectedStation(false)
+          store.setDisplaySelectedTrain(true)
+        },
+
+        // method to display a selected station
+        getSelectedStation(i) {
+          store.setSelectedStation(this.allStations[i]);
+          if (store.displaySelectedTrain) store.setDisplaySelectedTrain(false)
+          store.setDisplaySelectedStation(true)
         },
 
         // method to determine whether or not a selected train is late 
         isTrainLate(i) {
             // check if the train is running
-            if (this.allDataMap[i]["TrainStatus"][0] == "R") {
-                let publicMessage = this.allDataMap[i]["PublicMessage"][0];
+            if (this.allTrains[i]["TrainStatus"][0] == "R") {
+                let publicMessage = this.allTrains[i]["PublicMessage"][0];
                 let startTimeStr = publicMessage.indexOf("(");
 
                 // check if the train is late
@@ -129,7 +146,7 @@ export default {
 
         // method to determine whether or not a selected train is running
         isTrainRunning(i) {
-            if (this.allDataMap[i]["TrainStatus"][0] == "R") {
+            if (this.allTrains[i]["TrainStatus"][0] == "R") {
                 return true; 
             } 
             else {
@@ -137,64 +154,62 @@ export default {
             }
         },
 
-        // method that returns the type of train in string form "D" for dart, "S" for suburban, "M" for mainland
+        // method that returns the type of train (either "Train" or "Dart")
         getTrainType(i) {
-            return this.allDataMap[i]["TrainType"][0];
+            return this.allTrains[i]["TrainType"][0];
         },
 
-        // method to fetch live train data from the database
-        getLiveTrainData() {
+        // method to fetch live train and station data from the database
+        getTrainAndStationData() {
             const functions = getFunctions(app);
             let host = window.location.hostname
             if (host === '127.0.0.1' || host == 'localhost') {
                 connectFunctionsEmulator(functions, host, 5001);
             }
-            const getData = httpsCallable(functions, 'getLiveTrainData');
+            const getTrainData = httpsCallable(functions, 'getLiveTrainData');
             let loader = this.$loading.show({
                 loader: 'dots',
                 container: this.$refs.container,
                 canCancel: false
             });
             
-            getData().then((response) => {
+            getTrainData().then((response) => {
                 try {
-                    this.dbLiveTrainData = response.data;
-                    if (!this.dbLiveTrainData) throw new Error("Error fetching live train data from the database");
-
+                    if (!response.data) throw new Error("Error fetching live train data from the database");
                     var insights =  {
-                                        "numRunningTrains": 0,
-                                        "numLateRunningTrains": 0,
-                                        "numMainland": 0,
-                                        "numSuburban": 0,
-                                        "numDart": 0
+                                      "totalNumTrains": 0,
+                                      "numRunningTrains": 0,
+                                      "numLateRunningTrains": 0,
+                                      "numTrains": 0,
+                                      "numDarts": 0,
+                                      "totalNumStations": 0,
+                                      "numTrainStations": 0,
+                                      "numDartStations": 0
                                     };
                     var unorderedTrains = [];
+                    var currentMessages = [];
                     var latest = null;
                     var earliest = null;
                     var currLatestTime = null;
                     var currEarliestTime = null;
 
-                    var currentMessages = [];
-
                     // create an array of coordinates and hashmap with the key-values {index: JSON obj}
-                    for (var i=0; i<this.dbLiveTrainData.length; i++) {
-                        let train = this.dbLiveTrainData[i];
+                    for (var i=0; i<response.data.length; i++) {
+                        let train = response.data[i];
+                        this.allTrains[i] = train;
+                        this.trainCoordinates[i] = ref(fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]]))
+                        insights["totalNumTrains"] += 1
 
-                        // filtering out \n in public message 
+                        if (train["TrainType"][0] == "Train") insights["numTrains"] += 1;
+                        else if (train["TrainType"][0] == "Dart") insights["numDarts"] += 1;
+
+                        // filter out \n in public messages
                         train["PublicMessage"][0] = train["PublicMessage"][0].replace(/\\n/g, ". ");
-
-                        this.coordinates[i] = ref(fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]]))
-                        this.allDataMap[i] = train;
-
-                        if (train["TrainType"][0] == "M") insights["numMainland"] += 1;
-                        else if (train["TrainType"][0] == "S") insights["numSuburban"] += 1;
-                        else if (train["TrainType"][0] == "D") insights["numDart"] += 1;
-                        
                         let publicMessage = train["PublicMessage"][0];
                         currentMessages.push(publicMessage);
 
                         // check if the train is running
-                        if (this.dbLiveTrainData[i]["TrainStatus"][0] == "R") {
+                        if (train["TrainStatus"][0] == "R") {
                             insights["numRunningTrains"] += 1;
                             let startTimeStr = publicMessage.indexOf("(");
                             let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
@@ -204,7 +219,6 @@ export default {
                             // check if the train is late
                             if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
                                 insights["numLateRunningTrains"] += 1;
-
                                 if (!latest) latest = train;
 
                                 // check for a new latest train
@@ -228,18 +242,32 @@ export default {
 
                     insights["percentageLate"] = ((insights["numLateRunningTrains"] / insights["numRunningTrains"]) * 100).toFixed(2);
                     insights["percentageNotLate"] = (100 - insights["percentageLate"]).toFixed(2);
-                    insights["totalNumTrains"] = Object.keys(this.allDataMap).length;
                     insights["latestTime"] = currLatestTime;
                     insights["earliestTime"] = currEarliestTime;
                     this.publicMessages = currentMessages;
 
                     // assign the results to the Vue Store
-                    store.setInsights(insights);
                     store.setEarliestTrain(earliest);
                     store.setLatestTrain(latest);
-                    store.setRawData(this.dbLiveTrainData);
+                    store.setRawData(response.data);
                     store.setOrderedTrains(unorderedTrains);
-                    loader.hide();
+
+                    const getStationData = httpsCallable(functions, 'getStationData');
+                    getStationData().then((response) => {
+                      if (!response.data) throw new Error("Error fetching station from the database");
+                      for (var i=0; i<response.data.length; i++) {
+                        let station = response.data[i];
+                        this.allStations[i] = station;
+                        this.stationCoordinates[i] = ref(fromLonLat([station["StationLongitude"][0], station["StationLatitude"][0]]))
+                        insights["totalNumStations"] += 1
+                        
+                        if (station["StationType"][0] == "Dart") insights["numDartStations"] += 1;
+                        else if (station["StationType"][0] == "Train") insights["numTrainStations"] += 1;
+                      }
+
+                      store.setInsights(insights);
+                      loader.hide();
+                    })
               }
               catch (error) {
                   console.log(error)
@@ -249,15 +277,20 @@ export default {
         },
 
         // method to populate the database for local testing
-        postLiveTrainData() {
+        postTrainAndStationData() {
             const functions = getFunctions(app);
             let host = window.location.hostname
             if (host === '127.0.0.1' || host === 'localhost') {
                 connectFunctionsEmulator(functions, host, 5001);
             }
-            const postData = httpsCallable(functions, 'postLiveTrainData');
-            postData().then((response) => {
-                this.getLiveTrainData()
+            // post live train data
+            const postTrainData = httpsCallable(functions, 'postLiveTrainData');
+            postTrainData().then((response) => {
+              // post station data
+              const postStationData = httpsCallable(functions, 'postStationData');
+              postStationData().then((reponse) => {
+                this.getTrainAndStationData()
+              })
             })
         }
     }
@@ -269,8 +302,6 @@ export default {
   width: 1%;
 }
 
-
-
 .trainMapIcon {
   width: 28px;
   height: 32px;
@@ -281,6 +312,18 @@ export default {
   height:34px;
   cursor: pointer;
 }
+
+.stationMapIcon {
+  width: 14px;
+  height: 17px;
+}
+
+.stationMapIcon:hover {
+  width: 16px;
+  height: 19px;
+  cursor: pointer;
+}
+
 
 #sidebar{
   position: absolute;
@@ -329,6 +372,6 @@ export default {
   color: black;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   text-align: bottom;
-  font-size: 17px;
+  font-size: 16px;
 }
 </style>

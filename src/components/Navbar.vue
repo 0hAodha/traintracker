@@ -33,9 +33,7 @@
 
 <script>
 import app from "../api/firebase"
-import {getAuth, onAuthStateChanged, signOut} from "firebase/auth"
-
-
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"
 
 export default {
   name: "Navbar",
@@ -66,17 +64,15 @@ export default {
 </script>
 
 <style scoped>
-
 .router-link-active{
   color: rgb(0, 0, 0);
   font-weight: 600;
   cursor: pointer;
 }
 
-a{
+a {
   text-decoration: none;
   color: black;
   font-weight: 100;
 }
-
 </style>
