@@ -18,7 +18,7 @@ exports.getStationData = functions.https.onRequest((request, response) => {
     // fetch the "stations" collection
     admin.firestore().collection('stations').get().then((snapshot) => {
       if (snapshot.empty) {
-        response.send({data: "Error fetching station data from the database"})
+        response.status(404).send({data: "Error fetching station data from the database"})
         return;
       }
       // iterate through each of the collection's documents
@@ -32,39 +32,69 @@ exports.getStationData = functions.https.onRequest((request, response) => {
 
 // function to populate the Firestore database with station data from Irish Rail
 exports.postStationData = functions.https.onRequest((request, response) => {
+  // helper functon to parse station JSON objects
+  function parseJSON(result) {
+    let jsonStr = JSON.stringify(result);
+    let jsonObj = JSON.parse(jsonStr);
+    let jsonData = jsonObj.ArrayOfObjStation.objStation;
+    return jsonData;
+  }
+
+  // helper function to write to the database
+  function batchWriteDB(request, response, db, jsonData, dartCodes, stationTypeCode) {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true');
+
+    cors(request, response, () => {
+      var batchWrite = db.batch();
+      jsonData.forEach((doc) => {
+        // append if the dartCodes hashset is empty or the current station is not present
+        if (dartCodes.size == 0 || !dartCodes.has(doc["StationCode"][0])) {
+          doc["StationType"] = [stationTypeCode]
+          var docID = db.collection('stations').doc(doc["StationCode"][0])
+          batchWrite.set(docID, doc);
+        }
+      })
+      batchWrite.commit()
+    })
+  }
+
   response.set('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Credentials', 'true');
-
   cors(request, response, () => {
-    axios.get('http://api.irishrail.ie/realtime/realtime.asmx/getAllStationsXML')
-    .then((res) => {
+    // fetch dart stations and classify as dart stations
+    axios.get('http://api.irishrail.ie/realtime/realtime.asmx/getAllStationsXML_WithStationType?StationType=D').then(res => {
       // XML to JSON
       parseString(res.data, function(err, result) {
-        let jsonStr = JSON.stringify(result);
-        let jsonObj = JSON.parse(jsonStr);
-        let jsonData = jsonObj.ArrayOfObjStation.objStation;
+        let jsonData = parseJSON(result)
 
-        // batch delete all of the "stations" collection's documents
-        var db = admin.firestore();
+        // batch delete all of the station collection's documents
+        var db = admin.firestore()
         admin.firestore().collection('stations').get().then((snapshot) => {
-          var batchDelete = db.batch();
+          var batchDelete = db.batch()
           snapshot.forEach(doc => {
-            batchDelete.delete(doc.ref);
-          });
+              batchDelete.delete(doc.ref)
+          })
 
           batchDelete.commit().then(function() {
-            // batch write all station JSON objects to the "stations" collection
-            var batchWrite = db.batch();
+            // store all dart codes into a hashset
+            // compare these with the station call with code "all" to avoid duplicates
+            let dartCodes = new Set()
+            batchWriteDB(request, response, db, jsonData, dartCodes, "Dart")
 
+            // populate the dartCodes hashset
             jsonData.forEach((doc) => {
-              // set the station's ID as the document ID
-              var docID = db.collection('stations').doc(doc["StationCode"][0]);
-              batchWrite.set(docID, doc);
-            });
+                dartCodes.add(doc["StationCode"][0])
+            })
 
-            batchWrite.commit().then(function () {
-              response.send({data: "Successfully fetched and uploaded station data from Irish Rail"});
-            });
+            // fetch all train stations
+            axios.get('http://api.irishrail.ie/realtime/realtime.asmx/getAllStationsXML_WithStationType?StationType=A').then(res => {
+              parseString(res.data, function(err, result) {
+                let jsonData = parseJSON(result)
+                batchWriteDB(request, response, db, jsonData, dartCodes, "Train")
+                response.send({data: "Successfully fetched and upload station data from Irish Rail"})
+              })
+            })
           })
         })
       })
@@ -96,12 +126,12 @@ exports.getLiveTrainData = functions.https.onRequest((request, response) => {
 
 // function to populate the Firestore database with live train data from Irish Rail
 exports.postLiveTrainData = functions.https.onRequest((request, response) => {
-  // helper function to parse train objects
+  // helper function to parse train JSON objects
   function parseJSON(result) {
-      let jsonStr = JSON.stringify(result);
-      let jsonObj = JSON.parse(jsonStr);
-      let jsonData = jsonObj.ArrayOfObjTrainPositions.objTrainPositions;
-      return jsonData;
+    let jsonStr = JSON.stringify(result);
+    let jsonObj = JSON.parse(jsonStr);
+    let jsonData = jsonObj.ArrayOfObjTrainPositions.objTrainPositions;
+    return jsonData;
   }
   
   // helper function to write to the database
@@ -126,7 +156,7 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
   response.set('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Credentials', 'true');
   cors(request, response, () => {
-    // fetch mainland trains
+    // fetch mainland trains and classify as trains
     axios.get('https://api.irishrail.ie/realtime/realtime.asmx/getCurrentTrainsXML_WithTrainType?TrainType=M').then(res => {
       // XML to JSON
       parseString(res.data, function(err, result) {
@@ -141,20 +171,20 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
           });
 
           batchDelete.commit().then(function() {
-            // batch write all station JSON objects to the liveTrainData collection
-            batchWriteDB(request, response, db, jsonData, "M");
+            // batch write all train JSON objects to the liveTrainData collection
+            batchWriteDB(request, response, db, jsonData, "Train");
             
-            // fetch suburban trains
+            // fetch suburban trains and classify as trains
             axios.get('https://api.irishrail.ie/realtime/realtime.asmx/getCurrentTrainsXML_WithTrainType?TrainType=S').then(res => {
               parseString(res.data, function(err, result) {
                 let jsonData = parseJSON(result)
-                batchWriteDB(request, response, db, jsonData, "S");
+                batchWriteDB(request, response, db, jsonData, "Train");
 
-                // fetch dart trains
+                // fetch dart trains and classify as darts
                 axios.get('https://api.irishrail.ie/realtime/realtime.asmx/getCurrentTrainsXML_WithTrainType?TrainType=D').then(res => {
                   parseString(res.data, function(err, result) {
                     let jsonData = parseJSON(result)
-                    batchWriteDB(request, response, db, jsonData, "D");
+                    batchWriteDB(request, response, db, jsonData, "Dart");
                     response.send({data: "Successfully fetched and uploaded live train data from Irish Rail"});
                   })
                 })

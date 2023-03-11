@@ -32,6 +32,7 @@ describe('Firebase cloud function tests', function() {
         expect(result.body.data[0]).haveOwnProperty('StationLongitude');
         expect(result.body.data[0]).haveOwnProperty('StationCode');
         expect(result.body.data[0]).haveOwnProperty('StationId');
+        expect(result.body.data[0]).haveOwnProperty('StationType');
     }),
 
     this.timeout(100000);

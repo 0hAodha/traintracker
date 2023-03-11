@@ -1,35 +1,46 @@
 <template>
 <Navbar />
-
-
 <div v-if="this.insights" id="insightDiv">
-    <h1 style="padding-left: 10px; ">Insights</h1>
+    <h1 style="padding-left: 10px;">Train Insights</h1>
     <div id="trainTotal">
-        <div id = "trainTotalText">
+        <div id="trainTotalText">
             <p>Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
             <ul>
-                <li><p>Mainland: {{ this.insights["numMainland"] }}</p></li>
-                <li><p>Suburban: {{ this.insights["numSuburban"] }}</p></li>
-                <li><p>Darts: {{ this.insights["numDart"] }}</p></li>
+                <li><p>Trains: {{ this.insights["numTrains"] }}</p></li>
+                <li><p>Darts: {{ this.insights["numDarts"] }}</p></li>
             </ul>
         </div>
         <div id="trainTotalChart">
             <pieChart id="trainPie" />
         </div>
-
     </div>
+
     <hr>
     <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
     <p>Percentage late: {{ this.insights["percentageLate"] }}%</p>
     <p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p>
-    <div id ="statsDiv">
-        <BarChart id ="lateGraph" /> 
+    <div id="statsDiv">
+        <BarChart id="lateGraph" /> 
     </div>
+
     <p v-if="this.latestTrain['TrainCode']">Latest train: {{ this.latestTrain["TrainCode"][0] }}, {{ this.insights["latestTime"] }} mins late</p>
     <p v-if="this.earliestTrain['TrainCode']">Earliest train: {{ this.earliestTrain["TrainCode"][0] }}, {{ this.insights["earliestTime"] * -1 }} mins early</p>
-    
-    
+
+    <h1 style="padding-left: 10px;">Station Insights</h1>
+    <div id="stationTotal">
+        <div id="stationTotalText">
+            <p>Total number of stations: {{ this.insights["totalNumStations"] }}</p>
+            <ul>
+                <li><p>Trains: {{ this.insights["numTrainStations"] }}</p></li>
+                <li><p>Darts: {{ this.insights["numDartStations"] }}</p></li>
+            </ul>
+        </div>
+        <div id="stationTotalChart">
+            <pieChart id="stationPie" />
+        </div>
+    </div>
 </div>
+
 <div id="ads">
     <h2>AdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAds
         AdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAds
@@ -41,15 +52,12 @@
 </div>
 <hr>
 
-
 <h1>Leaderboard</h1>
 <div v-for="item in orderedTrains">
     <h2>{{ this.rawData[item.jsonIndex]["TrainCode"][0] }}</h2>
     <p v-if="item.time > 0">{{ item.time }} mins late</p>
     <p v-else>{{ item.time * -1}} mins early</p>
 </div>
-
-
 </template>
     
 <script>
@@ -75,7 +83,6 @@ export default {
       Navbar,
       pieChart,
       BarChart
-      
     },
 
     created() {
@@ -89,24 +96,25 @@ export default {
 </script>
     
 <style scoped>
-#insightDiv{
+#insightDiv {
     color: black;
     padding-left: 10px;
     width:80%;
     background-color: antiquewhite;
 }
 
-#trainTotal{
+#trainTotal, #stationTotal {
     height: 280px;
 
 }
-#trainTotalText{
+#trainTotalText, #stationTotalText {
     position: relative;
     width: 30%;
     height: 100%;
     right:0px;
 }
-#trainTotalChart{
+
+#trainTotalChart, #stationTotalChart {
     position: absolute;
     top:114px;
     width: 50%;
@@ -114,18 +122,17 @@ export default {
     left: 20%;
 }
 
-#lateGraph{
+#lateGraph {
     position: absolute;
     height:50%;
-
     left:0px;
 }
 
-#statsDiv{
+#statsDiv {
     height: 230px;
 }
 
-#ads{
+#ads {
     position: absolute;
     background-color:rgb(78, 232, 109);
     right: 0px;
