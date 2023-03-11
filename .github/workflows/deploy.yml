@@ -26,13 +26,13 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Update Firestore database with train data
-        uses: fjogeleit/http-request-action@v1
+        uses: satak/webrequest-action@master
         with:
-          url: 'https://us-central1-irishrailtracker.cloudfunctions.net/postLiveTrainData'
-          method: 'GET'
+          url: https://us-central1-irishrailtracker.cloudfunctions.net/postLiveTrainData
+          method: GET
       
       - name: Update Firestore database with station data
-        uses: fjogeleit/http-request-action@v1
+        uses: satak/webrequest-action@master
         with:
-          url: 'https://us-central1-irishrailtracker.cloudfunctions.net/postStationData'
-          method: 'GET'
+          url: https://us-central1-irishrailtracker.cloudfunctions.net/postStationData
+          method: GET
