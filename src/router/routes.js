@@ -23,7 +23,7 @@ function loadPage(component) {
 export default [
     {path: "/", component:loadPage("MapPage")},
     {path: "/insights", component:loadPage("InsightsPage")},
-    {path: "/secure", component:loadPage('SecurePage'), beforeEnter: isAuth},
+    {path: "/account", component:loadPage('AccountPage'), beforeEnter: isAuth},
     {path: "/signup", component:loadPage('SignUpPage')},
     {path: "/login", component:loadPage('LoginPage')},
 ]

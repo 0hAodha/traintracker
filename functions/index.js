@@ -42,6 +42,7 @@ exports.postStationData = functions.https.onRequest((request, response) => {
 
   // helper function to write to the database
   function batchWriteDB(request, response, db, jsonData, dartCodes, stationTypeCode) {
+    if (!jsonData) return
     response.set('Access-Control-Allow-Origin', '*');
     response.set('Access-Control-Allow-Credentials', 'true');
 
@@ -136,6 +137,7 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
   
   // helper function to write to the database
   function batchWriteDB(request, response, db, jsonData, trainTypeCode) {
+    if (!jsonData) return
     response.set('Access-Control-Allow-Origin', '*');
     response.set('Access-Control-Allow-Credentials', 'true');
 
