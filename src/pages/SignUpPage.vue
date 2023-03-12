@@ -11,6 +11,7 @@
     <input @click="signup" type="submit" name="" value="Sign Up">
     <a><router-link to="/login">Already have an account?</router-link></a>
   </div>
+  <p v-if="displayFirebaseError">{{ FirebaseError }}</p>
 </div>
 </template>
 
@@ -25,7 +26,9 @@ export default {
   data() {
     return {
       email: "",
-      password: ""
+      password: "",
+      displayFirebaseError: false,
+      FirebaseError: ""
     }
   },
 
@@ -35,17 +38,16 @@ export default {
 
   methods: {
     signup() {
+      this.displayFirebaseError = false;
       const auth = getAuth(app)
       createUserWithEmailAndPassword(auth, this.email, this.password)
       .then((userCredential) => {
           const user = userCredential.user
-          this.$router.push({path:'/secure'})
+          this.$router.push({path:'/account'})
       })
       .catch((error) => {
-        const errorCode = error.code
-        const errorMessage = error.message
-        console.log(errorCode)
-        console.log(errorMessage)
+        this.FirebaseError = error.message
+        this.displayFirebaseError = true
       })
     }
   }
@@ -54,13 +56,13 @@ export default {
 
 <style scoped>
 #background {
-margin: 0;
-padding: 0;
-width:100%;
-height: 100%;
-position: absolute;
-background-color: #e0e0e0;
-font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  width:100%;
+  height: 100%;
+  position: absolute;
+  background-color: #e0e0e0;
+  font-family: sans-serif;
 }
 
 .loginbox {
