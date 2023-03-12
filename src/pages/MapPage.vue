@@ -1,5 +1,15 @@
 <template>
 <Navbar />
+
+<nav class="navbar navbar-light bg-light">
+    <div class="container-fluid" @change="decideShowTrains();">
+        <input type="checkbox" id="showLate" v-model="showLate"/>
+        <label for="showLate">Show Late Trains</label>
+        <input type="checkbox" id="showOnTime" v-model="showOnTime"/>
+        <label for="showOnTime">Show On-Time Trains</label>
+    </div>
+</nav>
+
 <transition id="sidebar" name="slideLeft">
   <div v-if="store.displaySelectedTrain && store.selectedTrain">
     <TrainSidebar />
@@ -17,7 +27,7 @@
 
     <!-- train overlay -->
     <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
-      <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
+      <ol-overlay v-if="showTrains[i]" :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
           <div class="overlay-content" @click="getSelectedTrain(i)">
               <div v-if="getTrainType(i) === 'Dart'">
                   <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
@@ -52,13 +62,13 @@
 </template>
 
 <script>
-import { store } from '../store/store'
+import { store } from '../store/store';
 import { ref } from 'vue';
 import { fromLonLat, toLonLat } from 'ol/proj.js';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
 import app from '../api/firebase';
-import Navbar from '../components/Navbar.vue'
-import MarqueeText from 'vue-marquee-text-component'
+import Navbar from '../components/Navbar.vue';
+import MarqueeText from 'vue-marquee-text-component';
 import TrainSidebar from '../components/TrainSidebar.vue';
 import StationSidebar from '../components/StationSidebar.vue';
 
@@ -66,14 +76,20 @@ export default {
     name: "MapPage",
 
     data() {
-        const center = ref(fromLonLat([-7.5029786, 53.4494762]))
-        const projection = ref('EPSG:3857')
-        const zoom = ref(7)
-        const rotation = ref(0)
-        const radius = ref(10)
-        const strokeWidth = ref(1)
-        const strokeColor = ref('black')
-        const fillColor = ref('red')
+        const center = ref(fromLonLat([-7.5029786, 53.4494762]));
+        const projection = ref('EPSG:3857');
+        const zoom = ref(7);
+        const rotation = ref(0);
+        const radius = ref(10);
+        const strokeWidth = ref(1);
+        const strokeColor = ref('black');
+        const fillColor = ref('red');
+
+        let showTrains = []; 
+
+        let showLate = true; 
+        let showOnTime = true; 
+        let showEarly = true;
 
         return {
             center,
@@ -85,6 +101,7 @@ export default {
             strokeColor,
             fillColor,
 
+            showTrains: [],
             trainCoordinates: [],
             stationCoordinates: [],
             allTrains: {},
@@ -92,6 +109,10 @@ export default {
             publicMessages: [],
             isPaused: false,
             store,
+
+            showLate,
+            showOnTime,
+            showEarly
        }
     },
 
@@ -110,23 +131,31 @@ export default {
         else {
             this.getTrainAndStationData();
         }
+
         // request new data every 60 seconds
         // window.setInterval(this.getLiveTrainData, 60000);
     },
 
     methods: {
+        // method to determine whether or not to show each train 
+        decideShowTrains() {
+            for (let i = 0; i < this.showTrains.length; i++) {
+                this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i));
+            }
+        },
+
         // method to display a selected train
         getSelectedTrain(i) {
           store.setSelectedTrain(this.allTrains[i]);
-          if (store.displaySelectedStation) store.setDisplaySelectedStation(false)
-          store.setDisplaySelectedTrain(true)
+          if (store.displaySelectedStation) store.setDisplaySelectedStation(false);
+          store.setDisplaySelectedTrain(true);
         },
 
         // method to display a selected station
         getSelectedStation(i) {
           store.setSelectedStation(this.allStations[i]);
-          if (store.displaySelectedTrain) store.setDisplaySelectedTrain(false)
-          store.setDisplaySelectedStation(true)
+          if (store.displaySelectedTrain) store.setDisplaySelectedTrain(false);
+          store.setDisplaySelectedStation(true);
         },
 
         // method to determine whether or not a selected train is late 
@@ -143,6 +172,66 @@ export default {
             }
             return false;
         },
+
+        // // method to determine whether or not a selected train is early 
+        // isTrainEarly(i) {
+        //     // check if the train is running
+        //     if (this.allTrains[i]["TrainStatus"][0] == "R") {
+        //         let publicMessage = this.allTrains[i]["PublicMessage"][0];
+        //         let startTimeStr = publicMessage.indexOf("(");
+        //
+        //         // check if the train is early
+        //         if (publicMessage[startTimeStr+1] == "-" && publicMessage[startTimeStr+1] != "0") {
+        //             return true;
+        //         }
+        //     }
+        //     return false;
+        // },
+        //
+        // // method to determine whether or not a selected train is on time 
+        // isTrainOnTime(i) {
+        //     // check if the train is running
+        //     if (this.allTrains[i]["TrainStatus"][0] == "R") {
+        //         let publicMessage = this.allTrains[i]["PublicMessage"][0];
+        //         let startTimeStr = publicMessage.indexOf("(");
+        //
+        //         // check if the train is on time
+        //         if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] == "0") {
+        //             return true;
+        //         }
+        //     }
+        //     return false;
+        // },
+        //
+        // // method to determine whether or not a selected train is late 
+        // isTrainLate(i) {
+        //     // check if the train is running
+        //     if (this.allTrains[i]["TrainStatus"][0] == "R") {
+        //         let publicMessage = this.allTrains[i]["PublicMessage"][0];
+        //         let startTimeStr = publicMessage.indexOf("(");
+        //
+        //         // check if the train is late
+        //         if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
+        //             return true;
+        //         }
+        //     }
+        //     return false;
+        // },
+        //
+        // // method to determine whether or not a selected train is late 
+        // isTrainLate(i) {
+        //     // check if the train is running
+        //     if (this.allTrains[i]["TrainStatus"][0] == "R") {
+        //         let publicMessage = this.allTrains[i]["PublicMessage"][0];
+        //         let startTimeStr = publicMessage.indexOf("(");
+        //
+        //         // check if the train is late
+        //         if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
+        //             return true;
+        //         }
+        //     }
+        //     return false;
+        // },
 
         // method to determine whether or not a selected train is running
         isTrainRunning(i) {
@@ -197,6 +286,10 @@ export default {
                     for (var i=0; i<response.data.length; i++) {
                         let train = response.data[i];
                         this.allTrains[i] = train;
+
+                        // filling showTrains witht the default value true
+                        this.showTrains[i] = true;
+
                         this.trainCoordinates[i] = ref(fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]]))
                         insights["totalNumTrains"] += 1
 
