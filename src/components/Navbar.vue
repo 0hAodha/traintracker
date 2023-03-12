@@ -17,12 +17,12 @@
           <a class="nav-link"><router-link to="/insights">Insights</router-link></a>
         </li>
         <li class="nav-item">
-          <a v-if="!isLoggedIn" class="nav-link"><router-link to="/signup">Sign Up</router-link></a>
-          <a v-if="isLoggedIn" class="nav-link"><router-link to="/secure">Secure</router-link></a>
+          <a v-if="!isLoggedIn" class="nav-link"><router-link to="/login">Login</router-link></a>
+          <a v-if="isLoggedIn" class="nav-link"><router-link to="/account">Account Settings</router-link></a>
         </li>
         <li class="nav-item">
           <a v-if="isLoggedIn" class="nav-link"><router-link style="text-decoration: none; color: black; font-weight: 100;"  @click="logout" to="/" class="navlink">Logout</router-link></a>
-          <a v-if="!isLoggedIn" class="nav-link"><router-link to="/login">Login</router-link></a>
+          <a v-if="!isLoggedIn" class="nav-link"><router-link to="/signup">Sign Up</router-link></a>
         </li>
         
       </ul>

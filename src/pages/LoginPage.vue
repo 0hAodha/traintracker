@@ -11,6 +11,7 @@
     <input @click="login" type="submit" name="" value="Login">
     <a><router-link to="/signup">Don't have an account?</router-link></a>
   </div>
+  <p v-if="displayFirebaseError">{{ FirebaseError }}</p>
 </div>
 </template>
 
@@ -25,7 +26,9 @@ export default {
   data() {
     return {
       email: "",
-      password: ""
+      password: "",
+      displayFirebaseError: false,
+      FirebaseError: ""
     }
   },
 
@@ -35,17 +38,16 @@ export default {
 
   methods: {
     login() {
+      this.displayFirebaseError = false
       const auth = getAuth(app)
       signInWithEmailAndPassword(auth, this.email, this.password)
       .then((userCredential) => {
           const user = userCredential.user
-          this.$router.push({path:'/secure'})
+          this.$router.push({path:'/account'})
       })
       .catch((error) => {
-        const errorCode = error.code
-        const errorMessage = error.message
-        console.log(errorCode)
-        console.log(errorMessage)
+        this.FirebaseError = error.message
+        this.displayFirebaseError = true
       })
     }
   }
