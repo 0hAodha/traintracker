@@ -3,8 +3,8 @@
 
 <nav class="navbar navbar-light bg-light">
     <div class="container-fluid" @change="decideShowStations();">
-        <input type="checkbox" id="showNormalStations" v-model="showNormalStations"/>
-        <label for="showNormalStations">Show Normal Stations</label>
+        <input type="checkbox" id="showMainlandStations" v-model="showMainlandStations"/>
+        <label for="showMainlandStations">Show Mainland Stations</label>
         <input type="checkbox" id="showDARTStations" v-model="showDARTStations"/>
         <label for="showDARTStations">Show DART Stations</label>
     </div>
@@ -13,10 +13,10 @@
         <label for="showLate">Show Late Trains</label>
         <input type="checkbox" id="showOnTime" v-model="showOnTime"/>
         <label for="showOnTime">Show On-Time Trains</label>
-        <input type="checkbox" id="showNormal" v-model="showNormal"/>
-        <label for="showNormal">Show Normal Trains</label>
+        <input type="checkbox" id="showMainland" v-model="showMainland"/>
+        <label for="showMainland">Show Mainland Trains</label>
         <input type="checkbox" id="showDART" v-model="showDART"/>
-        <label for="showNormal">Show DARTs</label>
+        <label for="showMainland">Show DARTs</label>
         <input type="checkbox" id="showRunning" v-model="showRunning"/>
         <label for="showRunning">Show Running Trains</label>
         <input type="checkbox" id="showTerminated" v-model="showTerminated"/>
@@ -104,12 +104,12 @@ export default {
         let showTrains = []; 
         let showStations = []; 
 
-        let showNormalStations = true; 
+        let showMainlandStations = true; 
         let showDARTStations = true;
         let showLate = true; 
         let showOnTime = true; 
         let showEarly = true;
-        let showNormal = true;
+        let showMainland = true;
         let showDART = true;
         let showRunning = true; 
         let showTerminated = true; 
@@ -135,12 +135,12 @@ export default {
             isPaused: false,
             store,
 
-            showNormalStations, 
+            showMainlandStations, 
             showDARTStations,
             showLate,
             showOnTime,
             showEarly,
-            showNormal,
+            showMainland,
             showDART, 
             showRunning, 
             showTerminated, 
@@ -176,8 +176,11 @@ export default {
                 let isDART = this.getTrainType(i) == "DART"; 
 
                 if ((this.showRunning && this.allTrains[i]["TrainStatus"][0] == "R") || (this.showTerminated && this.allTrains[i]["TrainStatus"][0] == "T") || this.showNotYetRunning && this.allTrains[i]["TrainStatus"][0] == "N") {
-                    if ((this.showDART && isDART) || (this.showNormal && !isDART)) {
-                        this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i)); // || (this.showNormal && !isDART) || (this.showDART && isDART);
+                    if ((this.showDART && isDART) || (this.showMainland && !isDART)) {
+                        this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i)); // || (this.showMainland && !isDART) || (this.showDART && isDART);
+                    }
+                    else {
+                        this.showTrains[i] = false;
                     }
                 }
                 else {
@@ -190,7 +193,7 @@ export default {
         decideShowStations() {
             for (let i = 0; i < this.showStations.length; i++) {
                 let isDARTStation = this.allStations[i]["StationType"][0] == "DART"; 
-                this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showNormalStations && !isDARTStation);  
+                this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showMainlandStations && !isDARTStation);  
             }
         },
 
