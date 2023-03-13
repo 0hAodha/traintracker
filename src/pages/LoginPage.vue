@@ -3,22 +3,36 @@
 <div id="background">
   <div class="loginbox">
     <img src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png" class="avatar">
-    <h1>Login</h1>
-    <p>Email Address</p>
-    <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
-    <p>Password</p>
-    <input type="password" v-model="password" placeholder="Enter password">
-    <input @click="login" type="submit" name="" value="Login">
-    <a><router-link to="/signup">Don't have an account?</router-link></a>
+    <div v-if="!forgotPassword">
+      <h1>Login</h1>
+      <p>Email Address</p>
+      <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
+      <p>Password</p>
+      <input type="password" v-model="password" placeholder="Enter password">
+      <input @click="login" type="submit" name="" value="Login">
+      <a><router-link to="/signup">Don't have an account?</router-link></a>
+      <a @click="forgotPassword = !forgotPassword; this.email = ''">Forgot password?</a>
+    </div>
+
+    <div v-else>
+      <h1>Forgot Password</h1>
+      <p>Email Address</p>
+      <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
+      <input @click="resetPasswordEmail" type="submit" name="" value="Send Reset Email">
+      <a @click="forgotPassword = !forgotPassword; this.email = ''">Go back</a>
+    </div>
   </div>
+
   <p v-if="displayFirebaseError">{{ FirebaseError }}</p>
+  <p v-if="displayFirebaseSuccessMsg">{{ FirebaseSuccessMsg }}</p>
 </div>
 </template>
 
 <script>
 import app from '../api/firebase';
-import {getAuth, signInWithEmailAndPassword} from "firebase/auth"
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"
 import Navbar from '../components/Navbar.vue'
+const auth = getAuth()
 
 export default {
   name: "LoginPage",
@@ -28,7 +42,10 @@ export default {
       email: "",
       password: "",
       displayFirebaseError: false,
-      FirebaseError: ""
+      FirebaseError: "",
+      displayFirebaseSuccessMsg: false,
+      FirebaseSuccessMsg: "",
+      forgotPassword: false
     }
   },
 
@@ -44,6 +61,18 @@ export default {
       .then((userCredential) => {
           const user = userCredential.user
           this.$router.push({path:'/account'})
+      })
+      .catch((error) => {
+        this.FirebaseError = error.message
+        this.displayFirebaseError = true
+      })
+    },
+
+    resetPasswordEmail() {
+      sendPasswordResetEmail(auth, this.email).then(() => {
+        this.FirebaseSuccessMsg = "Reset password email sent"
+        this.displayFirebaseSuccessMsg = true
+        this.email = ""
       })
       .catch((error) => {
         this.FirebaseError = error.message
@@ -105,7 +134,6 @@ h1 {
   height: 40px;
   color: #fff;
   font-size: 16px;
-
 }
 
 .loginbox input[type="submit"]:hover {
@@ -120,6 +148,7 @@ h1 {
   font-size: 12px;
   line-height: 20px;
   color: darkgray;
+  display: flex
 }
 
 .loginbox a:hover {
