@@ -81,7 +81,7 @@ exports.postStationData = functions.https.onRequest((request, response) => {
             // store all dart codes into a hashset
             // compare these with the station call with code "all" to avoid duplicates
             let dartCodes = new Set()
-            batchWriteDB(request, response, db, jsonData, dartCodes, "Dart")
+            batchWriteDB(request, response, db, jsonData, dartCodes, "DART")
 
             // populate the dartCodes hashset
             jsonData.forEach((doc) => {
@@ -186,7 +186,7 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
                 axios.get('https://api.irishrail.ie/realtime/realtime.asmx/getCurrentTrainsXML_WithTrainType?TrainType=D').then(res => {
                   parseString(res.data, function(err, result) {
                     let jsonData = parseJSON(result)
-                    batchWriteDB(request, response, db, jsonData, "Dart");
+                    batchWriteDB(request, response, db, jsonData, "DART");
                     response.send({data: "Successfully fetched and uploaded live train data from Irish Rail"});
                   })
                 })

@@ -2,11 +2,27 @@
 <Navbar />
 
 <nav class="navbar navbar-light bg-light">
+    <div class="container-fluid" @change="decideShowStations();">
+        <input type="checkbox" id="showNormalStations" v-model="showNormalStations"/>
+        <label for="showNormalStations">Show Normal Stations</label>
+        <input type="checkbox" id="showDARTStations" v-model="showDARTStations"/>
+        <label for="showDARTStations">Show DART Stations</label>
+    </div>
     <div class="container-fluid" @change="decideShowTrains();">
         <input type="checkbox" id="showLate" v-model="showLate"/>
         <label for="showLate">Show Late Trains</label>
         <input type="checkbox" id="showOnTime" v-model="showOnTime"/>
         <label for="showOnTime">Show On-Time Trains</label>
+        <input type="checkbox" id="showNormal" v-model="showNormal"/>
+        <label for="showNormal">Show Normal Trains</label>
+        <input type="checkbox" id="showDART" v-model="showDART"/>
+        <label for="showNormal">Show DARTs</label>
+        <input type="checkbox" id="showRunning" v-model="showRunning"/>
+        <label for="showRunning">Show Running Trains</label>
+        <input type="checkbox" id="showTerminated" v-model="showTerminated"/>
+        <label for="showTerminated">Show Terminated Trains</label>
+        <input type="checkbox" id="showNotYetRunning" v-model="showNotYetRunning"/>
+        <label for="showNotYetRunning">Show Not-Yet Running Trains</label>
     </div>
 </nav>
 
@@ -29,7 +45,7 @@
     <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
       <ol-overlay v-if="showTrains[i]" :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
           <div class="overlay-content" @click="getSelectedTrain(i)">
-              <div v-if="getTrainType(i) === 'Dart'">
+              <div v-if="getTrainType(i) === 'DART'">
                   <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
                   <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-tram-solid.png" class="trainMapIcon" alt="On-Time DART Icon">
                   <img v-else src="../assets/train-tram-solid.svg" class="trainMapIcon" alt="Not Running DART Icon">
@@ -45,7 +61,7 @@
 
     <!-- station overlay -->
     <template v-for="coordinate, i in stationCoordinates" :position="inline-block">
-      <ol-overlay :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
+      <ol-overlay v-if="showStations[i]" :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
         <div class="overlay-content" @click="getSelectedStation(i)">
           <img src="../assets/station.png" class="stationMapIcon" alt="Station Icon">
         </div>
@@ -86,10 +102,18 @@ export default {
         const fillColor = ref('red');
 
         let showTrains = []; 
+        let showStations = []; 
 
+        let showNormalStations = true; 
+        let showDARTStations = true;
         let showLate = true; 
         let showOnTime = true; 
         let showEarly = true;
+        let showNormal = true;
+        let showDART = true;
+        let showRunning = true; 
+        let showTerminated = true; 
+        let showNotYetRunning = true;
 
         return {
             center,
@@ -102,6 +126,7 @@ export default {
             fillColor,
 
             showTrains: [],
+            showStations: [],
             trainCoordinates: [],
             stationCoordinates: [],
             allTrains: {},
@@ -110,9 +135,16 @@ export default {
             isPaused: false,
             store,
 
+            showNormalStations, 
+            showDARTStations,
             showLate,
             showOnTime,
-            showEarly
+            showEarly,
+            showNormal,
+            showDART, 
+            showRunning, 
+            showTerminated, 
+            showNotYetRunning
        }
     },
 
@@ -140,7 +172,25 @@ export default {
         // method to determine whether or not to show each train 
         decideShowTrains() {
             for (let i = 0; i < this.showTrains.length; i++) {
-                this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i));
+                // determine whether or not the tain is a DART or not 
+                let isDART = this.getTrainType(i) == "DART"; 
+
+                if ((this.showRunning && this.allTrains[i]["TrainStatus"][0] == "R") || (this.showTerminated && this.allTrains[i]["TrainStatus"][0] == "T") || this.showNotYetRunning && this.allTrains[i]["TrainStatus"][0] == "N") {
+                    if ((this.showDART && isDART) || (this.showNormal && !isDART)) {
+                        this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i)); // || (this.showNormal && !isDART) || (this.showDART && isDART);
+                    }
+                }
+                else {
+                    this.showTrains[i] = false;
+                }
+            }
+        },
+        
+        // method to determine whether or not to show each station
+        decideShowStations() {
+            for (let i = 0; i < this.showStations.length; i++) {
+                let isDARTStation = this.allStations[i]["StationType"][0] == "DART"; 
+                this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showNormalStations && !isDARTStation);  
             }
         },
 
@@ -173,66 +223,6 @@ export default {
             return false;
         },
 
-        // // method to determine whether or not a selected train is early 
-        // isTrainEarly(i) {
-        //     // check if the train is running
-        //     if (this.allTrains[i]["TrainStatus"][0] == "R") {
-        //         let publicMessage = this.allTrains[i]["PublicMessage"][0];
-        //         let startTimeStr = publicMessage.indexOf("(");
-        //
-        //         // check if the train is early
-        //         if (publicMessage[startTimeStr+1] == "-" && publicMessage[startTimeStr+1] != "0") {
-        //             return true;
-        //         }
-        //     }
-        //     return false;
-        // },
-        //
-        // // method to determine whether or not a selected train is on time 
-        // isTrainOnTime(i) {
-        //     // check if the train is running
-        //     if (this.allTrains[i]["TrainStatus"][0] == "R") {
-        //         let publicMessage = this.allTrains[i]["PublicMessage"][0];
-        //         let startTimeStr = publicMessage.indexOf("(");
-        //
-        //         // check if the train is on time
-        //         if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] == "0") {
-        //             return true;
-        //         }
-        //     }
-        //     return false;
-        // },
-        //
-        // // method to determine whether or not a selected train is late 
-        // isTrainLate(i) {
-        //     // check if the train is running
-        //     if (this.allTrains[i]["TrainStatus"][0] == "R") {
-        //         let publicMessage = this.allTrains[i]["PublicMessage"][0];
-        //         let startTimeStr = publicMessage.indexOf("(");
-        //
-        //         // check if the train is late
-        //         if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
-        //             return true;
-        //         }
-        //     }
-        //     return false;
-        // },
-        //
-        // // method to determine whether or not a selected train is late 
-        // isTrainLate(i) {
-        //     // check if the train is running
-        //     if (this.allTrains[i]["TrainStatus"][0] == "R") {
-        //         let publicMessage = this.allTrains[i]["PublicMessage"][0];
-        //         let startTimeStr = publicMessage.indexOf("(");
-        //
-        //         // check if the train is late
-        //         if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
-        //             return true;
-        //         }
-        //     }
-        //     return false;
-        // },
-
         // method to determine whether or not a selected train is running
         isTrainRunning(i) {
             if (this.allTrains[i]["TrainStatus"][0] == "R") {
@@ -243,7 +233,7 @@ export default {
             }
         },
 
-        // method that returns the type of train (either "Train" or "Dart")
+        // method that returns the type of train (either "Train" or "DART")
         getTrainType(i) {
             return this.allTrains[i]["TrainType"][0];
         },
@@ -294,7 +284,7 @@ export default {
                         insights["totalNumTrains"] += 1
 
                         if (train["TrainType"][0] == "Train") insights["numTrains"] += 1;
-                        else if (train["TrainType"][0] == "Dart") insights["numDarts"] += 1;
+                        else if (train["TrainType"][0] == "DART") insights["numDarts"] += 1;
 
                         // filter out \n in public messages
                         train["PublicMessage"][0] = train["PublicMessage"][0].replace(/\\n/g, ". ");
@@ -351,10 +341,14 @@ export default {
                       for (var i=0; i<response.data.length; i++) {
                         let station = response.data[i];
                         this.allStations[i] = station;
+
+                        // setting the station to show on the map by default - true
+                        this.showStations[i] = true; 
+
                         this.stationCoordinates[i] = ref(fromLonLat([station["StationLongitude"][0], station["StationLatitude"][0]]))
                         insights["totalNumStations"] += 1
                         
-                        if (station["StationType"][0] == "Dart") insights["numDartStations"] += 1;
+                        if (station["StationType"][0] == "DART") insights["numDartStations"] += 1;
                         else if (station["StationType"][0] == "Train") insights["numTrainStations"] += 1;
                       }
 
