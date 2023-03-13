@@ -1,21 +1,22 @@
 <template>
 <Navbar />
 <h1>Account Settings</h1>
-<p>Your Email: {{ displayEmail }}</p>
-
+<p v-if="this.user">Your Email: {{ this.user.email }}</p>
 <div>
-    <p>Enter your current password to edit account settings</p>
+    <h3>Enter your current password to edit account settings</h3>
     <input type="password" v-model="currentPassword" placeholder="Enter existing password">
+    <h3>Send a password reset email</h3>
+    <input @click="resetPasswordEmail" type="submit" name="" value="Send Password reset email">
 
-    <h1>Change email</h1>
+    <h3>Change email</h3>
     <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
     <input @click="updateUserEmail" type="submit" name="" value="Update Email">
 
-    <h1>Change password</h1>
+    <h3>Change password</h3>
     <input type="password" v-model="newPassword" placeholder="Enter new password">
     <input @click="updateUserPassword" type="submit" name="" value="Update Password">
 
-    <h1>Delete account</h1>
+    <h3>Delete account</h3>
     <input @click="deleteUserAccount" type="submit" name="" value="Delete Account">
 </div>
 
@@ -28,9 +29,8 @@
 import Navbar from '../components/Navbar.vue'
 import app from '../api/firebase'
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions"
-import { getAuth, updateEmail, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import { getAuth, updateEmail, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from "firebase/auth";
 const auth = getAuth();
-const user = auth.currentUser;
 
 export default {
     name: "AccountPage",
@@ -41,7 +41,7 @@ export default {
 
     data() {
         return {
-            displayEmail: "",
+            user: null,
             newEmail: "",
             newPassword: "",
             currentPassword: "",
@@ -55,10 +55,7 @@ export default {
     },
 
     created() {
-        const user = auth.currentUser
-        this.displayEmail = user.email
-
-
+        this.user = auth.currentUser
         const functions = getFunctions(app)
         let host = window.location.hostname
         if (host === '127.0.0.1' || host === 'localhost') {
@@ -104,8 +101,8 @@ export default {
             }
             this.authenticateUser(this.currentPassword).then(() => {
                 if (!this.reAuthSuccessful) return
-                updateEmail(user, this.newEmail).then(() => {
-                    this.displayEmail = this.newEmail
+                updateEmail(this.user, this.newEmail).then(() => {
+                    // might need to reset user here
                     this.resetCredentials()
                     this.FirebaseSuccessMsg = "Email updated"
                     this.displayFirebaseSuccessMsg = true
@@ -125,7 +122,7 @@ export default {
             }
             this.authenticateUser(this.currentPassword).then(() => {
                 if (!this.reAuthSuccessful) return
-                updatePassword(user, this.newPassword).then(() => {
+                updatePassword(this.user, this.newPassword).then(() => {
                     this.resetCredentials()
                     this.FirebaseSuccessMsg = "Password updated"
                     this.displayFirebaseSuccessMsg = true
@@ -145,7 +142,7 @@ export default {
             }
             this.authenticateUser(this.currentPassword).then(() => {
                 if (!this.reAuthSuccessful) return
-                deleteUser(user).then(() => {
+                deleteUser(this.user).then(() => {
                     this.resetCredentials()
                     this.FirebaseSuccessMsg = "Account deleted"
                     this.displayFirebaseSuccessMsg = true
@@ -155,6 +152,17 @@ export default {
                     this.FirebaseError = error.message
                     this.displayFirebaseError = true
                 })
+            })
+        },
+
+        resetPasswordEmail() {
+            sendPasswordResetEmail(auth, this.user.email).then(() => {
+                this.FirebaseSuccessMsg = "Reset password email sent"
+                this.displayFirebaseSuccessMsg = true
+            })
+            .catch((error) => {
+                this.FirebaseError = error.message
+                this.displayFirebaseError = true
             })
         }
     }
