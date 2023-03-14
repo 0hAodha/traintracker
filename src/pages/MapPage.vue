@@ -139,7 +139,6 @@ export default {
             showDARTStations,
             showLate,
             showOnTime,
-            showEarly,
             showMainland,
             showDART, 
             showRunning, 
