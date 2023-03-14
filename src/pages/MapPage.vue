@@ -108,7 +108,6 @@ export default {
         let showDARTStations = true;
         let showLate = true; 
         let showOnTime = true; 
-        let showEarly = true;
         let showMainland = true;
         let showDART = true;
         let showRunning = true; 
