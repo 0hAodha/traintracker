@@ -1,7 +1,16 @@
 <template>
 <div id="sidebarDiv">
     <div id="sidebarHeader">
-        <img id="headerImage" src="../assets/train-solid.svg" alt="Train Icon">
+        <div v-if="getTrainType() === 'DART'">
+          <img v-if="isTrainRunning() && isTrainLate()" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
+          <img v-else-if="isTrainRunning() && !isTrainLate()" src="../assets/green-train-tram-solid.png" class="trainMapIcon" alt="On-Time DART Icon">
+          <img v-else src="../assets/train-tram-solid.svg" class="trainMapIcon" alt="Not Running DART Icon">
+        </div>
+        <div v-else>
+          <img v-if="isTrainRunning() && isTrainLate()" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
+          <img v-else-if="isTrainRunning() && !isTrainLate()" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
+          <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
+        </div>
         <div v-on:click="store.setDisplaySelectedTrain(false)" id="xButton">X</div>
     </div>
 
@@ -26,6 +35,38 @@ export default {
         return {
             store
         }
+    }, 
+
+    methods: {
+        // method to determine whether or not a selected train is late 
+        isTrainLate() {
+            // check if the train is running
+            if (store.selectedTrain["TrainStatus"][0] == "R") {
+                let publicMessage = store.selectedTrain["PublicMessage"][0];
+                let startTimeStr = publicMessage.indexOf("(");
+
+                // check if the train is late
+                if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        // method to determine whether or not a selected train is running
+        isTrainRunning() {
+            if (store.selectedTrain["TrainStatus"][0] == "R") {
+                return true; 
+            } 
+            else {
+                return false;
+            }
+        },
+
+        // method that returns the type of train (either "Train" or "DART")
+        getTrainType() {
+            return store.selectedTrain["TrainType"][0];
+        },
     }
 }
 </script>
