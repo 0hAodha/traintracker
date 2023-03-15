@@ -175,12 +175,15 @@ export default {
               this.showRunning = response.data.data["showRunning"]
               this.showTerminated = response.data.data["showTerminated"]
               this.showNotYetRunning = response.data.data["showNotYetRunning"]
+
+              // update the map with these preferences
+              this.decideShowStations()
+              this.decideShowTrains()
             }
           })
           .catch((error) => {
             console.log(error.message)
           })
-
         },
 
         postPreferences() {
