@@ -1,7 +1,7 @@
 <template>
 <Navbar />
 
-<nav class="navbar navbar-light bg-light">
+<nav v-if="this.trainCoordinates.length>0" class="navbar navbar-light bg-light">
     <div class="container-fluid" @change="decideShowStations();">
         <input type="checkbox" id="showMainlandStations" v-model="showMainlandStations"/>
         <label for="showMainlandStations">Show Mainland Stations</label>
@@ -24,6 +24,8 @@
         <input type="checkbox" id="showNotYetRunning" v-model="showNotYetRunning"/>
         <label for="showNotYetRunning">Show Not-Yet Running Trains</label>
     </div>
+
+    <button v-if="store.loggedIn" @click="postPreferences()">Save Preferences</button>
 </nav>
 
 <transition id="sidebar" name="slideLeft">
@@ -101,20 +103,6 @@ export default {
         const strokeColor = ref('black');
         const fillColor = ref('red');
 
-        let showTrains = []; 
-        let showStations = []; 
-
-        let showMainlandStations = true; 
-        let showDARTStations = true;
-        let showLate = true; 
-        let showOnTime = true; 
-        let showEarly = true;
-        let showMainland = true;
-        let showDART = true;
-        let showRunning = true; 
-        let showTerminated = true; 
-        let showNotYetRunning = true;
-
         return {
             center,
             projection,
@@ -135,17 +123,16 @@ export default {
             isPaused: false,
             store,
 
-            showMainlandStations, 
-            showDARTStations,
-            showLate,
-            showOnTime,
-            showEarly,
-            showMainland,
-            showDART, 
-            showRunning, 
-            showTerminated, 
-            showNotYetRunning
-       }
+            showMainlandStations: true, 
+            showDARTStations: true,
+            showLate: true,
+            showOnTime: true,
+            showMainland: true,
+            showDART: true, 
+            showRunning: true, 
+            showTerminated: true, 
+            showNotYetRunning: true,
+        }
     },
 
     components: {
@@ -163,12 +150,68 @@ export default {
         else {
             this.getTrainAndStationData();
         }
-
         // request new data every 60 seconds
         // window.setInterval(this.getLiveTrainData, 60000);
     },
 
     methods: {
+        getPreferences() {
+          if (!store.loggedIn) return
+          const functions = getFunctions(app);
+            let host = window.location.hostname
+            if (host === '127.0.0.1' || host == 'localhost') {
+              connectFunctionsEmulator(functions, host, 5001);
+            }
+
+          const getPreferencesData = httpsCallable(functions, 'getPreferences')
+          getPreferencesData().then((response) => {
+            if (response.data.data) {
+              this.showMainlandStations = response.data.data["showMainlandStations"]
+              this.showDARTStations = response.data.data["showDARTStations"]
+              this.showLate = response.data.data["showLate"]
+              this.showOnTime = response.data.data["showOnTime"]
+              this.showMainland = response.data.data["showMainland"]
+              this.showDART = response.data.data["showDART"]
+              this.showRunning = response.data.data["showRunning"]
+              this.showTerminated = response.data.data["showTerminated"]
+              this.showNotYetRunning = response.data.data["showNotYetRunning"]
+            }
+          })
+          .catch((error) => {
+            console.log(error.message)
+          })
+
+        },
+
+        postPreferences() {
+          if (!store.loggedIn) return
+          let preferences = {
+            "showMainlandStations": this.showMainlandStations,
+            "showDARTStations": this.showDARTStations,
+            "showLate": this.showLate,
+            "showOnTime": this.showOnTime,
+            "showMainland": this.showMainland,
+            "showDART": this.showDART,
+            "showRunning": this.showRunning,
+            "showTerminated": this.showTerminated,
+            "showNotYetRunning": this.showNotYetRunning
+          }
+
+          const functions = getFunctions(app);
+            let host = window.location.hostname
+            if (host === '127.0.0.1' || host == 'localhost') {
+                connectFunctionsEmulator(functions, host, 5001);
+          }
+          
+          const postPreferencesData = httpsCallable(functions, 'postPreferences')
+          postPreferencesData(preferences).then(() => {
+            console.log("Sent preferences successfully")
+          })
+          .catch((error) => {
+            console.log(error.message)
+          })
+        },
+
         // method to determine whether or not to show each train 
         decideShowTrains() {
             for (let i = 0; i < this.showTrains.length; i++) {
@@ -360,9 +403,10 @@ export default {
                     })
               }
               catch (error) {
-                  console.log(error)
+                  console.log(error.message)
                   loader.hide();
               }
+              this.getPreferences()
             })
         },
 
