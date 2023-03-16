@@ -22,15 +22,14 @@
       <a @click="forgotPassword = !forgotPassword; this.email = ''">Go back</a>
     </div>
   </div>
-
-  <p v-if="displayFirebaseError">{{ FirebaseError }}</p>
-  <p v-if="displayFirebaseSuccessMsg">{{ FirebaseSuccessMsg }}</p>
 </div>
 </template>
 
 <script>
 import app from '../api/firebase';
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"
+import { createToast } from 'mosha-vue-toastify';
+import 'mosha-vue-toastify/dist/style.css'
 import Navbar from '../components/Navbar.vue'
 const auth = getAuth()
 
@@ -38,14 +37,21 @@ export default {
   name: "LoginPage",
 
   data() {
+    const toast = () => {
+        createToast(this.toastMessage, {
+            hideProgressBar: true,
+            timeout: 4000,
+            toastBackgroundColor: this.toastBackground
+        })
+    }
+
     return {
       email: "",
       password: "",
-      displayFirebaseError: false,
-      FirebaseError: "",
-      displayFirebaseSuccessMsg: false,
-      FirebaseSuccessMsg: "",
-      forgotPassword: false
+      toastMessage: "",
+      toastBackground: "",
+      forgotPassword: false,
+      toast
     }
   },
 
@@ -54,29 +60,30 @@ export default {
   },
 
   methods: {
+    showToast(message, backgroundColour) {
+        this.toastMessage = message
+        this.toastBackground = backgroundColour
+        this.toast()
+    },
+
     login() {
-      this.displayFirebaseError = false
       const auth = getAuth(app)
-      signInWithEmailAndPassword(auth, this.email, this.password)
-      .then((userCredential) => {
-          const user = userCredential.user
-          this.$router.push({path:'/account'})
+      signInWithEmailAndPassword(auth, this.email, this.password).then(() => {
+        this.showToast("Logged in successfully", "green")
+        this.$router.push({path:'/'})
       })
       .catch((error) => {
-        this.FirebaseError = error.message
-        this.displayFirebaseError = true
+        this.showToast(error.message, "red")
       })
     },
 
     resetPasswordEmail() {
       sendPasswordResetEmail(auth, this.email).then(() => {
-        this.FirebaseSuccessMsg = "Reset password email sent"
-        this.displayFirebaseSuccessMsg = true
+        this.showToast("Reset password email sent", "green")
         this.email = ""
       })
       .catch((error) => {
-        this.FirebaseError = error.message
-        this.displayFirebaseError = true
+        this.showToast(error.message, "red")
       })
     }
   }
