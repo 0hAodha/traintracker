@@ -60,7 +60,7 @@ export default {
       signInWithEmailAndPassword(auth, this.email, this.password)
       .then((userCredential) => {
           const user = userCredential.user
-          this.$router.push({path:'/account'})
+          this.$router.push({path:'/'})
       })
       .catch((error) => {
         this.FirebaseError = error.message

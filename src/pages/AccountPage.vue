@@ -56,15 +56,6 @@ export default {
 
     created() {
         this.user = auth.currentUser
-        const functions = getFunctions(app)
-        let host = window.location.hostname
-        if (host === '127.0.0.1' || host === 'localhost') {
-            connectFunctionsEmulator(functions, host, 5001);
-        }
-        const secureFunction = httpsCallable(functions, 'securefunction')
-        secureFunction().then((response) => {
-            console.log(response);
-        })
     },
 
     methods: {

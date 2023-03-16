@@ -2,7 +2,6 @@ import {getAuth, onAuthStateChanged} from "firebase/auth"
 import app from '../api/firebase';
 
 function isAuth(to, from, next) {
-    console.log("Checking auth")
     const auth = getAuth(app)
     onAuthStateChanged(auth, (user) => {
         // user is logged in, continue to page
