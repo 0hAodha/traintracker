@@ -473,9 +473,9 @@ export default {
   z-index: 2;
   text-align: center;
   animation: gradient 15s ease infinite;
-  background: linear-gradient(45deg, #000000, #111111, #222222, #333333, #444444, #555555);
-  background-size: 400%, 400%;
-  box-shadow: 0 0 4px 2px #333333;
+  background: linear-gradient(45deg, #ffffff, #fef3f3, #ffffff, #f2f2f2);
+  background-size: 100%, 100%;
+  box-shadow: 0 0 4px 2px #cccccc;
   overflow: hidden;
   font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }

@@ -40,7 +40,7 @@ export default {
     position: absolute;
     height: 80%;
     width: 100%;
-    color: white;
+    color: rgb(0, 0, 0);
 }
 
 #headerImage{
@@ -54,7 +54,7 @@ export default {
 #xButton{
     font-size: 80%;
     font-family: Georgia;
-    color: white;
+    color: rgb(0, 0, 0);
     position: absolute;
     top:10px;
     right:10px;
