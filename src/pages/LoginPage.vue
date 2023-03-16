@@ -23,9 +23,14 @@
     </div>
   </div>
 
+  
+
   <p v-if="displayFirebaseError">{{ FirebaseError }}</p>
   <p v-if="displayFirebaseSuccessMsg">{{ FirebaseSuccessMsg }}</p>
+
 </div>
+
+
 </template>
 
 <script>

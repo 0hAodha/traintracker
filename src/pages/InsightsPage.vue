@@ -14,7 +14,7 @@
             <pieChart id="trainPie" />
         </div>
     </div>
-
+        
     <hr>
     <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
     <p>Percentage late: {{ this.insights["percentageLate"] }}%</p>
