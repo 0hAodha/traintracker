@@ -1,32 +1,55 @@
 <template>
 <Navbar />
 
-<nav v-if="this.trainCoordinates.length>0" class="navbar navbar-light bg-light">
-    <div class="container-fluid" @change="decideShowStations()">
-        <input type="checkbox" id="showMainlandStations" v-model="showMainlandStations"/>
-        <label for="showMainlandStations">Show Mainland Stations</label>
-        <input type="checkbox" id="showDARTStations" v-model="showDARTStations"/>
-        <label for="showDARTStations">Show DART Stations</label>
+<div id="preferenceDropdown" class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+    Preferences
+  </button>
+  <div id="dropMenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+      <div class="container-fluid" @change="decideShowStations();">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showMainlandStations" v-model="showMainlandStations"/>
+          <label class="form-check-label" for="showMainlandStations">Show Mainland Stations</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showDARTStations" v-model="showDARTStations"/>
+          <label class="form-check-label" for="showMainlandStations">Show Mainland Stations</label>
+        </div>
+      </div>
+      <div class="container-fluid" @change="decideShowTrains();">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showLate" v-model="showLate"/>
+          <label class="form-check-label" for="showLate">Show Late Trains</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showOnTime" v-model="showOnTime"/>
+          <label class="form-check-label" for="showOnTime">Show On-Time Trains</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showMainland" v-model="showMainland"/>
+          <label class="form-check-label" for="showMainland">Show Mainland Trains</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showDART" v-model="showDART"/>
+          <label class="form-check-label" for="showDart">Show DARTs</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showTerminated" v-model="showTerminated"/>
+          <label class="form-check-label" for="showRunning">Show Running Trains</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showTerminated" v-model="showTerminated"/>
+          <label class="form-check-label" for="showTerminated">Show Terminated Trains</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showNotYetRunning" v-model="showNotYetRunning"/>
+          <label class="form-check-label" for="showNotYetRunning">Show Not-Yet Running Trains</label>
+        </div>
+      </div>
     </div>
-    <div class="container-fluid" @change="decideShowTrains()">
-        <input type="checkbox" id="showLate" v-model="showLate"/>
-        <label for="showLate">Show Late Trains</label>
-        <input type="checkbox" id="showOnTime" v-model="showOnTime"/>
-        <label for="showOnTime">Show On-Time Trains</label>
-        <input type="checkbox" id="showMainland" v-model="showMainland"/>
-        <label for="showMainland">Show Mainland Trains</label>
-        <input type="checkbox" id="showDART" v-model="showDART"/>
-        <label for="showMainland">Show DARTs</label>
-        <input type="checkbox" id="showRunning" v-model="showRunning"/>
-        <label for="showRunning">Show Running Trains</label>
-        <input type="checkbox" id="showTerminated" v-model="showTerminated"/>
-        <label for="showTerminated">Show Terminated Trains</label>
-        <input type="checkbox" id="showNotYetRunning" v-model="showNotYetRunning"/>
-        <label for="showNotYetRunning">Show Not-Yet Running Trains</label>
-    </div>
+</div>
 
-    <button v-if="store.loggedIn" @click="postPreferences()">Save Preferences</button>
-</nav>
+<button v-if="store.loggedIn" @click="postPreferences()">Save Preferences</button>
 
 <transition id="sidebar" name="slideLeft">
   <div v-if="store.displaySelectedTrain && store.selectedTrain">
@@ -37,7 +60,7 @@
   </div>
 </transition>
 
-<ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="position:absolute; height:90.7vh; width:100%;">
+<ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="position:absolute; height:90.6vh; width:100%;">
     <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" />
     <ol-tile-layer>
     <ol-source-osm />
@@ -461,6 +484,21 @@ export default {
   width: 16px;
   height: 19px;
   cursor: pointer;
+}
+#dropdownMenuButton1{
+  box-shadow: 0 0 5px 2px #6e757dbe;
+}
+
+#dropMenu{
+  /*In case we want to edit dropdown menu*/
+  font-size: 15px;
+}
+
+#preferenceDropdown{
+  position: absolute;
+  z-index: 3;
+  right: 1%;
+  top: 10%;
 }
 
 
