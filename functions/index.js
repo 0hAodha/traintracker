@@ -207,10 +207,18 @@ exports.getPreferences = functions.https.onCall((data, context) => {
   })
 }) 
 
-// secure function to set a user's filter prefernces in the database
+// secure function to set a user's filter preferences in the database
 exports.postPreferences = functions.https.onCall((data, context) => {
   if (!context.auth) return "Error request is not verified"
   return admin.firestore().collection('preferences').doc(context.auth.uid).set({data}).then(() => {
     return "Successfully saved preferences"
+  })
+})
+
+// secure function to delete a user's filter preferences from the database
+exports.deletePreferences = functions.https.onCall((data, context) => {
+  if (!context.auth) return "Error request is not verified"
+  return admin.firestore().collection('preferences').doc(context.auth.uid).delete().then(() => {
+    return "Successfully deleted preferences"
   })
 })
