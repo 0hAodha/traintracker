@@ -18,6 +18,9 @@
 
     <h3>Delete account</h3>
     <input @click="deleteUserAccount" type="submit" name="" value="Delete Account">
+
+    <h3>Delete filter preferences data</h3>
+    <button @click="deleteUserPreferences">Delete preferences</button>
 </div>
 
 <p v-if="missingCredentials">Missing credentials to complete this action</p>
@@ -149,6 +152,23 @@ export default {
         resetPasswordEmail() {
             sendPasswordResetEmail(auth, this.user.email).then(() => {
                 this.FirebaseSuccessMsg = "Reset password email sent"
+                this.displayFirebaseSuccessMsg = true
+            })
+            .catch((error) => {
+                this.FirebaseError = error.message
+                this.displayFirebaseError = true
+            })
+        },
+
+        deleteUserPreferences() {
+            const functions = getFunctions(app)
+            let host = window.location.hostname
+            if (host === '127.0.0.1' || host === 'localhost') {
+                connectFunctionsEmulator(functions, host, 5001);
+            }
+            const deletePreferencesData = httpsCallable(functions, 'deletePreferences')
+            deletePreferencesData().then(() => {
+                this.FirebaseSuccessMsg = "Successfully deleted filter preferences"
                 this.displayFirebaseSuccessMsg = true
             })
             .catch((error) => {

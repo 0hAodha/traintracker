@@ -163,7 +163,6 @@ export default {
               this.showNotYetRunning = response.data.data["showNotYetRunning"]
 
               // update the map with the user's preferences
-              console.log("got preferences")
               this.decideShowStations()
               this.decideShowTrains()
             }
