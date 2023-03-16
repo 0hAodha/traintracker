@@ -34,6 +34,7 @@
 <script>
 import app from "../api/firebase"
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"
+import { store } from '../store/store'
 
 export default {
   name: "Navbar",
@@ -49,6 +50,7 @@ export default {
     const auth = getAuth(app);
       onAuthStateChanged(auth, (user) => {
         user ? this.isLoggedIn = true : this.isLoggedIn = false
+        store.setLoginStatus(this.isLoggedIn)
       })
   },
 

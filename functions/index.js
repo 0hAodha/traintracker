@@ -49,8 +49,8 @@ exports.postStationData = functions.https.onRequest((request, response) => {
     cors(request, response, () => {
       var batchWrite = db.batch();
       jsonData.forEach((doc) => {
-        // append if the dartCodes hashset is empty or the current station is not present
-        if (dartCodes.size == 0 || !dartCodes.has(doc["StationCode"][0])) {
+        // append if the dartCodes hashset is empty or the current station is not present, and ignoring positions of zero
+        if ((dartCodes.size == 0 || !dartCodes.has(doc["StationCode"][0])) && !(doc["StationLongitude"] == 0 || doc["StationLatitude"] == 0)) {
           doc["StationType"] = [stationTypeCode]
           var docID = db.collection('stations').doc(doc["StationCode"][0])
           batchWrite.set(docID, doc);
@@ -199,13 +199,18 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
   })
 })
 
-exports.securefunction = functions.https.onCall((data, context) => {
-  if (typeof context.auth === undefined) {
-    // user not logged in
-    return "User is not logged in"
-  }
-  else {
-    // user logged in
-    return "User is logged in"
-  }
+// secure function to fetch a user's filter preferences from the database
+exports.getPreferences = functions.https.onCall((data, context) => {
+  if (!context.auth) return "Error request is not verified"
+  return admin.firestore().collection('preferences').doc(context.auth.uid).get().then((preferences) => {
+    return preferences.data()
+  })
+}) 
+
+// secure function to set a user's filter prefernces in the database
+exports.postPreferences = functions.https.onCall((data, context) => {
+  if (!context.auth) return "Error request is not verified"
+  return admin.firestore().collection('preferences').doc(context.auth.uid).set({data}).then(() => {
+    return "Successfully saved preferences"
+  })
 })
