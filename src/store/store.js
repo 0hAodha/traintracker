@@ -10,6 +10,7 @@ export const store = reactive({
     rawData: {},
     displaySelectedTrain: false,
     displayedSelectedStation: false,
+    loggedIn: false,
 
     setInsights(insights) {
         this.insights = insights
@@ -49,5 +50,9 @@ export const store = reactive({
 
     setDisplaySelectedStation(bool) {
         this.displaySelectedStation = bool
+    },
+
+    setLoginStatus(bool) {
+        this.loggedIn = bool
     }
 })
