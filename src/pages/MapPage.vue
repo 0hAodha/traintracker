@@ -46,10 +46,9 @@
           <label class="form-check-label" for="showNotYetRunning">Show Not-Yet Running Trains</label>
         </div>
       </div>
+      <button v-if="store.loggedIn" @click="postPreferences()">Save Preferences</button>
     </div>
 </div>
-
-<button v-if="store.loggedIn" @click="postPreferences()">Save Preferences</button>
 
 <transition id="sidebar" name="slideLeft">
   <div v-if="store.displaySelectedTrain && store.selectedTrain">
@@ -485,11 +484,11 @@ export default {
   height: 19px;
   cursor: pointer;
 }
-#dropdownMenuButton1{
+#dropdownMenuButton1 {
   box-shadow: 0 0 5px 2px #6e757dbe;
 }
 
-#dropMenu{
+#dropMenu {
   /*In case we want to edit dropdown menu*/
   font-size: 15px;
 }
@@ -502,7 +501,7 @@ export default {
 }
 
 
-#sidebar{
+#sidebar {
   position: absolute;
   height: 80%;
   width: 20%;
@@ -523,7 +522,7 @@ export default {
   transition: all 0.8s;
 
 }
-.slideLeft-enter-from, .slideLeft-leave-to{
+.slideLeft-enter-from, .slideLeft-leave-to {
   opacity: 0;
   transform: translateX(-100px);
 }
