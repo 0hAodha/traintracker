@@ -1,15 +1,16 @@
 <template>
 <div id="sidebarDiv">
     <div id="sidebarHeader">
-        <div v-if="getTrainType() === 'DART'">
-          <img v-if="isTrainRunning() && isTrainLate()" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
-          <img v-else-if="isTrainRunning() && !isTrainLate()" src="../assets/green-train-tram-solid.png" class="trainMapIcon" alt="On-Time DART Icon">
-          <img v-else src="../assets/train-tram-solid.svg" class="trainMapIcon" alt="Not Running DART Icon">
+
+        <div id = "imageDiv" v-if="getTrainType() === 'DART'">
+          <img v-if="isTrainRunning() && isTrainLate()" src="../assets/red-train-tram-solid.png" class="headerImage" alt="Late DART Icon">
+          <img v-else-if="isTrainRunning() && !isTrainLate()" src="../assets/green-train-tram-solid.png" class="headerImage" alt="On-Time DART Icon">
+          <img v-else src="../assets/train-tram-solid.svg" class="headerImage" alt="Not Running DART Icon">
         </div>
-        <div v-else>
-          <img v-if="isTrainRunning() && isTrainLate()" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
-          <img v-else-if="isTrainRunning() && !isTrainLate()" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
-          <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
+        <div id = "imageDiv" v-else>
+          <img v-if="isTrainRunning() && isTrainLate()" src="../assets/red-train-solid.png" class="headerImage" alt="Late Train Icon">
+          <img v-else-if="isTrainRunning() && !isTrainLate()" src="../assets/green-train-solid.png" class="headerImage" alt="On-Time Train Icon">
+          <img v-else src="../assets/train-solid.svg" class="headerImage" alt="Not Running Train Icon">
         </div>
         <div v-on:click="store.setDisplaySelectedTrain(false)" id="xButton">X</div>
     </div>
@@ -84,21 +85,26 @@ export default {
   position: absolute;
   height: 80%;
   width: 100%;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
-#headerImage{
-  height: 80%;
-  width: auto;
-  overflow: hidden;
-  position: relative;
-  top: 10px;
+
+.headerImage{
+  height: 100%;
+  width: 40px;
+  padding-top: 10px;
+  
+}
+
+.imageDiv{
+  display: flex;
+  justify-content: center;
 }
 
 #xButton{
   font-size: 80%;
   font-family: Georgia;
-  color: white;
+  color: rgb(0, 0, 0);
   position: absolute;
   top:10px;
   right:10px;
