@@ -2,13 +2,13 @@
 <Navbar />
 
 <nav v-if="this.trainCoordinates.length>0" class="navbar navbar-light bg-light">
-    <div class="container-fluid" @change="decideShowStations();">
+    <div class="container-fluid" @change="decideShowStations()">
         <input type="checkbox" id="showMainlandStations" v-model="showMainlandStations"/>
         <label for="showMainlandStations">Show Mainland Stations</label>
         <input type="checkbox" id="showDARTStations" v-model="showDARTStations"/>
         <label for="showDARTStations">Show DART Stations</label>
     </div>
-    <div class="container-fluid" @change="decideShowTrains();">
+    <div class="container-fluid" @change="decideShowTrains()">
         <input type="checkbox" id="showLate" v-model="showLate"/>
         <label for="showLate">Show Late Trains</label>
         <input type="checkbox" id="showOnTime" v-model="showOnTime"/>
@@ -81,8 +81,7 @@
 
 <script>
 import { store } from '../store/store';
-import { ref } from 'vue';
-import { fromLonLat, toLonLat } from 'ol/proj.js';
+import { fromLonLat } from 'ol/proj.js';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
 import app from '../api/firebase';
 import Navbar from '../components/Navbar.vue';
@@ -96,9 +95,9 @@ export default {
     data() {
         return {
             center: fromLonLat([-7.5029786, 53.4494762]),
-            projection: ref('EPSG:3857'),
-            zoom: ref(7),
-            rotation: ref(0),
+            projection: 'EPSG:3857',
+            zoom: 7,
+            rotation: 0,
 
             showTrains: [],
             showStations: [],
@@ -164,8 +163,9 @@ export default {
               this.showNotYetRunning = response.data.data["showNotYetRunning"]
 
               // update the map with the user's preferences
-              this.decideShowTrains()
+              console.log("got preferences")
               this.decideShowStations()
+              this.decideShowTrains()
             }
           })
           .catch((error) => {
@@ -204,26 +204,26 @@ export default {
 
         // method to determine whether or not to show each train 
         decideShowTrains() {
-            for (let i=0; i<this.showTrains.length; i++) {t 
-                let isDART = this.getTrainType(i) == "DART"; 
-                if ((this.showRunning && this.allTrains[i]["TrainStatus"][0] == "R") || (this.showTerminated && this.allTrains[i]["TrainStatus"][0] == "T") || this.showNotYetRunning && this.allTrains[i]["TrainStatus"][0] == "N") {
-                    if ((this.showDART && isDART) || (this.showMainland && !isDART)) {
-                        this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i)); // || (this.showMainland && !isDART) || (this.showDART && isDART);
-                    }
-                    else {
-                        this.showTrains[i] = false;
-                    }
-                }
-                else {
-                    this.showTrains[i] = false;
-                }
-            }
+          for (var i=0; i<this.showTrains.length; i++) {
+              let isDART = this.getTrainType(i) == "DART"; 
+              if ((this.showRunning && this.allTrains[i]["TrainStatus"][0] == "R") || (this.showTerminated && this.allTrains[i]["TrainStatus"][0] == "T") || this.showNotYetRunning && this.allTrains[i]["TrainStatus"][0] == "N") {
+                  if ((this.showDART && isDART) || (this.showMainland && !isDART)) {
+                      this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i));
+                  }
+                  else {
+                      this.showTrains[i] = false;
+                  }
+              }
+              else {
+                  this.showTrains[i] = false;
+              }
+          }
         },
         
         // method to determine whether or not to show each station
         decideShowStations() {
           for (var i=0; i<this.showStations.length; i++) {
-            let isDARTStation = this.getStationType(j) == "DART"; 
+            let isDARTStation = this.getStationType(i) == "DART"; 
             this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showMainlandStations && !isDARTStation); 
           }
         },
@@ -371,6 +371,7 @@ export default {
                     const getStationData = httpsCallable(functions, 'getStationData');
                     getStationData().then((response) => {
                       if (!response.data) throw new Error("Error fetching station from the database");
+
                       for (var i=0; i<response.data.length; i++) {
                         let station = response.data[i];
                         this.allStations[i] = station;
@@ -404,12 +405,10 @@ export default {
                 connectFunctionsEmulator(functions, host, 5001);
             }
 
-            // post live train data
             const postTrainData = httpsCallable(functions, 'postLiveTrainData');
-            postTrainData().then((response) => {
-              // post station data
+            postTrainData().then(() => {
               const postStationData = httpsCallable(functions, 'postStationData');
-              postStationData().then((reponse) => {
+              postStationData().then(() => {
                 this.getTrainAndStationData()
               })
             })
