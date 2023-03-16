@@ -45,7 +45,7 @@
 
     <!-- train overlay -->
     <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
-      <ol-overlay v-if="showTrains[i]" :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
+      <ol-overlay v-if="showTrains[i]" :position="coordinate" :offset="[-14,-16]">
           <div class="overlay-content" @click="getSelectedTrain(i)">
               <div v-if="getTrainType(i) === 'DART'">
                   <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
@@ -63,7 +63,7 @@
 
     <!-- station overlay -->
     <template v-for="coordinate, i in stationCoordinates" :position="inline-block">
-      <ol-overlay v-if="showStations[i]" :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
+      <ol-overlay v-if="showStations[i]" :position="coordinate" :offset="[-14,-16]">
         <div class="overlay-content" @click="getSelectedStation(i)">
           <img src="../assets/station.png" class="stationMapIcon" alt="Station Icon">
         </div>
@@ -94,24 +94,11 @@ export default {
     name: "MapPage",
 
     data() {
-        const center = ref(fromLonLat([-7.5029786, 53.4494762]));
-        const projection = ref('EPSG:3857');
-        const zoom = ref(7);
-        const rotation = ref(0);
-        const radius = ref(10);
-        const strokeWidth = ref(1);
-        const strokeColor = ref('black');
-        const fillColor = ref('red');
-
         return {
-            center,
-            projection,
-            zoom,
-            rotation,
-            radius,
-            strokeWidth,
-            strokeColor,
-            fillColor,
+            center: fromLonLat([-7.5029786, 53.4494762]),
+            projection: ref('EPSG:3857'),
+            zoom: ref(7),
+            rotation: ref(0),
 
             showTrains: [],
             showStations: [],
@@ -151,17 +138,17 @@ export default {
             this.getTrainAndStationData();
         }
         // request new data every 60 seconds
-        // window.setInterval(this.getLiveTrainData, 60000);
+        // window.setInterval(this.getTrainAndStationData, 60000);
     },
 
     methods: {
         getPreferences() {
           if (!store.loggedIn) return
           const functions = getFunctions(app);
-            let host = window.location.hostname
-            if (host === '127.0.0.1' || host == 'localhost') {
-              connectFunctionsEmulator(functions, host, 5001);
-            }
+          let host = window.location.hostname
+          if (host === '127.0.0.1' || host == 'localhost') {
+            connectFunctionsEmulator(functions, host, 5001);
+          }
 
           const getPreferencesData = httpsCallable(functions, 'getPreferences')
           getPreferencesData().then((response) => {
@@ -176,9 +163,9 @@ export default {
               this.showTerminated = response.data.data["showTerminated"]
               this.showNotYetRunning = response.data.data["showNotYetRunning"]
 
-              // update the map with these preferences
-              this.decideShowStations()
+              // update the map with the user's preferences
               this.decideShowTrains()
+              this.decideShowStations()
             }
           })
           .catch((error) => {
@@ -203,7 +190,7 @@ export default {
           const functions = getFunctions(app);
             let host = window.location.hostname
             if (host === '127.0.0.1' || host == 'localhost') {
-                connectFunctionsEmulator(functions, host, 5001);
+              connectFunctionsEmulator(functions, host, 5001);
           }
           
           const postPreferencesData = httpsCallable(functions, 'postPreferences')
@@ -217,10 +204,8 @@ export default {
 
         // method to determine whether or not to show each train 
         decideShowTrains() {
-            for (let i = 0; i < this.showTrains.length; i++) {
-                // determine whether or not the tain is a DART or not 
+            for (let i=0; i<this.showTrains.length; i++) {t 
                 let isDART = this.getTrainType(i) == "DART"; 
-
                 if ((this.showRunning && this.allTrains[i]["TrainStatus"][0] == "R") || (this.showTerminated && this.allTrains[i]["TrainStatus"][0] == "T") || this.showNotYetRunning && this.allTrains[i]["TrainStatus"][0] == "N") {
                     if ((this.showDART && isDART) || (this.showMainland && !isDART)) {
                         this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i)); // || (this.showMainland && !isDART) || (this.showDART && isDART);
@@ -237,10 +222,10 @@ export default {
         
         // method to determine whether or not to show each station
         decideShowStations() {
-            for (let i = 0; i < this.showStations.length; i++) {
-                let isDARTStation = this.allStations[i]["StationType"][0] == "DART"; 
-                this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showMainlandStations && !isDARTStation);  
-            }
+          for (var i=0; i<this.showStations.length; i++) {
+            let isDARTStation = this.getStationType(j) == "DART"; 
+            this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showMainlandStations && !isDARTStation); 
+          }
         },
 
         // method to display a selected train
@@ -274,17 +259,18 @@ export default {
 
         // method to determine whether or not a selected train is running
         isTrainRunning(i) {
-            if (this.allTrains[i]["TrainStatus"][0] == "R") {
-                return true; 
-            } 
-            else {
-                return false;
-            }
+            if (this.allTrains[i]["TrainStatus"][0] == "R") return true; 
+            else return false;
         },
 
         // method that returns the type of train (either "Train" or "DART")
         getTrainType(i) {
             return this.allTrains[i]["TrainType"][0];
+        },
+
+        // method that returns the type of station (either "Train" or "DART")
+        getStationType(i) {
+          return this.allStations[i]["StationType"][0]
         },
 
         // method to fetch live train and station data from the database
@@ -305,15 +291,16 @@ export default {
                 try {
                     if (!response.data) throw new Error("Error fetching live train data from the database");
                     var insights =  {
-                                      "totalNumTrains": 0,
-                                      "numRunningTrains": 0,
-                                      "numLateRunningTrains": 0,
-                                      "numTrains": 0,
-                                      "numDarts": 0,
-                                      "totalNumStations": 0,
-                                      "numTrainStations": 0,
-                                      "numDartStations": 0
-                                    };
+                      "totalNumTrains": 0,
+                      "numRunningTrains": 0,
+                      "numLateRunningTrains": 0,
+                      "numTrains": 0,
+                      "numDarts": 0,
+                      "totalNumStations": 0,
+                      "numTrainStations": 0,
+                      "numDartStations": 0
+                    };
+
                     var unorderedTrains = [];
                     var currentMessages = [];
                     var latest = null;
@@ -325,13 +312,11 @@ export default {
                     for (var i=0; i<response.data.length; i++) {
                         let train = response.data[i];
                         this.allTrains[i] = train;
-
-                        // filling showTrains witht the default value true
-                        this.showTrains[i] = true;
-
-                        this.trainCoordinates[i] = ref(fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]]))
+                        this.trainCoordinates[i] = fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]])
                         insights["totalNumTrains"] += 1
 
+                        // filling showTrains with the default value - true
+                        this.showTrains[i] = true;
                         if (train["TrainType"][0] == "Train") insights["numTrains"] += 1;
                         else if (train["TrainType"][0] == "DART") insights["numDarts"] += 1;
 
@@ -362,7 +347,6 @@ export default {
                             // train is early or ontime
                             else {
                                 if (!earliest) earliest = train;
-                                
                                 // check for a new earliest train (early trains are -x mins late)
                                 if (num < currEarliestTime) {
                                     earliest = train;
@@ -390,26 +374,25 @@ export default {
                       for (var i=0; i<response.data.length; i++) {
                         let station = response.data[i];
                         this.allStations[i] = station;
+                        this.stationCoordinates[i] = fromLonLat([station["StationLongitude"][0], station["StationLatitude"][0]])
+                        insights["totalNumStations"] += 1
 
                         // setting the station to show on the map by default - true
                         this.showStations[i] = true; 
-
-                        this.stationCoordinates[i] = ref(fromLonLat([station["StationLongitude"][0], station["StationLatitude"][0]]))
-                        insights["totalNumStations"] += 1
-                        
                         if (station["StationType"][0] == "DART") insights["numDartStations"] += 1;
                         else if (station["StationType"][0] == "Train") insights["numTrainStations"] += 1;
                       }
 
                       store.setInsights(insights);
                       loader.hide();
+                      // request the user's preferences
+                      this.getPreferences()
                     })
               }
               catch (error) {
                   console.log(error.message)
                   loader.hide();
               }
-              this.getPreferences()
             })
         },
 
@@ -420,6 +403,7 @@ export default {
             if (host === '127.0.0.1' || host === 'localhost') {
                 connectFunctionsEmulator(functions, host, 5001);
             }
+
             // post live train data
             const postTrainData = httpsCallable(functions, 'postLiveTrainData');
             postTrainData().then((response) => {

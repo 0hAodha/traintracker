@@ -49,8 +49,8 @@ exports.postStationData = functions.https.onRequest((request, response) => {
     cors(request, response, () => {
       var batchWrite = db.batch();
       jsonData.forEach((doc) => {
-        // append if the dartCodes hashset is empty or the current station is not present
-        if (dartCodes.size == 0 || !dartCodes.has(doc["StationCode"][0])) {
+        // append if the dartCodes hashset is empty or the current station is not present, and ignoring positions of zero
+        if ((dartCodes.size == 0 || !dartCodes.has(doc["StationCode"][0])) && !(doc["StationLongitude"] == 0 || doc["StationLatitude"] == 0)) {
           doc["StationType"] = [stationTypeCode]
           var docID = db.collection('stations').doc(doc["StationCode"][0])
           batchWrite.set(docID, doc);
