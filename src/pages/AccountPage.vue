@@ -6,30 +6,31 @@
     <h3>Enter your current password to edit account settings</h3>
     <input type="password" v-model="currentPassword" placeholder="Enter existing password">
     <h3>Send a password reset email</h3>
-    <input @click="resetPasswordEmail" type="submit" name="" value="Send Password reset email">
+    <input @click="resetPasswordEmail()" type="submit" name="" value="Send Password reset email">
 
     <h3>Change email</h3>
     <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
-    <input @click="updateUserEmail" type="submit" name="" value="Update Email">
+    <input @click="updateUserEmail()" type="submit" name="" value="Update Email">
 
     <h3>Change password</h3>
     <input type="password" v-model="newPassword" placeholder="Enter new password">
-    <input @click="updateUserPassword" type="submit" name="" value="Update Password">
+    <input @click="updateUserPassword()" type="submit" name="" value="Update Password">
 
     <h3>Delete account</h3>
-    <input @click="deleteUserAccount" type="submit" name="" value="Delete Account">
-</div>
+    <input @click="deleteUserAccount()" type="submit" name="" value="Delete Account">
 
-<p v-if="missingCredentials">Missing credentials to complete this action</p>
-<p v-if="displayFirebaseSuccessMsg">{{ FirebaseSuccessMsg }}</p>
-<p v-if="displayFirebaseError">{{ FirebaseError }}</p>
+    <h3>Delete filter preferences data</h3>
+    <button @click="deleteUserPreferences()">Delete preferences</button>
+</div>
 </template>
 
 <script>
-import Navbar from '../components/Navbar.vue'
-import app from '../api/firebase'
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions"
 import { getAuth, updateEmail, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from "firebase/auth";
+import { createToast } from 'mosha-vue-toastify';
+import 'mosha-vue-toastify/dist/style.css'
+import Navbar from '../components/Navbar.vue'
+import app from '../api/firebase'
 const auth = getAuth();
 
 export default {
@@ -40,50 +41,46 @@ export default {
     },
 
     data() {
+        const toast = () => {
+            createToast(this.toastMessage, {
+                hideProgressBar: true,
+                timeout: 4000,
+                toastBackgroundColor: this.toastBackground
+            })
+        }
+
         return {
             user: null,
             newEmail: "",
             newPassword: "",
             currentPassword: "",
-            displayFirebaseSuccessMsg: false,
-            FirebaseSuccessMsg: "",
-            displayFirebaseError: false,
-            FirebaseError: "",
+            toastMessage: "",
+            toastBackground: "",
             reAuthSuccessful: false,
-            missingCredentials: false
+            toast
         }
     },
 
     created() {
         this.user = auth.currentUser
-        const functions = getFunctions(app)
-        let host = window.location.hostname
-        if (host === '127.0.0.1' || host === 'localhost') {
-            connectFunctionsEmulator(functions, host, 5001);
-        }
-        const secureFunction = httpsCallable(functions, 'securefunction')
-        secureFunction().then((response) => {
-            console.log(response);
-        })
     },
 
     methods: {
+        showToast(message, backgroundColour) {
+            this.toastMessage = message
+            this.toastBackground = backgroundColour
+            this.toast()
+        },
+        
         async authenticateUser(password) {
-            var credential = await EmailAuthProvider.credential(user.email, password)
-            await reauthenticateWithCredential(user, credential).then(() => {
+            var credential = await EmailAuthProvider.credential(this.user.email, password)
+            await reauthenticateWithCredential(this.user, credential).then(() => {
                 this.reAuthSuccessful = true
             })
             .catch((error) => {
                 this.reAuthSuccessful = false
-                this.FirebaseError = error.message
-                this.displayFirebaseError = true
+                this.showToast(error.message, "red")
             })
-        },
-
-        resetMessages() {
-            this.missingCredentials = false
-            this.displayFirebaseError = false
-            this.displayFirebaseSuccessMsg = false
         },
 
         resetCredentials() {
@@ -94,75 +91,94 @@ export default {
         },
 
         updateUserEmail() {
-            this.resetMessages()
             if (!this.newEmail || !this.currentPassword) {
-                this.missingCredentials = true
+                this.showToast("Missing password input", "red")
                 return
             }
+
             this.authenticateUser(this.currentPassword).then(() => {
                 if (!this.reAuthSuccessful) return
                 updateEmail(this.user, this.newEmail).then(() => {
-                    // might need to reset user here
                     this.resetCredentials()
-                    this.FirebaseSuccessMsg = "Email updated"
-                    this.displayFirebaseSuccessMsg = true
+                    this.showToast("Email successfully updated", "green")
                 })
                 .catch((error) => {
-                    this.FirebaseError = error.message
-                    this.displayFirebaseError = true
+                    this.showToast(error.message, "red")
                 })
             })
         },
 
         updateUserPassword() {
-            this.resetMessages()
             if (!this.newPassword || !this.currentPassword) {
-                this.missingCredentials = true
+                this.showToast("Missing password input", "red")
                 return
             }
+
             this.authenticateUser(this.currentPassword).then(() => {
                 if (!this.reAuthSuccessful) return
                 updatePassword(this.user, this.newPassword).then(() => {
                     this.resetCredentials()
-                    this.FirebaseSuccessMsg = "Password updated"
-                    this.displayFirebaseSuccessMsg = true
+                    this.showToast("Password successfully updated", "green")
                 })
                 .catch((error) => {
-                    this.FirebaseError = error.message
-                    this.displayFirebaseError = true
+                    this.showToast(error.message, "red")
                 })
             })
         },
 
         deleteUserAccount() {
-            this.resetMessages()
             if (!this.currentPassword) {
-                this.missingCredentials = true
+                this.showToast("Missing password input", "red")
                 return
             }
+            
             this.authenticateUser(this.currentPassword).then(() => {
                 if (!this.reAuthSuccessful) return
                 deleteUser(this.user).then(() => {
                     this.resetCredentials()
-                    this.FirebaseSuccessMsg = "Account deleted"
-                    this.displayFirebaseSuccessMsg = true
+                    this.showToast("Account successfully deleted", "green")
                     this.$router.push({path:'/'})
                 })
                 .catch((error) => {
-                    this.FirebaseError = error.message
-                    this.displayFirebaseError = true
+                    this.showToast(error.message, "red")
                 })
             })
         },
 
         resetPasswordEmail() {
             sendPasswordResetEmail(auth, this.user.email).then(() => {
-                this.FirebaseSuccessMsg = "Reset password email sent"
-                this.displayFirebaseSuccessMsg = true
+                this.showToast("Reset password email sent", "green")
             })
             .catch((error) => {
-                this.FirebaseError = error.message
-                this.displayFirebaseError = true
+                this.showToast(error.message, "red")
+            })
+        },
+
+        deleteUserPreferences() {
+            if (!this.currentPassword) {
+                this.showToast("Missing password input", "red")
+                return
+            }
+            
+            this.authenticateUser(this.currentPassword).then(() => {
+                if (!this.reAuthSuccessful) return
+                const functions = getFunctions(app)
+                let host = window.location.hostname
+                if (host === '127.0.0.1' || host === 'localhost') {
+                    connectFunctionsEmulator(functions, host, 5001);
+                }
+                
+                const deletePreferencesData = httpsCallable(functions, 'deletePreferences')
+                deletePreferencesData().then(() => {
+                    this.resetCredentials()
+                    this.showToast("Successfully deleted filter preferences", "green")
+                })
+                .catch((error) => {
+                    this.showToast(error.message, "red")
+                })
+            })
+            .catch((error) => {
+                this.showToast(error.message, "red")
             })
         }
     }

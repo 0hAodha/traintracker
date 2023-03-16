@@ -19,17 +19,28 @@
 <script>
 import app from '../api/firebase';
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
+import { createToast } from 'mosha-vue-toastify';
+import 'mosha-vue-toastify/dist/style.css'
 import Navbar from '../components/Navbar.vue'
 
 export default {
   name: "SignupPage",
 
   data() {
+    const toast = () => {
+        createToast(this.toastMessage, {
+            hideProgressBar: true,
+            timeout: 4000,
+            toastBackgroundColor: this.toastBackground
+        })
+    }
+
     return {
       email: "",
       password: "",
-      displayFirebaseError: false,
-      FirebaseError: ""
+      toastMessage: "",
+      toastBackground: "",
+      toast
     }
   },
 
@@ -38,17 +49,21 @@ export default {
   },
 
   methods: {
+    showToast(message, backgroundColour) {
+        this.toastMessage = message
+        this.toastBackground = backgroundColour
+        this.toast()
+    },
+
     signup() {
       this.displayFirebaseError = false;
       const auth = getAuth(app)
-      createUserWithEmailAndPassword(auth, this.email, this.password)
-      .then((userCredential) => {
-          const user = userCredential.user
-          this.$router.push({path:'/account'})
+      createUserWithEmailAndPassword(auth, this.email, this.password).then(() => {
+          this.showToast("Signed up successfully", "green")
+          this.$router.push({path:'/'})
       })
       .catch((error) => {
-        this.FirebaseError = error.message
-        this.displayFirebaseError = true
+        this.showToast(error.message, "red")
       })
     }
   }

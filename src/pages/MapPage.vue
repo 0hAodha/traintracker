@@ -1,14 +1,14 @@
 <template>
 <Navbar />
 
-<nav class="navbar navbar-light bg-light">
-    <div class="container-fluid" @change="decideShowStations();">
+<nav v-if="this.trainCoordinates.length>0" class="navbar navbar-light bg-light">
+    <div class="container-fluid" @change="decideShowStations()">
         <input type="checkbox" id="showMainlandStations" v-model="showMainlandStations"/>
         <label for="showMainlandStations">Show Mainland Stations</label>
         <input type="checkbox" id="showDARTStations" v-model="showDARTStations"/>
         <label for="showDARTStations">Show DART Stations</label>
     </div>
-    <div class="container-fluid" @change="decideShowTrains();">
+    <div class="container-fluid" @change="decideShowTrains()">
         <input type="checkbox" id="showLate" v-model="showLate"/>
         <label for="showLate">Show Late Trains</label>
         <input type="checkbox" id="showOnTime" v-model="showOnTime"/>
@@ -24,6 +24,8 @@
         <input type="checkbox" id="showNotYetRunning" v-model="showNotYetRunning"/>
         <label for="showNotYetRunning">Show Not-Yet Running Trains</label>
     </div>
+
+    <button v-if="store.loggedIn" @click="postPreferences()">Save Preferences</button>
 </nav>
 
 <transition id="sidebar" name="slideLeft">
@@ -43,7 +45,7 @@
 
     <!-- train overlay -->
     <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
-      <ol-overlay v-if="showTrains[i]" :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
+      <ol-overlay v-if="showTrains[i]" :position="coordinate" :offset="[-14,-16]">
           <div class="overlay-content" @click="getSelectedTrain(i)">
               <div v-if="getTrainType(i) === 'DART'">
                   <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
@@ -61,7 +63,7 @@
 
     <!-- station overlay -->
     <template v-for="coordinate, i in stationCoordinates" :position="inline-block">
-      <ol-overlay v-if="showStations[i]" :position="coordinate" :positioning="center-center" :offset="[-14,-16]">
+      <ol-overlay v-if="showStations[i]" :position="coordinate" :offset="[-14,-16]">
         <div class="overlay-content" @click="getSelectedStation(i)">
           <img src="../assets/station.png" class="stationMapIcon" alt="Station Icon">
         </div>
@@ -79,9 +81,10 @@
 
 <script>
 import { store } from '../store/store';
-import { ref } from 'vue';
-import { fromLonLat, toLonLat } from 'ol/proj.js';
+import { fromLonLat } from 'ol/proj.js';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+import { createToast } from 'mosha-vue-toastify';
+import 'mosha-vue-toastify/dist/style.css'
 import app from '../api/firebase';
 import Navbar from '../components/Navbar.vue';
 import MarqueeText from 'vue-marquee-text-component';
@@ -92,58 +95,44 @@ export default {
     name: "MapPage",
 
     data() {
-        const center = ref(fromLonLat([-7.5029786, 53.4494762]));
-        const projection = ref('EPSG:3857');
-        const zoom = ref(7);
-        const rotation = ref(0);
-        const radius = ref(10);
-        const strokeWidth = ref(1);
-        const strokeColor = ref('black');
-        const fillColor = ref('red');
+      const toast = () => {
+        createToast(this.toastMessage, {
+            hideProgressBar: true,
+            timeout: 4000,
+            toastBackgroundColor: this.toastBackground
+        })
+      }
 
-        let showTrains = []; 
-        let showStations = []; 
+      return {
+          center: fromLonLat([-7.5029786, 53.4494762]),
+          projection: 'EPSG:3857',
+          zoom: 7,
+          rotation: 0,
 
-        let showMainlandStations = true; 
-        let showDARTStations = true;
-        let showLate = true; 
-        let showOnTime = true; 
-        let showMainland = true;
-        let showDART = true;
-        let showRunning = true; 
-        let showTerminated = true; 
-        let showNotYetRunning = true;
+          showTrains: [],
+          showStations: [],
+          trainCoordinates: [],
+          stationCoordinates: [],
+          allTrains: {},
+          allStations: {},
+          publicMessages: [],
+          isPaused: false,
+          store,
 
-        return {
-            center,
-            projection,
-            zoom,
-            rotation,
-            radius,
-            strokeWidth,
-            strokeColor,
-            fillColor,
+          toastMessage: "",
+          toastBackground: "",
+          toast,
 
-            showTrains: [],
-            showStations: [],
-            trainCoordinates: [],
-            stationCoordinates: [],
-            allTrains: {},
-            allStations: {},
-            publicMessages: [],
-            isPaused: false,
-            store,
-
-            showMainlandStations, 
-            showDARTStations,
-            showLate,
-            showOnTime,
-            showMainland,
-            showDART, 
-            showRunning, 
-            showTerminated, 
-            showNotYetRunning
-       }
+          showMainlandStations: true, 
+          showDARTStations: true,
+          showLate: true,
+          showOnTime: true,
+          showMainland: true,
+          showDART: true, 
+          showRunning: true, 
+          showTerminated: true, 
+          showNotYetRunning: true,
+      }
     },
 
     components: {
@@ -161,38 +150,101 @@ export default {
         else {
             this.getTrainAndStationData();
         }
-
         // request new data every 60 seconds
-        // window.setInterval(this.getLiveTrainData, 60000);
+        // window.setInterval(this.getTrainAndStationData, 60000);
     },
 
     methods: {
+        showToast(message, backgroundColour) {
+          this.toastMessage = message
+          this.toastBackground = backgroundColour
+          this.toast()
+        },
+
+        getPreferences() {
+          if (!store.loggedIn) return
+          const functions = getFunctions(app);
+          let host = window.location.hostname
+          if (host === '127.0.0.1' || host == 'localhost') {
+            connectFunctionsEmulator(functions, host, 5001);
+          }
+
+          const getPreferencesData = httpsCallable(functions, 'getPreferences')
+          getPreferencesData().then((response) => {
+            if (response.data.data) {
+              this.showMainlandStations = response.data.data["showMainlandStations"]
+              this.showDARTStations = response.data.data["showDARTStations"]
+              this.showLate = response.data.data["showLate"]
+              this.showOnTime = response.data.data["showOnTime"]
+              this.showMainland = response.data.data["showMainland"]
+              this.showDART = response.data.data["showDART"]
+              this.showRunning = response.data.data["showRunning"]
+              this.showTerminated = response.data.data["showTerminated"]
+              this.showNotYetRunning = response.data.data["showNotYetRunning"]
+
+              // update the map with the user's preferences
+              this.decideShowStations()
+              this.decideShowTrains()
+            }
+          })
+          .catch((error) => {
+            console.log(error.message)
+          })
+        },
+
+        postPreferences() {
+          if (!store.loggedIn) return
+          let preferences = {
+            "showMainlandStations": this.showMainlandStations,
+            "showDARTStations": this.showDARTStations,
+            "showLate": this.showLate,
+            "showOnTime": this.showOnTime,
+            "showMainland": this.showMainland,
+            "showDART": this.showDART,
+            "showRunning": this.showRunning,
+            "showTerminated": this.showTerminated,
+            "showNotYetRunning": this.showNotYetRunning
+          }
+
+          const functions = getFunctions(app);
+            let host = window.location.hostname
+            if (host === '127.0.0.1' || host == 'localhost') {
+              connectFunctionsEmulator(functions, host, 5001);
+          }
+          
+          const postPreferencesData = httpsCallable(functions, 'postPreferences')
+          postPreferencesData(preferences).then(() => {
+            this.showToast("Saved preferences successfully", "green")
+          })
+          .catch((error) => {
+            this.showToast(error.message, "red")
+          })
+        },
+
         // method to determine whether or not to show each train 
         decideShowTrains() {
-            for (let i = 0; i < this.showTrains.length; i++) {
-                // determine whether or not the tain is a DART or not 
-                let isDART = this.getTrainType(i) == "DART"; 
-
-                if ((this.showRunning && this.allTrains[i]["TrainStatus"][0] == "R") || (this.showTerminated && this.allTrains[i]["TrainStatus"][0] == "T") || this.showNotYetRunning && this.allTrains[i]["TrainStatus"][0] == "N") {
-                    if ((this.showDART && isDART) || (this.showMainland && !isDART)) {
-                        this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i)); // || (this.showMainland && !isDART) || (this.showDART && isDART);
-                    }
-                    else {
-                        this.showTrains[i] = false;
-                    }
-                }
-                else {
-                    this.showTrains[i] = false;
-                }
-            }
+          for (var i=0; i<this.showTrains.length; i++) {
+              let isDART = this.getTrainType(i) == "DART"; 
+              if ((this.showRunning && this.allTrains[i]["TrainStatus"][0] == "R") || (this.showTerminated && this.allTrains[i]["TrainStatus"][0] == "T") || this.showNotYetRunning && this.allTrains[i]["TrainStatus"][0] == "N") {
+                  if ((this.showDART && isDART) || (this.showMainland && !isDART)) {
+                      this.showTrains[i] = (this.showLate && this.isTrainLate(i)) || (this.showOnTime && !this.isTrainLate(i));
+                  }
+                  else {
+                      this.showTrains[i] = false;
+                  }
+              }
+              else {
+                  this.showTrains[i] = false;
+              }
+          }
         },
         
         // method to determine whether or not to show each station
         decideShowStations() {
-            for (let i = 0; i < this.showStations.length; i++) {
-                let isDARTStation = this.allStations[i]["StationType"][0] == "DART"; 
-                this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showMainlandStations && !isDARTStation);  
-            }
+          for (var i=0; i<this.showStations.length; i++) {
+            let isDARTStation = this.getStationType(i) == "DART"; 
+            this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showMainlandStations && !isDARTStation); 
+          }
         },
 
         // method to display a selected train
@@ -226,17 +278,18 @@ export default {
 
         // method to determine whether or not a selected train is running
         isTrainRunning(i) {
-            if (this.allTrains[i]["TrainStatus"][0] == "R") {
-                return true; 
-            } 
-            else {
-                return false;
-            }
+            if (this.allTrains[i]["TrainStatus"][0] == "R") return true; 
+            else return false;
         },
 
         // method that returns the type of train (either "Train" or "DART")
         getTrainType(i) {
             return this.allTrains[i]["TrainType"][0];
+        },
+
+        // method that returns the type of station (either "Train" or "DART")
+        getStationType(i) {
+          return this.allStations[i]["StationType"][0]
         },
 
         // method to fetch live train and station data from the database
@@ -257,15 +310,16 @@ export default {
                 try {
                     if (!response.data) throw new Error("Error fetching live train data from the database");
                     var insights =  {
-                                      "totalNumTrains": 0,
-                                      "numRunningTrains": 0,
-                                      "numLateRunningTrains": 0,
-                                      "numTrains": 0,
-                                      "numDarts": 0,
-                                      "totalNumStations": 0,
-                                      "numTrainStations": 0,
-                                      "numDartStations": 0
-                                    };
+                      "totalNumTrains": 0,
+                      "numRunningTrains": 0,
+                      "numLateRunningTrains": 0,
+                      "numTrains": 0,
+                      "numDarts": 0,
+                      "totalNumStations": 0,
+                      "numTrainStations": 0,
+                      "numDartStations": 0
+                    };
+
                     var unorderedTrains = [];
                     var currentMessages = [];
                     var latest = null;
@@ -277,13 +331,11 @@ export default {
                     for (var i=0; i<response.data.length; i++) {
                         let train = response.data[i];
                         this.allTrains[i] = train;
-
-                        // filling showTrains witht the default value true
-                        this.showTrains[i] = true;
-
-                        this.trainCoordinates[i] = ref(fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]]))
+                        this.trainCoordinates[i] = fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]])
                         insights["totalNumTrains"] += 1
 
+                        // filling showTrains with the default value - true
+                        this.showTrains[i] = true;
                         if (train["TrainType"][0] == "Train") insights["numTrains"] += 1;
                         else if (train["TrainType"][0] == "DART") insights["numDarts"] += 1;
 
@@ -314,7 +366,6 @@ export default {
                             // train is early or ontime
                             else {
                                 if (!earliest) earliest = train;
-                                
                                 // check for a new earliest train (early trains are -x mins late)
                                 if (num < currEarliestTime) {
                                     earliest = train;
@@ -339,26 +390,27 @@ export default {
                     const getStationData = httpsCallable(functions, 'getStationData');
                     getStationData().then((response) => {
                       if (!response.data) throw new Error("Error fetching station from the database");
+
                       for (var i=0; i<response.data.length; i++) {
                         let station = response.data[i];
                         this.allStations[i] = station;
+                        this.stationCoordinates[i] = fromLonLat([station["StationLongitude"][0], station["StationLatitude"][0]])
+                        insights["totalNumStations"] += 1
 
                         // setting the station to show on the map by default - true
                         this.showStations[i] = true; 
-
-                        this.stationCoordinates[i] = ref(fromLonLat([station["StationLongitude"][0], station["StationLatitude"][0]]))
-                        insights["totalNumStations"] += 1
-                        
                         if (station["StationType"][0] == "DART") insights["numDartStations"] += 1;
                         else if (station["StationType"][0] == "Train") insights["numTrainStations"] += 1;
                       }
 
                       store.setInsights(insights);
                       loader.hide();
+                      // request the user's preferences
+                      this.getPreferences()
                     })
               }
               catch (error) {
-                  console.log(error)
+                  console.log(error.message)
                   loader.hide();
               }
             })
@@ -371,12 +423,11 @@ export default {
             if (host === '127.0.0.1' || host === 'localhost') {
                 connectFunctionsEmulator(functions, host, 5001);
             }
-            // post live train data
+
             const postTrainData = httpsCallable(functions, 'postLiveTrainData');
-            postTrainData().then((response) => {
-              // post station data
+            postTrainData().then(() => {
               const postStationData = httpsCallable(functions, 'postStationData');
-              postStationData().then((reponse) => {
+              postStationData().then(() => {
                 this.getTrainAndStationData()
               })
             })
