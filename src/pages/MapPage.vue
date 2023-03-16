@@ -83,6 +83,8 @@
 import { store } from '../store/store';
 import { fromLonLat } from 'ol/proj.js';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+import { createToast } from 'mosha-vue-toastify';
+import 'mosha-vue-toastify/dist/style.css'
 import app from '../api/firebase';
 import Navbar from '../components/Navbar.vue';
 import MarqueeText from 'vue-marquee-text-component';
@@ -93,32 +95,44 @@ export default {
     name: "MapPage",
 
     data() {
-        return {
-            center: fromLonLat([-7.5029786, 53.4494762]),
-            projection: 'EPSG:3857',
-            zoom: 7,
-            rotation: 0,
+      const toast = () => {
+        createToast(this.toastMessage, {
+            hideProgressBar: true,
+            timeout: 4000,
+            toastBackgroundColor: this.toastBackground
+        })
+      }
 
-            showTrains: [],
-            showStations: [],
-            trainCoordinates: [],
-            stationCoordinates: [],
-            allTrains: {},
-            allStations: {},
-            publicMessages: [],
-            isPaused: false,
-            store,
+      return {
+          center: fromLonLat([-7.5029786, 53.4494762]),
+          projection: 'EPSG:3857',
+          zoom: 7,
+          rotation: 0,
 
-            showMainlandStations: true, 
-            showDARTStations: true,
-            showLate: true,
-            showOnTime: true,
-            showMainland: true,
-            showDART: true, 
-            showRunning: true, 
-            showTerminated: true, 
-            showNotYetRunning: true,
-        }
+          showTrains: [],
+          showStations: [],
+          trainCoordinates: [],
+          stationCoordinates: [],
+          allTrains: {},
+          allStations: {},
+          publicMessages: [],
+          isPaused: false,
+          store,
+
+          toastMessage: "",
+          toastBackground: "",
+          toast,
+
+          showMainlandStations: true, 
+          showDARTStations: true,
+          showLate: true,
+          showOnTime: true,
+          showMainland: true,
+          showDART: true, 
+          showRunning: true, 
+          showTerminated: true, 
+          showNotYetRunning: true,
+      }
     },
 
     components: {
@@ -141,6 +155,12 @@ export default {
     },
 
     methods: {
+        showToast(message, backgroundColour) {
+          this.toastMessage = message
+          this.toastBackground = backgroundColour
+          this.toast()
+        },
+
         getPreferences() {
           if (!store.loggedIn) return
           const functions = getFunctions(app);
@@ -194,10 +214,10 @@ export default {
           
           const postPreferencesData = httpsCallable(functions, 'postPreferences')
           postPreferencesData(preferences).then(() => {
-            console.log("Sent preferences successfully")
+            this.showToast("Saved preferences successfully", "green")
           })
           .catch((error) => {
-            console.log(error.message)
+            this.showToast(error.message, "red")
           })
         },
 
