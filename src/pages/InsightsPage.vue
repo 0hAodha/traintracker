@@ -14,7 +14,7 @@
             <pieChart id="trainPie" />
         </div>
     </div>
-        
+
     <hr>
     <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
     <p>Percentage late: {{ this.insights["percentageLate"] }}%</p>
@@ -100,7 +100,7 @@ export default {
     color: black;
     padding-left: 10px;
     width:80%;
-    background-color: antiquewhite;
+    background-color: rgb(250, 235, 215);
 }
 
 #trainTotal, #stationTotal {
