@@ -1,6 +1,6 @@
 <template>
 <Navbar />
-<h1>404</h1>
+<h1>404 - You've been derailed :(</h1>
 </template>
     
 <script>
