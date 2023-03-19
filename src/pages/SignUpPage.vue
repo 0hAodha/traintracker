@@ -12,7 +12,6 @@
     <input @click="signup" type="submit" name="" value="Sign Up">
     <a><router-link to="/login">Already have an account?</router-link></a>
   </div>
-  <p v-if="displayFirebaseError">{{ FirebaseError }}</p>
 </div>
 </template>
 
@@ -56,14 +55,31 @@ export default {
     },
 
     signup() {
-      this.displayFirebaseError = false;
+      if (!this.email || !this.password) {
+        this.showToast("Missing credentials", "red")
+        return
+      }
+
+      if (this.password.length < 6) {
+        this.showToast("Password must be 6 or more characters", "red")
+        return
+      }
+
       const auth = getAuth(app)
       createUserWithEmailAndPassword(auth, this.email, this.password).then(() => {
           this.showToast("Signed up successfully", "green")
           this.$router.push({path:'/'})
       })
       .catch((error) => {
-        this.showToast(error.message, "red")
+        if (error.message.includes("already")) {
+          this.showToast("Email already in use", "red")
+        }
+        else if (error.message.includes("email")) {
+          this.showToast("Invalid email", "red")
+        }
+        else {
+          this.showToast(error.message, "red")
+        }
       })
     }
   }

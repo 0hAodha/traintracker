@@ -19,7 +19,7 @@
     <h3>Delete account</h3>
     <input @click="deleteUserAccount()" type="submit" name="" value="Delete Account">
 
-    <h3>Delete filter preferences data</h3>
+    <h3>Delete map filter preferences data</h3>
     <button @click="deleteUserPreferences()">Delete preferences</button>
 </div>
 </template>
@@ -79,7 +79,12 @@ export default {
             })
             .catch((error) => {
                 this.reAuthSuccessful = false
-                this.showToast(error.message, "red")
+                if (error.message.includes("wrong")) {
+                    this.showToast("Wrong password inputted", "red")
+                }
+                else {
+                    this.showToast(error.message, "red")
+                }
             })
         },
 
@@ -171,7 +176,7 @@ export default {
                 const deletePreferencesData = httpsCallable(functions, 'deletePreferences')
                 deletePreferencesData().then(() => {
                     this.resetCredentials()
-                    this.showToast("Successfully deleted filter preferences", "green")
+                    this.showToast("Successfully map deleted filter preferences", "green")
                 })
                 .catch((error) => {
                     this.showToast(error.message, "red")

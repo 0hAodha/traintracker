@@ -1,12 +1,11 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-
 chai.use(chaiHttp);
 const expect = chai.expect;
 
 describe('Firebase cloud function tests', function() {
     this.timeout(100000);
-    it('Test getting live train data from the database', async() => {
+    it('Test /getLiveTrainData', async() => {
         const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
         .get('/getLiveTrainData')
         expect(result.statusCode).to.equal(200);
@@ -22,7 +21,7 @@ describe('Firebase cloud function tests', function() {
     }),
 
     this.timeout(100000);
-    it('Test getting station data from the database', async() => {
+    it('Test /getStationData', async() => {
         const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
         .get('/getStationData')
         expect(result.statusCode).to.equal(200);
@@ -36,14 +35,14 @@ describe('Firebase cloud function tests', function() {
     }),
 
     this.timeout(100000);
-    it('Test updating the database with live train data', async() => {
+    it('Test /postLiveTrainData', async() => {
         const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
         .get('/postLiveTrainData')
         expect(result.statusCode).to.equal(200);
     }),
 
     this.timeout(100000);
-    it('Test updating the database with live station data', async() => {
+    it('Test /postStationData', async() => {
         const result = await chai.request('https://us-central1-irishrailtracker.cloudfunctions.net')
         .get('/postStationData')
         expect(result.statusCode).to.equal(200);

@@ -1,3 +1,7 @@
+// exports.scheduledFunction = functions.pubsub.schedule('every 10 minutes').onRun((context) => {
+  // functions.logger.info("Test log")
+// })
+
 // Firebase imports
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
@@ -18,13 +22,15 @@ exports.getStationData = functions.https.onRequest((request, response) => {
     // fetch the "stations" collection
     admin.firestore().collection('stations').get().then((snapshot) => {
       if (snapshot.empty) {
-        response.status(404).send({data: "Error fetching station data from the database"})
+        functions.logger.log("Error fetching station data from Firestore")
+        response.status(404).send({data: "Error fetching station data from Firestore"})
         return;
       }
       // iterate through each of the collection's documents
       snapshot.forEach(doc => {
         jsonData.push(doc.data());
       });
+      functions.logger.log("Successfully fetched station data from Firestore")
       response.json({data: jsonData});
     })
   });
@@ -93,6 +99,7 @@ exports.postStationData = functions.https.onRequest((request, response) => {
               parseString(res.data, function(err, result) {
                 let jsonData = parseJSON(result)
                 batchWriteDB(request, response, db, jsonData, dartCodes, "Train")
+                functions.logger.log("Successfully fetched and upload station data from Irish Rail")
                 response.send({data: "Successfully fetched and upload station data from Irish Rail"})
               })
             })
@@ -113,13 +120,15 @@ exports.getLiveTrainData = functions.https.onRequest((request, response) => {
     // fetch the "liveTrainData" collection
     admin.firestore().collection('liveTrainData').get().then((snapshot) => {
       if (snapshot.empty) {
-        response.status(404).send({data: "Error fetching live train data from the database"});
+        functions.logger.log("Error fetching live train data from Firestore")
+        response.status(404).send({data: "Successfully fetched live train data from Firestore"});
         return;
       }
       // iterate through each of the collection's documents
       snapshot.forEach(doc => {
         jsonData.push(doc.data());
       });
+      functions.logger.log("Successfully fetched live train data from Firestore")
       response.json({data: jsonData});
     })
   });
@@ -187,6 +196,7 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
                   parseString(res.data, function(err, result) {
                     let jsonData = parseJSON(result)
                     batchWriteDB(request, response, db, jsonData, "DART");
+                    functions.logger.log("Successfully fetched and uploaded live train data from Irish Rail")
                     response.send({data: "Successfully fetched and uploaded live train data from Irish Rail"});
                   })
                 })
@@ -203,6 +213,7 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
 exports.getPreferences = functions.https.onCall((data, context) => {
   if (!context.auth) return "Error request is not verified"
   return admin.firestore().collection('preferences').doc(context.auth.uid).get().then((preferences) => {
+    functions.logger.log("Successfully fetched user preferences from Firestore")
     return preferences.data()
   })
 }) 
@@ -211,7 +222,8 @@ exports.getPreferences = functions.https.onCall((data, context) => {
 exports.postPreferences = functions.https.onCall((data, context) => {
   if (!context.auth) return "Error request is not verified"
   return admin.firestore().collection('preferences').doc(context.auth.uid).set({data}).then(() => {
-    return "Successfully saved preferences"
+    functions.logger.log("Successfully saved user preferences into Firestore")
+    return "Successfully saved user preferences into Firestore"
   })
 })
 
@@ -219,6 +231,7 @@ exports.postPreferences = functions.https.onCall((data, context) => {
 exports.deletePreferences = functions.https.onCall((data, context) => {
   if (!context.auth) return "Error request is not verified"
   return admin.firestore().collection('preferences').doc(context.auth.uid).delete().then(() => {
-    return "Successfully deleted preferences"
+    functions.logger.log("Successfully deleted user preferences from Firestore")
+    return "Successfully deleted user preferences from Firestore"
   })
 })
