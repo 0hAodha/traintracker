@@ -6,29 +6,30 @@
     Map Filters
   </button>
   <div style="padding-bottom: 7px;" id="dropMenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton1" v-on:click.stop="handleClick">
-    <div id="prefHeader">~SHOW~</div>
+    <div id="prefHeader">STATIONS</div>
       <div class="container-fluid" @change="decideShowStations();">
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showMainlandStations" v-model="showMainlandStations"/>
-          <label class="form-check-label" for="showMainlandStations">Mainland Stations</label>
+          <label class="form-check-label" for="showMainlandStations">Mainline Stations</label>
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showDARTStations" v-model="showDARTStations"/>
-          <label class="form-check-label" for="showDARTStations">Dart Stations</label>
+          <label class="form-check-label" for="showDARTStations">DART Stations</label>
         </div>
       </div>
+      <div id="prefHeader">TRAINS</div>
       <div class="container-fluid" @change="decideShowTrains();">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showMainland" v-model="showMainland"/>
+          <label class="form-check-label" for="showMainland">Mainline Trains</label>
+        </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showLate" v-model="showLate"/>
           <label class="form-check-label" for="showLate">Late Trains</label>
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showOnTime" v-model="showOnTime"/>
-          <label class="form-check-label" for="showOnTime">On-Time Trains</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="showMainland" v-model="showMainland"/>
-          <label class="form-check-label" for="showMainland">Mainland Trains</label>
+          <label class="form-check-label" for="showOnTime">On-time Trains</label>
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showDART" v-model="showDART"/>
@@ -44,7 +45,7 @@
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showNotYetRunning" v-model="showNotYetRunning"/>
-          <label class="form-check-label" for="showNotYetRunning">Not-Yet Running Trains</label>
+          <label class="form-check-label" for="showNotYetRunning">Not-yet Running Trains</label>
         </div>
       </div>
       <button id="savePref" class="btn btn-outline-info" v-if="store.loggedIn" @click="postPreferences()">Save Preferences</button>
@@ -66,36 +67,38 @@
     <ol-source-osm />
     </ol-tile-layer>
 
-    <!-- train overlay -->
-    <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
-      <ol-overlay v-if="showTrains[i]" :position="coordinate" :offset="[-14,-16]">
-          <div class="overlay-content" @click="getSelectedTrain(i)">
-              <div v-if="getTrainType(i) === 'DART'">
-                  <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
-                  <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-tram-solid.png" class="trainMapIcon" alt="On-Time DART Icon">
-                  <img v-else src="../assets/train-tram-solid.svg" class="trainMapIcon" alt="Not Running DART Icon">
-              </div>
-              <div v-else>
-                  <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
-                  <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
-                  <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
-              </div>
-          </div>
-      </ol-overlay>
-    </template>
+    <div v-if="(!store.isWaitingForLoginStatus && !store.loggedIn) || (store.loggedIn && readyToDisplayMap)">
+      <!-- train overlay -->
+      <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
+        <ol-overlay v-if="showTrains[i]" :position="coordinate" :offset="[-14,-16]">
+            <div class="overlay-content" @click="getSelectedTrain(i)">
+                <div v-if="getTrainType(i) === 'DART'">
+                    <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
+                    <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-tram-solid.png" class="trainMapIcon" alt="On-Time DART Icon">
+                    <img v-else src="../assets/train-tram-solid.svg" class="trainMapIcon" alt="Not Running DART Icon">
+                </div>
+                <div v-else>
+                    <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-solid.png" class="trainMapIcon" alt="Late Train Icon">
+                    <img v-else-if="isTrainRunning(i) && !isTrainLate(i)" src="../assets/green-train-solid.png" class="trainMapIcon" alt="On-Time Train Icon">
+                    <img v-else src="../assets/train-solid.svg" class="trainMapIcon" alt="Not Running Train Icon">
+                </div>
+            </div>
+        </ol-overlay>
+      </template>
 
-    <!-- station overlay -->
-    <template v-for="coordinate, i in stationCoordinates" :position="inline-block">
-      <ol-overlay v-if="showStations[i]" :position="coordinate" :offset="[-14,-16]">
-        <div class="overlay-content" @click="getSelectedStation(i)">
-          <img src="../assets/station.png" class="stationMapIcon" alt="Station Icon">
-        </div>
-      </ol-overlay>
-    </template>
+      <!-- station overlay -->
+      <template v-for="coordinate, i in stationCoordinates" :position="inline-block">
+        <ol-overlay v-if="showStations[i]" :position="coordinate" :offset="[-14,-16]">
+          <div class="overlay-content" @click="getSelectedStation(i)">
+            <img src="../assets/station.png" class="stationMapIcon" alt="Station Icon">
+          </div>
+        </ol-overlay>
+      </template>
+    </div>
 </ol-map>
 
 <div>
-  <MarqueeText v-if="publicMessages.length > 0" id="publicMessageTicker" :paused="isPaused" :duration="800" :repeat="1"
+  <MarqueeText v-if="publicMessages.length>0" id="publicMessageTicker" :paused="isPaused" :duration="800" :repeat="1"
     @mouseenter="isPaused = !isPaused" @mouseleave="isPaused = false">
     <span v-for="message in publicMessages"> {{ message + " • " }} </span> 
   </MarqueeText>
@@ -140,6 +143,7 @@ export default {
           allStations: {},
           publicMessages: [],
           isPaused: false,
+          readyToDisplayMap: false,
           store,
 
           toastMessage: "",
@@ -166,6 +170,7 @@ export default {
     },
     
     created() {
+        this.readyToDisplayMap = false
         let host = window.location.hostname
         if (host === '127.0.0.1' || host === 'localhost') {
             this.postTrainAndStationData();
@@ -199,6 +204,7 @@ export default {
           const getPreferencesData = httpsCallable(functions, 'getPreferences')
           getPreferencesData().then((response) => {
             if (response.data.data) {
+              this.hasPreferences = true
               this.showMainlandStations = response.data.data["showMainlandStations"]
               this.showDARTStations = response.data.data["showDARTStations"]
               this.showLate = response.data.data["showLate"]
@@ -212,9 +218,11 @@ export default {
               // update the map with the user's preferences
               this.decideShowStations()
               this.decideShowTrains()
+              this.readyToDisplayMap = true
             }
           })
           .catch((error) => {
+            this.readyToDisplayMap = true
             console.log(error.message)
           })
         },
@@ -239,9 +247,10 @@ export default {
               connectFunctionsEmulator(functions, host, 5001);
           }
           
+          this.showToast("Saving preferences", "green")
           const postPreferencesData = httpsCallable(functions, 'postPreferences')
           postPreferencesData(preferences).then(() => {
-            this.showToast("Saved preferences successfully", "green")
+            this.readyToDisplayMap = true
           })
           .catch((error) => {
             this.showToast(error.message, "red")
@@ -335,7 +344,7 @@ export default {
             
             getTrainData().then((response) => {
                 try {
-                    if (!response.data) throw new Error("Error fetching live train data from the database");
+                    if (!response.data) throw new Error("Error fetching live train data from the database")
                     var insights =  {
                       "totalNumTrains": 0,
                       "numRunningTrains": 0,
@@ -437,9 +446,13 @@ export default {
                     })
               }
               catch (error) {
-                  console.log(error.message)
-                  loader.hide();
+                  loader.hide()
+                  this.showToast(error.message, "red")
               }
+            })
+            .catch((error) => {
+              loader.hide()
+              this.showToast("Error fetching live data", "red")
             })
         },
 
@@ -458,6 +471,9 @@ export default {
                 this.getTrainAndStationData()
               })
             })
+            .catch((error) => {
+              this.showToast(error.message, "red")
+            })
         }
     }
 }
@@ -473,7 +489,7 @@ export default {
   height: 32px;
 }
 
-.trainMapIcon:hover{
+.trainMapIcon:hover {
   width:30px;
   height:34px;
   cursor: pointer;
@@ -489,6 +505,7 @@ export default {
   height: 19px;
   cursor: pointer;
 }
+
 #dropdownMenuButton1 {
   box-shadow: 0 0 5px 2px #6e757dbe;
 }
@@ -498,15 +515,14 @@ export default {
   font-size: 14.6px;
 }
 
-#preferenceDropdown{
+#preferenceDropdown {
   position: absolute;
   z-index: 3;
   right: 1%;
   top: 11%;
-
 }
 
-#prefHeader{
+#prefHeader {
   font-size: 18px;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   text-align: center;
@@ -529,10 +545,10 @@ export default {
   font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 
-#savePref{
+#savePref {
   left:2%;
   top: 2px;
-  width: 96%;
+  width: 95%;
   position: relative;
 }
 .slideLeft-enter-active, .slideLeft-leave-active {

@@ -51,6 +51,7 @@ export default {
       onAuthStateChanged(auth, (user) => {
         user ? this.isLoggedIn = true : this.isLoggedIn = false
         store.setLoginStatus(this.isLoggedIn)
+        store.isWaitingForLoginStatus = false
       })
   },
 
