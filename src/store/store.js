@@ -11,6 +11,7 @@ export const store = reactive({
     displaySelectedTrain: false,
     displayedSelectedStation: false,
     loggedIn: false,
+    isWaitingForLoginStatus: true,
 
     setInsights(insights) {
         this.insights = insights

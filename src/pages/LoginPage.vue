@@ -10,8 +10,8 @@
       <p>Password</p>
       <input type="password" v-model="password" placeholder="Enter password">
       <input @click="login" type="submit" name="" value="Login">
-      <a><router-link to="/signup">Don't have an account?</router-link></a>
       <a @click="forgotPassword = !forgotPassword; this.email = ''">Forgot password?</a>
+      <a><router-link to="/signup">Don't have an account?</router-link></a>
     </div>
 
     <div v-else>
@@ -70,22 +70,48 @@ export default {
 
     login() {
       const auth = getAuth(app)
+      if (!this.email || !this.password) {
+        this.showToast("Missing credentials", "red")
+        return
+      }
+
       signInWithEmailAndPassword(auth, this.email, this.password).then(() => {
         this.showToast("Logged in successfully", "green")
         this.$router.push({path:'/'})
       })
       .catch((error) => {
-        this.showToast(error.message, "red")
+        if (error.message.includes("email")) {
+          this.showToast("Invalid email", "red")
+        }
+        else if (error.message.includes("user")) {
+          this.showToast("Could not find this user", "red")
+        }
+        else {
+          this.showToast(error.message, "red")
+        }
       })
     },
 
     resetPasswordEmail() {
+      if (!this.email) {
+        this.showToast("Missing credentials", "red")
+        return
+      }
+
       sendPasswordResetEmail(auth, this.email).then(() => {
         this.showToast("Reset password email sent", "green")
         this.email = ""
       })
       .catch((error) => {
-        this.showToast(error.message, "red")
+        if (error.message.includes("email")) {
+          this.showToast("Invalid email", "red")
+        }
+        else if (error.message.includes("user")) {
+          this.showToast("Could not find this user", "red")
+        }
+        else {
+          this.showToast(error.message, "red")
+        }
       })
     }
   }
