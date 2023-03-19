@@ -129,6 +129,12 @@ export default {
         })
       }
 
+      let loader = this.$loading.show({
+            loader: 'dots',
+            container: this.$refs.container,
+            canCancel: false
+      });
+
       return {
           center: fromLonLat([-7.5029786, 53.4494762]),
           projection: 'EPSG:3857',
@@ -149,6 +155,7 @@ export default {
           toastMessage: "",
           toastBackground: "",
           toast,
+          loader,
 
           showMainlandStations: true, 
           showDARTStations: true,
@@ -223,7 +230,6 @@ export default {
           })
           .catch((error) => {
             this.readyToDisplayMap = true
-            console.log(error.message)
           })
         },
 
@@ -335,16 +341,13 @@ export default {
             if (host === '127.0.0.1' || host == 'localhost') {
                 connectFunctionsEmulator(functions, host, 5001);
             }
+
             const getTrainData = httpsCallable(functions, 'getLiveTrainData');
-            let loader = this.$loading.show({
-                loader: 'dots',
-                container: this.$refs.container,
-                canCancel: false
-            });
-            
             getTrainData().then((response) => {
                 try {
                     if (!response.data) throw new Error("Error fetching live train data from the database")
+                    var unorderedTrains = [];
+                    var currentMessages = [];
                     var insights =  {
                       "totalNumTrains": 0,
                       "numRunningTrains": 0,
@@ -356,13 +359,6 @@ export default {
                       "numDartStations": 0
                     };
 
-                    var unorderedTrains = [];
-                    var currentMessages = [];
-                    var latest = null;
-                    var earliest = null;
-                    var currLatestTime = null;
-                    var currEarliestTime = null;
-
                     // create an array of coordinates and hashmap with the key-values {index: JSON obj}
                     for (var i=0; i<response.data.length; i++) {
                         let train = response.data[i];
@@ -370,7 +366,7 @@ export default {
                         this.trainCoordinates[i] = fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]])
                         insights["totalNumTrains"] += 1
 
-                        // filling showTrains with the default value - true
+                        // fill showTrains with the default value - true
                         this.showTrains[i] = true;
                         if (train["TrainType"][0] == "Train") insights["numTrains"] += 1;
                         else if (train["TrainType"][0] == "DART") insights["numDarts"] += 1;
@@ -391,35 +387,15 @@ export default {
                             // check if the train is late
                             if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
                                 insights["numLateRunningTrains"] += 1;
-                                if (!latest) latest = train;
-
-                                // check for a new latest train
-                                if (num > currLatestTime) {
-                                    latest = train;
-                                    currLatestTime = num;
-                                }
-                            }
-                            // train is early or ontime
-                            else {
-                                if (!earliest) earliest = train;
-                                // check for a new earliest train (early trains are -x mins late)
-                                if (num < currEarliestTime) {
-                                    earliest = train;
-                                    currEarliestTime = num;
-                                }
                             }
                         }
                     }
 
                     insights["percentageLate"] = ((insights["numLateRunningTrains"] / insights["numRunningTrains"]) * 100).toFixed(2);
                     insights["percentageNotLate"] = (100 - insights["percentageLate"]).toFixed(2);
-                    insights["latestTime"] = currLatestTime;
-                    insights["earliestTime"] = currEarliestTime;
                     this.publicMessages = currentMessages;
 
                     // assign the results to the Vue Store
-                    store.setEarliestTrain(earliest);
-                    store.setLatestTrain(latest);
                     store.setRawData(response.data);
                     store.setOrderedTrains(unorderedTrains);
 
@@ -440,18 +416,18 @@ export default {
                       }
 
                       store.setInsights(insights);
-                      loader.hide();
+                      this.loader.hide()
                       // request the user's preferences
                       this.getPreferences()
                     })
               }
               catch (error) {
-                  loader.hide()
+                  this.loader.hide()
                   this.showToast(error.message, "red")
               }
             })
             .catch((error) => {
-              loader.hide()
+              this.loader.hide()
               this.showToast("Error fetching live data", "red")
             })
         },
