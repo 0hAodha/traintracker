@@ -53,15 +53,28 @@
 <hr>
 
 <h1>Leaderboard</h1>
-<div v-for="item in orderedTrains">
-    <h2>{{ this.rawData[item.jsonIndex]["TrainCode"][0] }}</h2>
-    <p v-if="item.time > 0">{{ item.time }} mins late</p>
-    <p v-else>{{ item.time * -1}} mins early</p>
+<div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" role="switch" v-model="showTopEarliestLatest"/>
+    <label class="form-check-label" for="showTopEarliestLatest">Show top three earliest and latest</label>
+</div>
+
+<div v-if="!showTopEarliestLatest" v-for="train in orderedTrains">
+    <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }}</h2>
+    <p v-if="train.time > 0">{{ train.time }} mins late</p>
+    <p v-else>{{ train.time * -1}} mins early</p>
+</div>
+
+<div v-else v-for="train in topEarliestLatest">
+    <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }}</h2>
+    <p v-if="train.time > 0">{{ train.time }} mins late</p>
+    <p v-else>{{ train.time * -1}} mins early</p>
 </div>
 </template>
     
 <script>
 import {store} from '../store/store'
+import { createToast } from 'mosha-vue-toastify';
+import 'mosha-vue-toastify/dist/style.css'
 import Navbar from '../components/Navbar.vue'
 import BarChart from '../components/BarChart.vue'
 import pieChart from '../components/pieChart.vue'
@@ -69,13 +82,27 @@ export default {
     name: "InsightsPage",
 
     data() {
+        const toast = () => {
+            createToast(this.toastMessage, {
+                hideProgressBar: true,
+                timeout: 4000,
+                toastBackgroundColor: this.toastBackground
+            })
+        }
+
         return {
             insights: {},
             latestTrain: {},
             earliestTrain: {},
             rawData: {},
             orderedTrains: [],
-            store
+            topEarliestLatest: [],
+            showTopEarliestLatest: false,
+            store,
+
+            toastMessage: "",
+            toastBackground: "",
+            toast
         }
     },
 
@@ -86,11 +113,25 @@ export default {
     },
 
     created() {
-        this.insights = store.insights
-        this.latestTrain = store.latestTrain
-        this.earliestTrain = store.earliestTrain
-        this.rawData = store.rawData
-        this.orderedTrains = store.orderedTrains
+        if (!store.orderedTrains.length > 0) {
+            this.showToast("Error fetching live data", "red")
+        }
+        else {
+            this.insights = store.insights
+            this.latestTrain = store.latestTrain
+            this.earliestTrain = store.earliestTrain
+            this.rawData = store.rawData
+            this.orderedTrains = store.orderedTrains
+            this.topEarliestLatest = this.orderedTrains.slice(0, 3).concat(this.orderedTrains.slice(-3))
+        }
+    },
+
+    methods: {
+        showToast(message, backgroundColour) {
+          this.toastMessage = message
+          this.toastBackground = backgroundColour
+          this.toast()
+        }
     }
 }
 </script>
