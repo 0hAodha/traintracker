@@ -10,7 +10,7 @@
                 <li><p>Darts: {{ this.insights["numDarts"] }}</p></li>
             </ul>
         </div>
-        <div id="trainTotalChart">
+        <div v-if="readyToRender" id="trainTotalChart">
             <pieChart id="trainPie" />
         </div>
     </div>
@@ -19,12 +19,9 @@
     <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
     <p>Percentage late: {{ this.insights["percentageLate"] }}%</p>
     <p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p>
-    <div id="statsDiv">
+    <div v-if="readyToRender" id="statsDiv">
         <BarChart id="lateGraph" /> 
     </div>
-
-    <p v-if="this.latestTrain['TrainCode']">Latest train: {{ this.latestTrain["TrainCode"][0] }}, {{ this.insights["latestTime"] }} mins late</p>
-    <p v-if="this.earliestTrain['TrainCode']">Earliest train: {{ this.earliestTrain["TrainCode"][0] }}, {{ this.insights["earliestTime"] * -1 }} mins early</p>
 
     <h1 style="padding-left: 10px;">Station Insights</h1>
     <div id="stationTotal">
@@ -36,7 +33,7 @@
             </ul>
         </div>
         <div id="stationTotalChart">
-            <pieChart id="stationPie" />
+            <pieChart v-if="readyToRender" id="stationPie" />
         </div>
     </div>
 </div>
@@ -72,12 +69,15 @@
 </template>
     
 <script>
-import {store} from '../store/store'
+import { store } from '../store/store'
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
 import { createToast } from 'mosha-vue-toastify';
 import 'mosha-vue-toastify/dist/style.css'
 import Navbar from '../components/Navbar.vue'
 import BarChart from '../components/BarChart.vue'
 import pieChart from '../components/pieChart.vue'
+import app from '../api/firebase';
+
 export default {
     name: "InsightsPage",
 
@@ -90,19 +90,25 @@ export default {
             })
         }
 
+        let loader = this.$loading.show({
+            loader: 'dots',
+            container: this.$refs.container,
+            canCancel: false
+        });
+
         return {
             insights: {},
-            latestTrain: {},
-            earliestTrain: {},
             rawData: {},
             orderedTrains: [],
             topEarliestLatest: [],
             showTopEarliestLatest: false,
+            readyToRender: false,
             store,
 
             toastMessage: "",
             toastBackground: "",
-            toast
+            toast,
+            loader
         }
     },
 
@@ -113,16 +119,23 @@ export default {
     },
 
     created() {
+        // check if no insight data exists
         if (!store.orderedTrains.length > 0) {
-            this.showToast("Error fetching live data", "red")
+            let host = window.location.hostname
+            if (host === '127.0.0.1' || host === 'localhost') {
+                this.postTrainAndStationData();
+            }  
+            else {
+                this.getTrainAndStationData();
+            }
         }
         else {
             this.insights = store.insights
-            this.latestTrain = store.latestTrain
-            this.earliestTrain = store.earliestTrain
             this.rawData = store.rawData
             this.orderedTrains = store.orderedTrains
             this.topEarliestLatest = this.orderedTrains.slice(0, 3).concat(this.orderedTrains.slice(-3))
+            this.loader.hide();
+            this.readyToRender = true
         }
     },
 
@@ -131,6 +144,108 @@ export default {
           this.toastMessage = message
           this.toastBackground = backgroundColour
           this.toast()
+        },
+
+        postTrainAndStationData() {
+            const functions = getFunctions(app);
+            let host = window.location.hostname
+            if (host === '127.0.0.1' || host === 'localhost') {
+                connectFunctionsEmulator(functions, host, 5001);
+            }
+
+            const postTrainData = httpsCallable(functions, 'postLiveTrainData');
+            postTrainData().then(() => {
+              const postStationData = httpsCallable(functions, 'postStationData');
+              postStationData().then(() => {
+                this.getTrainAndStationData()
+              })
+            })
+            .catch((error) => {
+              this.showToast(error.message, "red")
+            })
+        },
+
+        // condensed version
+        getTrainAndStationData() {
+            const functions = getFunctions(app);
+            let host = window.location.hostname
+            if (host === '127.0.0.1' || host == 'localhost') {
+                connectFunctionsEmulator(functions, host, 5001);
+            }
+
+            const getTrainData = httpsCallable(functions, 'getLiveTrainData');
+            getTrainData().then((response) => {
+                try {
+                    if (!response.data) throw new Error("Error fetching live train data from the database")
+                    var unorderedTrains = [];
+                    var insights =  {
+                      "totalNumTrains": 0,
+                      "numRunningTrains": 0,
+                      "numLateRunningTrains": 0,
+                      "numTrains": 0,
+                      "numDarts": 0,
+                      "totalNumStations": 0,
+                      "numTrainStations": 0,
+                      "numDartStations": 0
+                    };
+
+                    for (var i=0; i<response.data.length; i++) {
+                        let train = response.data[i];
+                        insights["totalNumTrains"] += 1
+                        if (train["TrainType"][0] == "Train") insights["numTrains"] += 1;
+                        else if (train["TrainType"][0] == "DART") insights["numDarts"] += 1;
+                        
+                        train["PublicMessage"][0] = train["PublicMessage"][0].replace(/\\n/g, ". ");
+                        let publicMessage = train["PublicMessage"][0];
+
+                        // check if the train is running
+                        if (train["TrainStatus"][0] == "R") {
+                            insights["numRunningTrains"] += 1;
+                            let startTimeStr = publicMessage.indexOf("(");
+                            let timeEnd = publicMessage.indexOf(" ", startTimeStr+1);
+                            let num = parseInt(publicMessage.substring(startTimeStr+1, timeEnd))
+                            unorderedTrains.push({"time": num, "jsonIndex": i})
+
+                            // check if the train is late
+                            if (publicMessage[startTimeStr+1] != "-" && publicMessage[startTimeStr+1] != "0") {
+                                insights["numLateRunningTrains"] += 1;
+                            }
+                        }
+                    }
+
+                    insights["percentageLate"] = ((insights["numLateRunningTrains"] / insights["numRunningTrains"]) * 100).toFixed(2);
+                    insights["percentageNotLate"] = (100 - insights["percentageLate"]).toFixed(2);
+                    store.setRawData(response.data);
+                    store.setOrderedTrains(unorderedTrains);
+                    
+                    const getStationData = httpsCallable(functions, 'getStationData');
+                    getStationData().then((response) => {
+                        if (!response.data) throw new Error("Error fetching station from the database");
+                        for (var i=0; i<response.data.length; i++) {
+                            let station = response.data[i];
+                            insights["totalNumStations"] += 1
+                            if (station["StationType"][0] == "DART") insights["numDartStations"] += 1;
+                            else if (station["StationType"][0] == "Train") insights["numTrainStations"] += 1;
+                        }
+
+                        store.setInsights(insights);
+                        this.insights = insights
+                        this.rawData = store.rawData
+                        this.orderedTrains = store.orderedTrains
+                        this.topEarliestLatest = this.orderedTrains.slice(0, 3).concat(this.orderedTrains.slice(-3))
+                        this.loader.hide();
+                        this.readyToRender =  true
+                    })
+                }
+                catch {
+                    this.loader.hide()
+                    this.showToast(error.message, "red")
+                }
+            })
+            .catch((error) => {
+              this.loader.hide()
+              this.showToast("Error fetching live data", "red")
+            })
         }
     }
 }
