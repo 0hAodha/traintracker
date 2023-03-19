@@ -1,28 +1,23 @@
 import { reactive } from 'vue'
 
 export const store = reactive({
+    // map and insights data
     insights: {},
-    latestTrain: {},
-    earliestTrain: {},
     orderedTrains: [],
     selectedTrain: {},
     selectedStation: {},
     rawData: {},
+
+    // side bar
     displaySelectedTrain: false,
     displayedSelectedStation: false,
+
+    // login status
     loggedIn: false,
     isWaitingForLoginStatus: true,
 
     setInsights(insights) {
         this.insights = insights
-    },
-
-    setLatestTrain(latestTrain) {
-        this.latestTrain = latestTrain
-    },
-
-    setEarliestTrain(earliestTrain) {
-        this.earliestTrain = earliestTrain
     },
 
     setRawData(rawData) {
