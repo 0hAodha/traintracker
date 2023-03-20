@@ -201,7 +201,11 @@ export default {
         },
 
         getPreferences() {
-          if (!store.loggedIn) return
+          if (!store.loggedIn) {
+            this.loader.hide()
+            return
+          }
+
           const functions = getFunctions(app);
           let host = window.location.hostname
           if (host === '127.0.0.1' || host == 'localhost') {
@@ -226,10 +230,12 @@ export default {
               this.decideShowStations()
               this.decideShowTrains()
               this.readyToDisplayMap = true
+              this.loader.hide()
             }
           })
           .catch((error) => {
             this.readyToDisplayMap = true
+            this.loader.hide()
           })
         },
 
@@ -416,7 +422,7 @@ export default {
                       }
 
                       store.setInsights(insights);
-                      this.loader.hide()
+                      // this.loader.hide()
                       // request the user's preferences
                       this.getPreferences()
                     })
