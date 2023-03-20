@@ -17,10 +17,9 @@ jobs:
         run: |
           npm ci
           cd functions && npm ci
-
-      - name: Run tests
-        run: npm run test
-        working-directory: ./functions
+      
+      - name: Run Vue.js unit tests
+        run: npm run test:unit
 
       - name: Build environment
         run: npm run build

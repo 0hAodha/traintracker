@@ -8,6 +8,7 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+    
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
@@ -21,10 +22,9 @@
           <a v-if="isLoggedIn" class="nav-link"><router-link to="/account">Account Settings</router-link></a>
         </li>
         <li class="nav-item">
-          <a v-if="isLoggedIn" class="nav-link"><router-link style="text-decoration: none; color: black; font-weight: 100;"  @click="logout" to="/" class="navlink">Logout</router-link></a>
+          <a v-if="isLoggedIn" id="logout" class="nav-link"><router-link style="text-decoration: none; color: black; font-weight: 100;" @click="logout" to="/" class="navlink">Logout</router-link></a>
           <a v-if="!isLoggedIn" class="nav-link"><router-link to="/signup">Sign Up</router-link></a>
         </li>
-        
       </ul>
     </div>
   </div>
