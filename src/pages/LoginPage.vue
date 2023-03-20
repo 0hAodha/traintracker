@@ -8,9 +8,14 @@
       <p>Email Address</p>
       <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
       <p>Password</p>
+      <div id="imgDiv">
+        <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
+        <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
+      </div>
       <input v-if="showPassword" type="text" v-model="password" placeholder="Enter password">
       <input v-else type="password" v-model="password" placeholder="Enter password">
-      <button @click="this.showPassword = !this.showPassword">Eye</button>
+      
+      
       <input @click="login" type="submit" name="" value="Login">
       <a @click="forgotPassword = !forgotPassword; this.email = ''">Forgot password?</a>
       <a><router-link to="/signup">Don't have an account?</router-link></a>
@@ -143,6 +148,23 @@ export default {
   transform: translate(-50%,-50%);
   box-sizing: border-box;
   padding: 70px 30px;
+}
+
+#imgDiv{
+  height:10%;
+  width:10%;
+  right: 40px;
+  bottom:150px;
+  position: absolute;
+}
+
+#eyeImg{
+  height:80%;
+  width:100%;
+}
+
+#eyeImg:hover{
+  transform: scale(1.3);
 }
 
 h1 {
