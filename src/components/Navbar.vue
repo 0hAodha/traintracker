@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-sm navbar-light bg-light">
+  <nav style="z-index:4 " class="navbar navbar-expand-sm navbar-light bg-light">
   <div class="container-fluid">
     <router-link tag="a" style="text-decoration: none; color: black; font-weight: 100;" to="/" class="navbar-brand">
       <img src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png" alt="mascot" width="55" height="40" class="d-inline-block align-text-middle">
