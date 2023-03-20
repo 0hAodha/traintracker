@@ -17,6 +17,9 @@ jobs:
         run: |
           npm ci
           cd functions && npm ci
+        
+      - name: Run Vue.js unit tests
+        run: npm run test:unit
       
       - run: npm run build
       - uses: w9jds/firebase-action@master
@@ -24,6 +27,10 @@ jobs:
           args: deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      
+      - name: Run Firebase integration tests
+        run: npm run test
+        working-directory: ./functions
 
       - name: Update Firestore database with train data
         uses: satak/webrequest-action@master
