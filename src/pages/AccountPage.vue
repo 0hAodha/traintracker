@@ -3,17 +3,22 @@
 <h1>Account Settings</h1>
 <p v-if="this.user">Your Email: {{ this.user.email }}</p>
 <div>
-    <h3>Enter your current password to edit account settings</h3>
-    <input type="password" v-model="currentPassword" placeholder="Enter existing password">
     <h3>Send a password reset email</h3>
     <input @click="resetPasswordEmail()" type="submit" name="" value="Send Password reset email">
+
+    <h3>Enter your current password to edit account settings</h3>
+    <input v-if="showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
+    <input v-else type="password" v-model="currentPassword" placeholder="Enter existing password">
+    <button @click="this.showCurrentPassword = !this.showCurrentPassword">Eye</button>
 
     <h3>Change email</h3>
     <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
     <input @click="updateUserEmail()" type="submit" name="" value="Update Email">
 
     <h3>Change password</h3>
-    <input type="password" v-model="newPassword" placeholder="Enter new password">
+    <input v-if="showNewPassword" type="text" v-model="newPassword" placeholder="Enter new password">
+    <input v-else type="password" v-model="newPassword" placeholder="Enter new password">
+    <button @click="this.showNewPassword = !this.showNewPassword">Eye</button>
     <input @click="updateUserPassword()" type="submit" name="" value="Update Password">
 
     <h3>Delete account</h3>
@@ -57,6 +62,8 @@ export default {
             toastMessage: "",
             toastBackground: "",
             reAuthSuccessful: false,
+            showCurrentPassword: false,
+            showNewPassword: false,
             toast
         }
     },
