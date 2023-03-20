@@ -9,6 +9,10 @@
     <div id="prefHeader">STATIONS</div>
       <div class="container-fluid" @change="decideShowStations();">
         <div class="form-check form-switch">
+          <input @change="selectAllStations();" class="form-check-input" type="checkbox" role="switch" id="showAllStations" v-model="showAllStations"/>
+          <label class="form-check-label" for="showAllStations">Select All Stations</label>
+        </div>
+        <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showMainlandStations" v-model="showMainlandStations"/>
           <label class="form-check-label" for="showMainlandStations">Mainline Stations</label>
         </div>
@@ -157,6 +161,7 @@ export default {
           toast,
           loader,
 
+          showAllStations: true,
           showMainlandStations: true, 
           showDARTStations: true,
           showLate: true,
@@ -287,6 +292,12 @@ export default {
             let isDARTStation = this.getStationType(i) == "DART"; 
             this.showStations[i] = (this.showDARTStations && isDARTStation) || (this.showMainlandStations && !isDARTStation); 
           }
+        },
+
+        // method to select all stations 
+        selectAllStations() {
+            this.showDARTStations = this.showAllStations; 
+            this.showMainlandStations = this.showAllStations;
         },
 
         // method to display a selected train
