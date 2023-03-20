@@ -25,6 +25,5 @@ export default [
     { path: "/account", component:loadPage('AccountPage'), beforeEnter: isAuth },
     { path: "/signup", component:loadPage('SignUpPage') },
     { path: "/login", component:loadPage('LoginPage') },
-    { path: "/404", component:loadPage('404Page') },
     { path: "/:catchAll(.*)", component:loadPage('404Page') }
 ]
