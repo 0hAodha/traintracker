@@ -7,7 +7,9 @@
     <p>Email Address</p>
     <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
     <p>Password</p>
-    <input type="password" v-model="password" placeholder="Enter password">
+    <input v-if="showPassword" type="text" v-model="password" placeholder="Enter password">
+    <input v-else type="password" v-model="password" placeholder="Enter password">
+    <button @click="this.showPassword = !this.showPassword">Eye</button>
     <a>Passwords must have 6 or more characters</a>
     <input @click="signup" type="submit" name="" value="Sign Up">
     <a><router-link to="/login">Already have an account?</router-link></a>
@@ -39,6 +41,7 @@ export default {
       password: "",
       toastMessage: "",
       toastBackground: "",
+      showPassword: true,
       toast
     }
   },
@@ -129,7 +132,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-.loginbox input[type="email"], input[type="password"] {
+.loginbox input[type="email"], input[type="password"], input[type="text"] {
   border: none;
   border-bottom: 1px solid #fff;
   background: transparent;
