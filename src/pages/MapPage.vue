@@ -24,6 +24,10 @@
       <div id="prefHeader">TRAINS</div>
       <div class="container-fluid" @change="decideShowTrains();">
         <div class="form-check form-switch">
+          <input @change="selectAllTrains();" class="form-check-input" type="checkbox" role="switch" id="showAllTrains" v-model="showAllTrains"/>
+          <label class="form-check-label" for="showAllTrains">Select All Trains</label>
+        </div>
+        <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showMainland" v-model="showMainland"/>
           <label class="form-check-label" for="showMainland">Mainline Trains</label>
         </div>
@@ -164,6 +168,7 @@ export default {
           showAllStations: true,
           showMainlandStations: true, 
           showDARTStations: true,
+          showAllTrains: true,
           showLate: true,
           showOnTime: true,
           showMainland: true,
@@ -298,6 +303,17 @@ export default {
         selectAllStations() {
             this.showDARTStations = this.showAllStations; 
             this.showMainlandStations = this.showAllStations;
+        },
+
+        // method to select all trains 
+        selectAllTrains() {
+          this.showLate = this.showAllTrains; 
+          this.showOnTime = this.showAllTrains;
+          this.showMainland = this.showAllTrains;
+          this.showDART = this.showAllTrains;
+          this.showRunning = this.showAllTrains;
+          this.showTerminated = this.showAllTrains;
+          this.showNotYetRunning = this.showAllTrains;
         },
 
         // method to display a selected train
