@@ -8,7 +8,9 @@
       <p>Email Address</p>
       <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
       <p>Password</p>
-      <input type="password" v-model="password" placeholder="Enter password">
+      <input v-if="showPassword" type="text" v-model="password" placeholder="Enter password">
+      <input v-else type="password" v-model="password" placeholder="Enter password">
+      <button @click="this.showPassword = !this.showPassword">Eye</button>
       <input @click="login" type="submit" name="" value="Login">
       <a @click="forgotPassword = !forgotPassword; this.email = ''">Forgot password?</a>
       <a><router-link to="/signup">Don't have an account?</router-link></a>
@@ -53,6 +55,7 @@ export default {
       toastMessage: "",
       toastBackground: "",
       forgotPassword: false,
+      showPassword: false,
       toast
     }
   },
@@ -161,7 +164,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-.loginbox input[type="email"], input[type="password"] {
+.loginbox input[type="email"], input[type="password"], input[type="text"] {
   border: none;
   border-bottom: 1px solid #fff;
   background: transparent;
@@ -175,7 +178,6 @@ h1 {
   cursor: pointer;
   background: #66a3ff;
   color: #000;
-
 }
 
 .loginbox a {
