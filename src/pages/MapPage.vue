@@ -10,50 +10,55 @@
       <div class="container-fluid" @change="decideShowStations();">
         <div class="form-check form-switch">
           <input @change="selectAllStations();" class="form-check-input" type="checkbox" role="switch" id="showAllStations" v-model="showAllStations"/>
-          <label class="form-check-label" for="showAllStations">Select All Stations</label>
+          <label class="form-check-label" for="showAllStations">All Stations</label>
         </div>
+        <hr/>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showMainlandStations" v-model="showMainlandStations"/>
-          <label class="form-check-label" for="showMainlandStations">Mainline Stations</label>
+          <label class="form-check-label" for="showMainlandStations">Mainline</label>
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showDARTStations" v-model="showDARTStations"/>
-          <label class="form-check-label" for="showDARTStations">DART Stations</label>
+          <label class="form-check-label" for="showDARTStations">DART</label>
         </div>
       </div>
+      <hr/>
       <div id="prefHeader">TRAINS</div>
       <div class="container-fluid" @change="decideShowTrains();">
         <div class="form-check form-switch">
           <input @change="selectAllTrains();" class="form-check-input" type="checkbox" role="switch" id="showAllTrains" v-model="showAllTrains"/>
-          <label class="form-check-label" for="showAllTrains">Select All Trains</label>
+          <label class="form-check-label" for="showAllTrains">All Trains</label>
         </div>
+        <hr/>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showMainland" v-model="showMainland"/>
-          <label class="form-check-label" for="showMainland">Mainline Trains</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="showLate" v-model="showLate"/>
-          <label class="form-check-label" for="showLate">Late Trains</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="showOnTime" v-model="showOnTime"/>
-          <label class="form-check-label" for="showOnTime">On-time Trains</label>
+          <label class="form-check-label" for="showMainland">Mainline</label>
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showDART" v-model="showDART"/>
           <label class="form-check-label" for="showDART">DARTs</label>
         </div>
+        <hr/>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showOnTime" v-model="showOnTime"/>
+          <label class="form-check-label" for="showOnTime">On-Time</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showLate" v-model="showLate"/>
+          <label class="form-check-label" for="showLate">Late</label>
+        </div>
+        <hr/>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="showNotYetRunning" v-model="showNotYetRunning"/>
+          <label class="form-check-label" for="showNotYetRunning">Not-Yet Running</label>
+        </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showRunning" v-model="showRunning"/>
-          <label class="form-check-label" for="showRunning">Running Trains</label>
+          <label class="form-check-label" for="showRunning">Running</label>
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="showTerminated" v-model="showTerminated"/>
-          <label class="form-check-label" for="showTerminated">Terminated Trains</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="showNotYetRunning" v-model="showNotYetRunning"/>
-          <label class="form-check-label" for="showNotYetRunning">Not-yet Running Trains</label>
+          <label class="form-check-label" for="showTerminated">Terminated</label>
         </div>
       </div>
       <button id="savePref" class="btn btn-outline-info" v-if="store.loggedIn" @click="postPreferences()">Save Preferences</button>
