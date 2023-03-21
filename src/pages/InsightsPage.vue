@@ -1,71 +1,111 @@
 <template>
 <Navbar />
-<div v-if="this.insights" id="insightDiv">
-    <h1 style="padding-left: 10px;">Train Insights</h1>
-    <div id="trainTotal">
-        <div id="trainTotalText">
+
+<!-- Table to be shown on screen widths > 1000px -->
+<table id="statsTable" class="hideMobile">
+    <tr>
+        <th colspan = "2" style="border-right: 1px solid;">Train Insights</th>
+        <th colspan = "2">Station Insights</th>
+    </tr>
+    <tr>
+        <td><div v-if="readyToRender"><pieChart :id="stationPie" :trainChart="true"/></div></td>
+        <td style="border-right: 1px solid;">
+            <div v-if="readyToRender" id="statsDiv">
+                <BarChart id="lateGraph" /> 
+            </div>
+        </td>
+        
+        <td><div style="position:relative; left:30px;" v-if="readyToRender"><pieChart :id="stationPie" :trainChart="false"/></div></td>
+        
+    </tr>
+    <tr>
+        <td>
             <p>Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
             <ul>
                 <li><p>Trains: {{ this.insights["numTrains"] }}</p></li>
                 <li><p>Darts: {{ this.insights["numDarts"] }}</p></li>
             </ul>
-        </div>
-        <div v-if="readyToRender" id="trainTotalChart">
-            <pieChart id="trainPie" />
-        </div>
-    </div>
-
-    <hr>
-    <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
-    <p>Percentage late: {{ this.insights["percentageLate"] }}%</p>
-    <p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p>
-    <div v-if="readyToRender" id="statsDiv">
-        <BarChart id="lateGraph" /> 
-    </div>
-
-    <h1 style="padding-left: 10px;">Station Insights</h1>
-    <div id="stationTotal">
-        <div id="stationTotalText">
+        </td>
+        <td style="border-right: 1px solid;">
+            <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
+            <p>Percentage late: {{ this.insights["percentageLate"] }}%</p>
+            <p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p>
+        </td>
+        <td>
             <p>Total number of stations: {{ this.insights["totalNumStations"] }}</p>
             <ul>
                 <li><p>Trains: {{ this.insights["numTrainStations"] }}</p></li>
                 <li><p>Darts: {{ this.insights["numDartStations"] }}</p></li>
             </ul>
-        </div>
-        <div id="stationTotalChart">
-            <pieChart v-if="readyToRender" id="stationPie" />
-        </div>
+        </td>
+    </tr>
+</table>
+
+<table id="statsTable" class="showMobile">
+    <tr>
+        <th colspan = "2" style="border-right: 1px solid;">Train Insights</th>
+        <th colspan = "2">Station Insights</th>
+    </tr>
+    <tr>
+        <td>
+            <p>Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
+            <ul>
+                <li><p>Trains: {{ this.insights["numTrains"] }}</p></li>
+                <li><p>Darts: {{ this.insights["numDarts"] }}</p></li>
+            </ul>
+        </td>
+        <td style="border-right: 1px solid;">
+            <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
+            <ul>
+                <li><p>Percentage late: {{ this.insights["percentageLate"] }}%</p></li>
+                <li><p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p></li>
+            </ul>
+            
+        </td>
+        <td>
+            <p>Total number of stations: {{ this.insights["totalNumStations"] }}</p>
+            <ul>
+                <li><p>Trains: {{ this.insights["numTrainStations"] }}</p></li>
+                <li><p>Darts: {{ this.insights["numDartStations"] }}</p></li>
+            </ul>
+        </td>
+    </tr>
+</table>
+
+<div id="leaderboardTitleDiv">
+    <p>Leaderboard</p>
+    <div id = "leaderboardToggle" class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" v-model="showTopEarliestLatest"/>
+        <label v-if="showTopEarliestLatest" class="form-check-label" for="showTopEarliestLatest">Showing All Trains</label>
+        <label v-else class="form-check-label" for="showTopEarliestLatest">Showing Top & Bottom 3</label>
     </div>
 </div>
 
-<div id="ads">
-    <h2>AdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAds
-        AdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAds
-        AdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAds
-        AdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAds
-        AdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAds
-        AdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAdsAds
-    </h2>
-</div>
-<hr>
 
-<h1>Leaderboard</h1>
-<div class="form-check form-switch">
-    <input class="form-check-input" type="checkbox" role="switch" v-model="showTopEarliestLatest"/>
-    <label class="form-check-label" for="showTopEarliestLatest">Show top three earliest and latest</label>
+<div id="leaderboard">
+    <div v-if="!showTopEarliestLatest" v-for="train in topEarliestLatest" id="filteredLeaderboard">
+        <div v-if="train.time > 0" id="leaderLate">
+            <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }} - <span style="font-size:28px">Type: {{ this.rawData[train.jsonIndex]["TrainType"][0] }} | Heading {{ this.rawData[train.jsonIndex]["Direction"][0] }} </span></h2>
+            <p>{{ train.time }} mins late</p>
+            
+        </div>
+        <div v-else id="leaderEarly">
+            <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }} - <span style="font-size:28px">Type: {{ this.rawData[train.jsonIndex]["TrainType"][0] }} | Heading {{ this.rawData[train.jsonIndex]["Direction"][0] }} </span></h2>
+            <p>{{ train.time * -1}} mins early</p>
+        </div>
+    </div>
+    <div v-else v-for="train in orderedTrains" id="fullLeaderBoard">
+        <div> 
+            <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }} - <span style="font-size:28px">Type: {{ this.rawData[train.jsonIndex]["TrainType"][0] }} | Heading {{ this.rawData[train.jsonIndex]["Direction"][0] }} </span></h2>
+            <p v-if="train.time > 0">{{ train.time }} mins late</p>
+            <p v-else>{{ train.time * -1}} mins early</p>
+            
+        </div>
+        
+    </div>
+
 </div>
 
-<div v-if="!showTopEarliestLatest" v-for="train in orderedTrains">
-    <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }}</h2>
-    <p v-if="train.time > 0">{{ train.time }} mins late</p>
-    <p v-else>{{ train.time * -1}} mins early</p>
-</div>
-
-<div v-else v-for="train in topEarliestLatest">
-    <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }}</h2>
-    <p v-if="train.time > 0">{{ train.time }} mins late</p>
-    <p v-else>{{ train.time * -1}} mins early</p>
-</div>
 </template>
     
 <script>
@@ -252,50 +292,109 @@ export default {
 </script>
     
 <style scoped>
-#insightDiv {
-    color: black;
-    padding-left: 10px;
-    width:80%;
-    background-color: rgb(250, 235, 215);
+
+
+.showMobile{/*Hides table for screens smaller than 1000px*/
+    display: none;
 }
 
-#trainTotal, #stationTotal {
-    height: 280px;
-
-}
-#trainTotalText, #stationTotalText {
-    position: relative;
-    width: 30%;
-    height: 100%;
-    right:0px;
-}
-
-#trainTotalChart, #stationTotalChart {
+#trainPie, #stationPie{
+    width: 40%;
     position: absolute;
-    top:114px;
-    width: 50%;
-    height: 20%;
-    left: 20%;
 }
+
 
 #lateGraph {
-    position: absolute;
-    height:50%;
-    left:0px;
+    position: relative;
+    height: 20%;
+    width: 20%;
+    left: 10px;
 }
 
-#statsDiv {
-    height: 230px;
+
+th{
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
 }
 
-#ads {
-    position: absolute;
-    background-color:rgb(78, 232, 109);
-    right: 0px;
-    width:20%;
-    height: 110%;
-    top:66px;
-    word-wrap: break-word;
-    overflow-y: hidden;
+#statsTable{
+    border: 1px solid;
+    width: 80%;
+    left: 10%;
+    position: relative;
+}
+
+#leaderboard{
+    width: 100%;
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: small;
+}
+
+#leaderboardToggle{
+    position: relative;
+    top: -40px;
+    left: 20px;
+}
+
+
+#leaderboardTitleDiv div{
+    width: 10%;
+    top: -10px;
+    left:47%;
+}
+
+#leaderboardTitleDiv p{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    text-align: center;
+    font-size: 50px;
+    padding-top:10px;
+    text-shadow: 2px 2px rgb(155, 155, 155);
+}
+#leaderEarly{
+    color: rgb(129, 213, 3);
+    text-align: center;
+    width:100%;
+    z-index: 1;
+}
+
+#leaderLate{
+    color: #fc1919;
+    text-align: center;
+    width: 100%;
+    z-index:2;
+    
+}
+
+#filteredLeaderboard h2{
+    text-shadow: 2px 1px rgb(110, 110, 110);
+}
+
+#fullLeaderBoard{
+    text-align: center;
+}
+
+@media screen and (max-width: 1000px) {
+    .hideMobile{
+        display:none;
+    }
+    .showMobile{
+        display:block;
+    }
+
+    #statsTable p{
+        font-size: 12px;
+        padding: 2px;
+        text-align: center;
+    }
+
+    tr{
+        border: 1px solid;
+    }
+    #statsTable{
+        padding: 2px;
+        border: 0px;
+    }
 }
 </style>

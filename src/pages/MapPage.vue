@@ -598,4 +598,14 @@ export default {
   text-align: bottom;
   font-size: 16px;
 }
+
+/* Phone Screen CSS */
+@media screen and (max-width: 850px) {
+  #sidebar {
+  height: 75%;
+  width: 90%;
+  left:5%;
+  top: 18%;
+  }
+}
 </style>
