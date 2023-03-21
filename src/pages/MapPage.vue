@@ -504,8 +504,7 @@ export default {
 }
 
 .trainMapIcon:hover {
-  width:30px;
-  height:34px;
+  transform: scale(1.2);
   cursor: pointer;
 }
 
@@ -589,7 +588,7 @@ export default {
 
 #publicMessageTicker {
   z-index: 3;
-  position: absolute;
+  position: fixed;
   bottom:0px;
   width:100%;
   background-color: rgb(255, 255, 125);
