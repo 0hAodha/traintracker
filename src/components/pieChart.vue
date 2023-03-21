@@ -1,12 +1,12 @@
 <template>
-<div id="statsDiv">
-    <div id="trainPie">
-        <Pie :data="trainData" :options="chartOptions" />
-    </div>
-    <div id="stationPie">
-        <Pie :data="stationData" :options="chartOptions" />
-    </div>
+
+<div v-if="trainChart">
+    <Pie :data="trainData" :options="chartOptions" />
 </div>
+<div v-if="!trainChart">
+    <Pie :data="stationData" :options="chartOptions" />
+</div>
+
 </template>
   
 <script lang="ts">
@@ -20,6 +20,13 @@ export default {
 
     components: { 
         Pie 
+    },
+
+    props: {
+        trainChart: {
+            type: Boolean,
+            default: false
+        }
     },
 
     data() {
@@ -52,4 +59,8 @@ export default {
 </script>
 
 <style scoped>
+
+div{
+    width: 70%;
+}
 </style>
