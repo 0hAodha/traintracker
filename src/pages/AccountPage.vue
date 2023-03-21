@@ -4,31 +4,32 @@
 <p v-if="this.user">Your Email: {{ this.user.email }}</p>
 <div>
     <h3>Send a password reset email</h3>
-    <input @click="resetPasswordEmail()" type="submit" name="" value="Send Password reset email">
+    <button @click="resetPasswordEmail()" type="submit" name="" value="Send Password reset email" class="button">Send Password Reset Email</button>
 
     <h3>Enter your current password to edit account settings</h3>
     <input v-if="showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
     <input v-else type="password" v-model="currentPassword" placeholder="Enter existing password">
-    <div id="imgDiv1">
-        <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
-        <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
-      </div>
+    <!-- <div id="imgDiv1"> -->
+    <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
+    <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
+    <!--   </div> -->
 
     <h3>Change email</h3>
     <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
-    <input @click="updateUserEmail()" type="submit" name="" value="Update Email">
+    <button @click="updateUserEmail()" type="submit" name="" value="Update Email">Update email</button>
 
     <h3>Change password</h3>
     <input v-if="showNewPassword" type="text" v-model="newPassword" placeholder="Enter new password">
     <input v-else type="password" v-model="newPassword" placeholder="Enter new password">
-    <div id="imgDiv2">
-        <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
-        <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
-      </div>
+
+    <!-- <div id="imgDiv2"> -->
+    <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
+    <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
+    <!--   </div> -->
     <input @click="updateUserPassword()" type="submit" name="" value="Update Password">
 
     <h3>Delete account</h3>
-    <input @click="deleteUserAccount()" type="submit" name="" value="Delete Account">
+    <button @click="deleteUserAccount()" type="submit" name="" value="Delete Account">Delete Account</button>
 
     <h3>Delete map filter preferences data</h3>
     <button @click="deleteUserPreferences()">Delete preferences</button>
@@ -204,7 +205,28 @@ export default {
 </script>
 
 <style scoped>
+button {
+  background-color: blue;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  margin: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
 
+button:hover {
+  background-color: darkblue;
+}
+
+button:focus {
+    outline: none;
+}
+
+.eye-button {
+  background-color: grey;
+}
 
 #imgDiv1{
   height:8%;
