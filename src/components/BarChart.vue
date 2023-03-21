@@ -35,7 +35,7 @@ export default {
         }]
       },
       chartOptions: {
-        responsive: true
+        responsive: false
       }
     }
   }
@@ -43,9 +43,5 @@ export default {
 </script>
 
 <style scoped>
-#lateGraph{
-    position: relative;
-    height:48%;
-    left:0px;
-}
+
 </style>

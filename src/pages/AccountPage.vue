@@ -9,7 +9,10 @@
     <h3>Enter your current password to edit account settings</h3>
     <input v-if="showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
     <input v-else type="password" v-model="currentPassword" placeholder="Enter existing password">
-    <button @click="this.showCurrentPassword = !this.showCurrentPassword">Eye</button>
+    <div id="imgDiv1">
+        <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
+        <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
+      </div>
 
     <h3>Change email</h3>
     <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
@@ -18,7 +21,10 @@
     <h3>Change password</h3>
     <input v-if="showNewPassword" type="text" v-model="newPassword" placeholder="Enter new password">
     <input v-else type="password" v-model="newPassword" placeholder="Enter new password">
-    <button @click="this.showNewPassword = !this.showNewPassword">Eye</button>
+    <div id="imgDiv2">
+        <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
+        <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
+      </div>
     <input @click="updateUserPassword()" type="submit" name="" value="Update Password">
 
     <h3>Delete account</h3>
@@ -198,4 +204,28 @@ export default {
 </script>
 
 <style scoped>
+
+
+#imgDiv1{
+  height:8%;
+  left:190px;
+  top:260px;
+  position: absolute;
+}
+
+#imgDiv2{
+  height:8%;
+  left:330px;
+  top:400px;
+  position: absolute;
+}
+
+#eyeImg{
+  height:60%;
+  width:100%;
+}
+
+#eyeImg:hover{
+  transform: scale(1.3);
+}
 </style>
