@@ -9,10 +9,10 @@
     <h3>Enter your current password to edit account settings</h3>
     <input v-if="showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
     <input v-else type="password" v-model="currentPassword" placeholder="Enter existing password">
-    <div id="imgDiv1">
-        <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
-        <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
-      </div>
+    <!-- <div id="imgDiv1"> -->
+    <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
+    <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
+    <!--   </div> -->
 
     <h3>Change email</h3>
     <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
@@ -22,10 +22,10 @@
     <input v-if="showNewPassword" type="text" v-model="newPassword" placeholder="Enter new password">
     <input v-else type="password" v-model="newPassword" placeholder="Enter new password">
 
-    <div id="imgDiv2">
-        <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
-        <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
-      </div>
+    <!-- <div id="imgDiv2"> -->
+    <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
+    <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
+    <!--   </div> -->
     <input @click="updateUserPassword()" type="submit" name="" value="Update Password">
 
     <h3>Delete account</h3>
