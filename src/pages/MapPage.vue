@@ -1,4 +1,5 @@
 <template>
+   <input type="text" v-model="searchinput" placeholder="Search Trains" />
 <Navbar />
 
 <div id="preferenceDropdown" class="dropdown">
@@ -83,7 +84,7 @@
     <div v-if="(!store.isWaitingForLoginStatus && !store.loggedIn) || (store.loggedIn && readyToDisplayMap)">
       <!-- train overlay -->
       <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
-        <ol-overlay v-if="showTrains[i]" :position="coordinate" :offset="[-14,-16]">
+        <ol-overlay v-if="showTrains[i] && (!searchinput || (searchinput && this.allTrains[i]['PublicMessage'][0].toLowerCase().includes(searchinput) || this.allTrains[i]['Direction'][0].toLowerCase().includes(searchinput)))" :position="coordinate" :offset="[-14,-16]">
             <div class="overlay-content" @click="getSelectedTrain(i)">
                 <div v-if="getTrainType(i) === 'DART'">
                     <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
@@ -165,6 +166,9 @@ export default {
           readyToDisplayMap: false,
           store,
 
+          searchinput: "",
+
+          toastMessage: "",
           toastMessage: "",
           toastBackground: "",
           toast,
