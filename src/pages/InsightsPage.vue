@@ -2,30 +2,28 @@
 <Navbar />
 
 <!-- Table to be shown on screen widths > 1000px -->
-
 <div class="card-group">
   <div class="card">
     <h4 style="text-align:center;">Train Insights</h4>
-    <div v-if="readyToRender"><pieChart :id="stationPie" :trainChart="true"/></div>
+    <div v-if="readyToRender" class="piechart"><pieChart :id="stationPie" :trainChart="true"/></div>
     <div class="card-body">
       <h5 class="card-title">Train Data</h5>
       <p class="card-text">Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
             <ul>
-                <li><p>Trains: {{ this.insights["numTrains"] }}</p></li>
-                <li><p>Darts: {{ this.insights["numDarts"] }}</p></li>
+                <li><p class="card-stats">Trains: {{ this.insights["numTrains"] }}</p></li>
+                <li><p class="card-stats">Darts: {{ this.insights["numDarts"] }}</p></li>
             </ul>
-      
     </div>
   </div>
   <div class="card">
     <h4 style="text-align:center;">Station Insights</h4>
-    <div v-if="readyToRender"><pieChart :id="stationPie" :trainChart="false"/></div>
+    <div v-if="readyToRender" class="piechart"><pieChart :id="stationPie" :trainChart="false"/></div>
     <div class="card-body">
       <h5 class="card-title">Station Data</h5>
       <p class="card-text">Total number of stations: {{ this.insights["totalNumStations"] }}</p>
             <ul>
-                <li><p>Trains: {{ this.insights["numTrainStations"] }}</p></li>
-                <li><p>Darts: {{ this.insights["numDartStations"] }}</p></li>
+                <li><p class="card-stats">Trains: {{ this.insights["numTrainStations"] }}</p></li>
+                <li><p class="card-stats">Darts: {{ this.insights["numDartStations"] }}</p></li>
             </ul>     
     </div>
   </div>
@@ -36,28 +34,26 @@
       <h5 class="card-title">Punctuality Data</h5>
       <p class="card-text">Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
             <ul>
-                <li><p>Percentage late: {{ this.insights["percentageLate"] }}%</p></li>
-                <li><p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p></li>
+                <li><p class="card-stats">Percentage late: {{ this.insights["percentageLate"] }}%</p></li>
+                <li><p class="card-stats">Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p></li>
             </ul>
     </div>
   </div>
 </div>
 
 <div id="leaderboardTitleDiv"><p>Leaderboard</p></div>
-
-
 <table>
     <div style="left:3px; top:3px;" class="form-check form-switch">
         <input class="form-check-input" type="checkbox" role="switch" v-model="showTopEarliestLatest"/>
-        <label v-if="showTopEarliestLatest" class="form-check-label" for="showTopEarliestLatest">Showing All Trains</label>
-        <label v-else class="form-check-label" for="showTopEarliestLatest">Showing Top & Bottom 3</label>
+        <label class="form-check-label" for="showTopEarliestLatest">Show All Train Entries</label>
     </div>
       <thead>
         <tr>
-          <th>CODE</th>
+          <th>Code</th>
           <th>Time</th>
           <th>Type</th>
-          <th>Direction</th>
+          <th>Origin</th>
+          <th>Destination</th>
         </tr>
     </thead>
       <tbody v-if="!showTopEarliestLatest" v-for="train in topEarliestLatest">
@@ -66,7 +62,8 @@
           <td v-if="train.time > 0"><span style="color: #fc1919;">{{ train.time }} mins late</span></td>
           <td v-else><span style="color: rgb(129, 213, 3);">{{ train.time * -1}} mins early</span></td>
           <td>{{ this.rawData[train.jsonIndex]["TrainType"][0] }}</td>
-          <td>{{ this.rawData[train.jsonIndex]["Direction"][0] }}</td>
+          <td>{{ getOrigin(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
+          <td>{{ getDestination(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
         </tr>
       </tbody>
 
@@ -76,12 +73,11 @@
           <td v-if="train.time > 0"><span style="color: #fc1919;">{{ train.time }} mins late</span></td>
           <td v-else><span style="color: rgb(129, 213, 3);">{{ train.time * -1}} mins early</span></td>
           <td>{{ this.rawData[train.jsonIndex]["TrainType"][0] }}</td>
-          <td>{{ this.rawData[train.jsonIndex]["Direction"][0] }}</td>
+          <td>{{ getOrigin(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
+          <td>{{ getDestination(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
         </tr>
       </tbody>
 </table>
-
-
 </template>
     
 <script>
@@ -160,6 +156,19 @@ export default {
           this.toastMessage = message
           this.toastBackground = backgroundColour
           this.toast()
+        },
+
+        getOrigin(publicMessage) {
+            let startOrigin = publicMessage.indexOf("-") + 1
+            let endOrigin = publicMessage.indexOf("to") - 1;
+            return publicMessage.substring(startOrigin, endOrigin)
+        },
+
+        getDestination(publicMessage) {
+            let endOrigin = publicMessage.indexOf("to") - 1;
+            let startDestination = endOrigin + 4;
+            let endDestination = publicMessage.indexOf("(") - 1;
+            return publicMessage.substring(startDestination, endDestination);
         },
 
         postTrainAndStationData() {
@@ -268,16 +277,19 @@ export default {
 </script>
     
 <style scoped>
-
-
-#trainPie, #stationPie{
-    width: 40%;
-    position: absolute;
-    padding: 10px;
-    top: 20px;
+.card-text, .card-stats {
+    font-size: 17px;
 }
 
-#barChart{
+.piechart {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    height: 53%
+}
+
+#barChart {
     position:relative;
     padding: 10px;
     width: 100%;
@@ -285,10 +297,10 @@ export default {
     height: 40%;
 }
 
-th{
+th {
     padding: 15px;
     text-align: center;
-    font-size: 22px;
+    font-size: 19px;
 }
 
 
@@ -298,12 +310,11 @@ th{
     left: 35%;
 } */
 
-#leaderboardTitleDiv p{
+#leaderboardTitleDiv p {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     text-align: center;
     font-size: 50px;
     padding-top:10px;
-    text-shadow: 2px 2px rgb(155, 155, 155);
 }
 
 
@@ -317,7 +328,7 @@ table {
   width: 100%;
   margin: 0 auto;
   position: relative;
-  font-size: 24px;
+  font-size: 19px;
 }
 *{
     position: relative;
@@ -400,8 +411,10 @@ td.l, th.l{
           content: "Type";
     }
     tbody tr td:nth-child(4):before {
-          content: "Direction";
+          content: "Origin";
     }
-    
+    tbody tr td:nth-child(5):before {
+          content: "Destination";
+    }
 }
 </style>

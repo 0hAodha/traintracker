@@ -6,7 +6,7 @@
     <h1>Sign Up</h1>
     <p>Email Address</p>
     <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
-    <p>Password (6 or more characters)</p>
+    <p>Password (6+ characters)</p>
     <div id="imgDiv">
         <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
         <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
@@ -129,7 +129,7 @@ export default {
 }
 
 #eyeImg:hover{
-  transform: scale(1.3);
+  transform: scale(1.1);
 }
 
 h1 {
