@@ -3,9 +3,9 @@
 <div id="accountDiv">
     <div id="mainDiv">
         <h1>Account Settings</h1>
-        <p style="text-align:center" v-if="this.user">Your Email: <b>{{ this.user.email }}</b><br><span id="passReset" @click="resetPasswordEmail()">Send Password Reset Email</span></p>
+        <p style="text-align:center" v-if="this.user">Your email: <b>{{ this.user.email }}</b><br><span id="passReset" @click="resetPasswordEmail()">Send password reset email</span></p>
 
-        <h3>Enter Current Password to Edit Account Settings</h3>
+        <h3>Enter your current password to edit the below settings</h3>
         <input v-if="showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
         <input v-else type="password" v-model="currentPassword" placeholder="Enter existing password">
         <!-- <div id="imgDiv1"> -->
@@ -205,28 +205,27 @@ export default {
 
 <style scoped>
 
-h1{
-    color:rgb(163, 163, 163);
+h1 {
+    color:black;
     text-align: center;
 }
 
-h3{
+h3 {
     font-size: 18px;
     padding-top: 20px;
 }
 
-#passReset{
+#passReset {
     font-size: 17px;
     text-decoration: underline;
     color: #39d3fa;
 }
 
-#passReset:hover{
-    
+#passReset:hover {
     color: #3993fa;
     cursor: pointer;
 }
-#accountDiv{
+#accountDiv {
     position:absolute;
     right:0px;
     left:0px;
@@ -238,37 +237,38 @@ h3{
     justify-content: center;
 }
 
-#accountDiv div{
+#accountDiv div {
     position: inherit;
     padding: 15px;
     background-color: rgb(255, 255, 255);
-    width: 600px;
+    width: 45%;
     height: 80%;
-    top:14%;
+    top: 14%;
     text-align: left;
-    box-shadow: 0 0 8px 8px #b6b6b6;
+    box-shadow: 0 0 4px 4px #b6b6b6;
     
 }
 
-#emailUpdate, #passUpdate{
+#emailUpdate, #passUpdate {
     position: relative;
     left:10px;
     width: 26%;
 }
-input{
+
+input {
     border:none;
     border-bottom: 1px solid #000000;
     background: transparent;
     outline: none;
 }
 
-#delAcc{
+#delAcc {
     position: absolute;
     bottom: 10px;
     left:10px;
 }
 
-#delPref{
+#delPref {
     position: absolute;
     bottom: 10px;
     left:160px;
