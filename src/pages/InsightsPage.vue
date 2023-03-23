@@ -2,110 +2,82 @@
 <Navbar />
 
 <!-- Table to be shown on screen widths > 1000px -->
-<table id="statsTable" class="hideMobile">
-    <tr>
-        <th colspan = "2" style="border-right: 1px solid;">Train Insights</th>
-        <th colspan = "2">Station Insights</th>
-    </tr>
-    <tr>
-        <td><div v-if="readyToRender"><pieChart :id="stationPie" :trainChart="true"/></div></td>
-        <td style="border-right: 1px solid;">
-            <div v-if="readyToRender" id="statsDiv">
-                <BarChart id="lateGraph" /> 
-            </div>
-        </td>
-        
-        <td><div style="position:relative; left:30px;" v-if="readyToRender"><pieChart :id="stationPie" :trainChart="false"/></div></td>
-        
-    </tr>
-    <tr>
-        <td>
-            <p>Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
+<div class="card-group">
+  <div class="card">
+    <h4 style="text-align:center;">Train Insights</h4>
+    <div v-if="readyToRender" class="piechart"><pieChart :id="stationPie" :trainChart="true"/></div>
+    <div class="card-body">
+      <h5 class="card-title">Train Data</h5>
+      <p class="card-text">Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
             <ul>
-                <li><p>Trains: {{ this.insights["numTrains"] }}</p></li>
-                <li><p>Darts: {{ this.insights["numDarts"] }}</p></li>
+                <li><p class="card-stats">Trains: {{ this.insights["numTrains"] }}</p></li>
+                <li><p class="card-stats">Darts: {{ this.insights["numDarts"] }}</p></li>
             </ul>
-        </td>
-        <td style="border-right: 1px solid;">
-            <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
-            <p>Percentage late: {{ this.insights["percentageLate"] }}%</p>
-            <p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p>
-        </td>
-        <td>
-            <p>Total number of stations: {{ this.insights["totalNumStations"] }}</p>
+    </div>
+  </div>
+  <div class="card">
+    <h4 style="text-align:center;">Station Insights</h4>
+    <div v-if="readyToRender" class="piechart"><pieChart :id="stationPie" :trainChart="false"/></div>
+    <div class="card-body">
+      <h5 class="card-title">Station Data</h5>
+      <p class="card-text">Total number of stations: {{ this.insights["totalNumStations"] }}</p>
             <ul>
-                <li><p>Trains: {{ this.insights["numTrainStations"] }}</p></li>
-                <li><p>Darts: {{ this.insights["numDartStations"] }}</p></li>
+                <li><p class="card-stats">Trains: {{ this.insights["numTrainStations"] }}</p></li>
+                <li><p class="card-stats">Darts: {{ this.insights["numDartStations"] }}</p></li>
+            </ul>     
+    </div>
+  </div>
+  <div class="card">
+    <h4 style="text-align:center;">Punctuality Insights</h4>
+    <div v-if="readyToRender"><BarChart id="barChart"/></div>
+    <div class="card-body">
+      <h5 class="card-title">Punctuality Data</h5>
+      <p class="card-text">Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
+            <ul>
+                <li><p class="card-stats">Percentage late: {{ this.insights["percentageLate"] }}%</p></li>
+                <li><p class="card-stats">Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p></li>
             </ul>
-        </td>
-    </tr>
-</table>
+    </div>
+  </div>
+</div>
 
-<table id="statsTable" class="showMobile">
-    <tr>
-        <th colspan = "2" style="border-right: 1px solid;">Train Insights</th>
-        <th colspan = "2">Station Insights</th>
-    </tr>
-    <tr>
-        <td>
-            <p>Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
-            <ul>
-                <li><p>Trains: {{ this.insights["numTrains"] }}</p></li>
-                <li><p>Darts: {{ this.insights["numDarts"] }}</p></li>
-            </ul>
-        </td>
-        <td style="border-right: 1px solid;">
-            <p>Number of actively running trains: {{ this.insights["numRunningTrains"] }}</p>
-            <ul>
-                <li><p>Percentage late: {{ this.insights["percentageLate"] }}%</p></li>
-                <li><p>Percentage early or ontime: {{ this.insights["percentageNotLate"] }}%</p></li>
-            </ul>
-            
-        </td>
-        <td>
-            <p>Total number of stations: {{ this.insights["totalNumStations"] }}</p>
-            <ul>
-                <li><p>Trains: {{ this.insights["numTrainStations"] }}</p></li>
-                <li><p>Darts: {{ this.insights["numDartStations"] }}</p></li>
-            </ul>
-        </td>
-    </tr>
-</table>
-
-<div id="leaderboardTitleDiv">
-    <p>Leaderboard</p>
-    <div id = "leaderboardToggle" class="form-check form-switch">
+<div id="leaderboardTitleDiv"><p>Leaderboard</p></div>
+<table>
+    <div style="left:3px; top:3px;" class="form-check form-switch">
         <input class="form-check-input" type="checkbox" role="switch" v-model="showTopEarliestLatest"/>
-        <label v-if="showTopEarliestLatest" class="form-check-label" for="showTopEarliestLatest">Showing All Trains</label>
-        <label v-else class="form-check-label" for="showTopEarliestLatest">Showing Top & Bottom 3</label>
+        <label class="form-check-label" for="showTopEarliestLatest">Show All Train Entries</label>
     </div>
-</div>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Time</th>
+          <th>Type</th>
+          <th>Origin</th>
+          <th>Destination</th>
+        </tr>
+    </thead>
+      <tbody v-if="!showTopEarliestLatest" v-for="train in topEarliestLatest">
+        <tr>
+          <td>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }}</td>
+          <td v-if="train.time > 0"><span style="color: #fc1919;">{{ train.time }} mins late</span></td>
+          <td v-else><span style="color: rgb(129, 213, 3);">{{ train.time * -1}} mins early</span></td>
+          <td>{{ this.rawData[train.jsonIndex]["TrainType"][0] }}</td>
+          <td>{{ getOrigin(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
+          <td>{{ getDestination(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
+        </tr>
+      </tbody>
 
-
-<div id="leaderboard">
-    <div v-if="!showTopEarliestLatest" v-for="train in topEarliestLatest" id="filteredLeaderboard">
-        <div v-if="train.time > 0" id="leaderLate">
-            <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }} - <span style="font-size:28px">Type: {{ this.rawData[train.jsonIndex]["TrainType"][0] }} | Heading {{ this.rawData[train.jsonIndex]["Direction"][0] }} </span></h2>
-            <p>{{ train.time }} mins late</p>
-            
-        </div>
-        <div v-else id="leaderEarly">
-            <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }} - <span style="font-size:28px">Type: {{ this.rawData[train.jsonIndex]["TrainType"][0] }} | Heading {{ this.rawData[train.jsonIndex]["Direction"][0] }} </span></h2>
-            <p>{{ train.time * -1}} mins early</p>
-        </div>
-    </div>
-    <div v-else v-for="train in orderedTrains" id="fullLeaderBoard">
-        <div> 
-            <h2>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }} - <span style="font-size:28px">Type: {{ this.rawData[train.jsonIndex]["TrainType"][0] }} | Heading {{ this.rawData[train.jsonIndex]["Direction"][0] }} </span></h2>
-            <p v-if="train.time > 0">{{ train.time }} mins late</p>
-            <p v-else>{{ train.time * -1}} mins early</p>
-            
-        </div>
-        
-    </div>
-
-</div>
-
+      <tbody v-else v-for="train in orderedTrains">
+        <tr>
+          <td>{{ this.rawData[train.jsonIndex]["TrainCode"][0] }}</td>
+          <td v-if="train.time > 0"><span style="color: #fc1919;">{{ train.time }} mins late</span></td>
+          <td v-else><span style="color: rgb(129, 213, 3);">{{ train.time * -1}} mins early</span></td>
+          <td>{{ this.rawData[train.jsonIndex]["TrainType"][0] }}</td>
+          <td>{{ getOrigin(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
+          <td>{{ getDestination(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
+        </tr>
+      </tbody>
+</table>
 </template>
     
 <script>
@@ -184,6 +156,19 @@ export default {
           this.toastMessage = message
           this.toastBackground = backgroundColour
           this.toast()
+        },
+
+        getOrigin(publicMessage) {
+            let startOrigin = publicMessage.indexOf("-") + 1
+            let endOrigin = publicMessage.indexOf("to ") - 1;
+            return publicMessage.substring(startOrigin, endOrigin);
+        },
+
+        getDestination(publicMessage) {
+            let endOrigin = publicMessage.indexOf("to ");
+            let startDestination = endOrigin + 3;
+            let endDestination = publicMessage.indexOf("(") - 1;
+            return publicMessage.substring(startDestination, endDestination);
         },
 
         postTrainAndStationData() {
@@ -292,109 +277,144 @@ export default {
 </script>
     
 <style scoped>
-
-
-.showMobile{/*Hides table for screens smaller than 1000px*/
-    display: none;
+.card-text, .card-stats {
+    font-size: 17px;
 }
 
-#trainPie, #stationPie{
-    width: 40%;
-    position: absolute;
+.piechart {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    height: 53%
 }
 
-
-#lateGraph {
-    position: relative;
-    height: 20%;
-    width: 20%;
-    left: 10px;
+#barChart {
+    position:relative;
+    padding: 10px;
+    width: 100%;
+    top: 20px;
+    height: 40%;
 }
 
-
-th{
+th {
     padding: 15px;
     text-align: center;
-    font-size: 22px;
-}
-
-#statsTable{
-    border: 1px solid;
-    width: 80%;
-    left: 10%;
-    position: relative;
-}
-
-#leaderboard{
-    width: 100%;
-    text-align: center;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-size: small;
-}
-
-#leaderboardToggle{
-    position: relative;
-    top: -40px;
-    left: 20px;
+    font-size: 19px;
 }
 
 
-#leaderboardTitleDiv div{
-    width: 10%;
-    top: -10px;
-    left:47%;
-}
+/* #leaderboardToggle{
+    position: absolute;
+    top: 70px;
+    left: 35%;
+} */
 
-#leaderboardTitleDiv p{
+#leaderboardTitleDiv p {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     text-align: center;
     font-size: 50px;
     padding-top:10px;
-    text-shadow: 2px 2px rgb(155, 155, 155);
-}
-#leaderEarly{
-    color: rgb(129, 213, 3);
-    text-align: center;
-    width:100%;
-    z-index: 1;
 }
 
-#leaderLate{
-    color: #fc1919;
-    text-align: center;
-    width: 100%;
-    z-index:2;
+
+table {
+  border-spacing: 1;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  font-size: 19px;
+}
+*{
+    position: relative;
+}
+td,th {
+    padding-left: 8px;
+}
+
+thead tr {
+    height: 60px;
+    background: #ffed86;
+    font-size: 16px;
+}
+
+tbody tr {
+    height: 48px;
+    border-bottom: 1px solid #e3f1d5;
+    
     
 }
 
-#filteredLeaderboard h2{
-    text-shadow: 2px 1px rgb(110, 110, 110);
+tbody tr:last-child {
+    border: 0;
+    border-bottom: 2px solid #d5e0f1;
 }
 
-#fullLeaderBoard{
-    text-align: center;
+td, th{
+    text-align: left;
 }
 
-@media screen and (max-width: 1000px) {
-    .hideMobile{
-        display:none;
-    }
-    .showMobile{
+td.l, th.l{
+    text-align: right;
+}
+
+@media screen and (max-width: 820px){
+
+    table{
         display:block;
     }
 
-    #statsTable p{
-        font-size: 12px;
-        padding: 2px;
-        text-align: center;
+    table tr,td,th, *{
+        display: block;
     }
 
-    tr{
-        border: 1px solid;
+    thead{
+        display:none;
     }
-    #statsTable{
-        padding: 2px;
-        border: 0px;
+
+    tbody tr {
+        height: auto;
+        padding: 8px 0;
+    }
+
+    tbody tr td{
+        padding-left: 45%;
+        margin-bottom: 12px;
+    
+    }
+
+    tbody tr td:last-child{
+        margin-bottom: 0;
+        
+    }
+
+    tbody tr td:before{
+        position: absolute;
+        font-weight: 700;
+        width: 40%;
+        left: 10px;
+        top: 0;
+    }
+
+    tbody tr td:nth-child(1):before {
+          content: "Code";
+    }
+    tbody tr td:nth-child(2):before {
+          content: "Time";
+    }
+    tbody tr td:nth-child(3):before {
+          content: "Type";
+    }
+    tbody tr td:nth-child(4):before {
+          content: "Origin";
+    }
+    tbody tr td:nth-child(5):before {
+          content: "Destination";
     }
 }
 </style>

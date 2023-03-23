@@ -1,9 +1,8 @@
 <template>
-
-<div v-if="trainChart">
+<div v-if="trainChart" class="piechart">
     <Pie :data="trainData" :options="chartOptions" />
 </div>
-<div v-if="!trainChart">
+<div v-if="!trainChart" class="barchart">
     <Pie :data="stationData" :options="chartOptions" />
 </div>
 
@@ -59,8 +58,7 @@ export default {
 </script>
 
 <style scoped>
-
-div{
+div {
     width: 70%;
 }
 </style>
