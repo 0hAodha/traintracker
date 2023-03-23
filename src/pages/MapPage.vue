@@ -551,7 +551,7 @@ export default {
   background-color: #ffffff;
   width: 190px;
   height: 40px;
-  z-index: 4;
+  z-index: 3;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -565,6 +565,7 @@ export default {
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   border: none;
   border-bottom: 1px solid black;
+  z-index: 3;
 }
 
 
@@ -652,6 +653,7 @@ export default {
   width: 100%;
   display: flex;
   justify-content: left;
+  z-index: 3;
 }
 
   #searchBar{
@@ -665,7 +667,7 @@ export default {
   background-color: #ffffff;
   width: 120px;
   height: 40px;
-  z-index: 4;
+  z-index: 3;
   display: flex;
   justify-content: center;
   align-items: center;
