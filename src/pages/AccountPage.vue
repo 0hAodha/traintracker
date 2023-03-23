@@ -26,7 +26,7 @@
     <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
     <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
     <!--   </div> -->
-    <input @click="updateUserPassword()" type="submit" name="" value="Update Password">
+    <button @click="updateUserPassword()" type="submit" name="" value="Update Password">Update Password</button>
 
     <h3>Delete account</h3>
     <button @click="deleteUserAccount()" type="submit" name="" value="Delete Account">Delete Account</button>
