@@ -1,38 +1,37 @@
 <template>
 <Navbar />
-<h1>Account Settings</h1>
-<p v-if="this.user">Your Email: {{ this.user.email }}</p>
-<div>
-    <h3>Send a password reset email</h3>
-    <button @click="resetPasswordEmail()" type="submit" name="" value="Send Password reset email" class="button">Send Password Reset Email</button>
+<div id="accountDiv">
+    <div id="mainDiv">
+        <h1>Account Settings</h1>
+        <p style="text-align:center" v-if="this.user">Your email: <b>{{ this.user.email }}</b><br><span id="passReset" @click="resetPasswordEmail()">Send password reset email</span></p>
 
-    <h3>Enter your current password to edit account settings</h3>
-    <input v-if="showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
-    <input v-else type="password" v-model="currentPassword" placeholder="Enter existing password">
-    <!-- <div id="imgDiv1"> -->
-    <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
-    <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
-    <!--   </div> -->
+        <h3>Enter your current password to edit the below settings</h3>
+        <input v-if="showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
+        <input v-else type="password" v-model="currentPassword" placeholder="Enter existing password">
+        <!-- <div id="imgDiv1"> -->
+        <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
+        <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
+        <!--   </div> -->
 
-    <h3>Change email</h3>
-    <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
-    <button @click="updateUserEmail()" type="submit" name="" value="Update Email">Update email</button>
+        <h3>Change email</h3>
+        <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
+        <button @click="updateUserEmail()" id="emailUpdate" type="button" class="btn btn-primary" value="Update Email">Update email</button>
 
-    <h3>Change password</h3>
-    <input v-if="showNewPassword" type="text" v-model="newPassword" placeholder="Enter new password">
-    <input v-else type="password" v-model="newPassword" placeholder="Enter new password">
+        <h3>Change password</h3>
+        <input v-if="showNewPassword" type="text" v-model="newPassword" placeholder="Enter new password">
+        <input v-else type="password" v-model="newPassword" placeholder="Enter new password">
 
-    <!-- <div id="imgDiv2"> -->
-    <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
-    <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
-    <!--   </div> -->
-    <input @click="updateUserPassword()" type="submit" name="" value="Update Password">
+        <!-- <div id="imgDiv2"> -->
+        <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
+        <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
+        <!--   </div> -->
+        <button @click="updateUserPassword()" id="passUpdate" type="button" class="btn btn-primary">Update Password</button>
 
-    <h3>Delete account</h3>
-    <button @click="deleteUserAccount()" type="submit" name="" value="Delete Account">Delete Account</button>
+        <button @click="deleteUserPreferences()" id="delPref" type="button" class="btn btn-danger">Delete Map Preferences</button>
+        <button @click="deleteUserAccount()" id="delAcc" type="button" class="btn btn-danger" value="Delete Account">Delete Account</button>
 
-    <h3>Delete map filter preferences data</h3>
-    <button @click="deleteUserPreferences()">Delete preferences</button>
+        
+    </div>
 </div>
 </template>
 
@@ -205,49 +204,73 @@ export default {
 </script>
 
 <style scoped>
-button {
-  background-color: blue;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  border: none;
-  margin: 10px;
-  font-size: 16px;
-  cursor: pointer;
+
+h1 {
+    color:black;
+    text-align: center;
 }
 
-button:hover {
-  background-color: darkblue;
+h3 {
+    font-size: 18px;
+    padding-top: 20px;
 }
 
-button:focus {
+#passReset {
+    font-size: 17px;
+    text-decoration: underline;
+    color: #39d3fa;
+}
+
+#passReset:hover {
+    color: #3993fa;
+    cursor: pointer;
+}
+#accountDiv {
+    position:absolute;
+    right:0px;
+    left:0px;
+    bottom:0px;
+    background-color: rgb(255, 255, 255);
+    height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+#accountDiv div {
+    position: inherit;
+    padding: 15px;
+    background-color: rgb(255, 255, 255);
+    width: 45%;
+    height: 80%;
+    top: 14%;
+    text-align: left;
+    box-shadow: 0 0 4px 4px #b6b6b6;
+    
+}
+
+#emailUpdate, #passUpdate {
+    position: relative;
+    left:10px;
+    width: 26%;
+}
+
+input {
+    border:none;
+    border-bottom: 1px solid #000000;
+    background: transparent;
     outline: none;
 }
 
-.eye-button {
-  background-color: grey;
+#delAcc {
+    position: absolute;
+    bottom: 10px;
+    left:10px;
 }
 
-#imgDiv1{
-  height:8%;
-  left:190px;
-  top:260px;
-  position: absolute;
-}
-
-#imgDiv2{
-  height:8%;
-  left:330px;
-  top:400px;
-  position: absolute;
-}
-
-#eyeImg{
-  height:60%;
-  width:100%;
-}
-
-#eyeImg:hover{
-  transform: scale(1.3);
+#delPref {
+    position: absolute;
+    bottom: 10px;
+    left:160px;
 }
 </style>

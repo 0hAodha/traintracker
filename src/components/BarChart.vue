@@ -1,13 +1,7 @@
 <template>
-<div id="statsDiv">
-    <div id="lateGraph">
-        <Bar
-        id="my-chart-id"
-        :options="chartOptions"
-        :data="chartData"
-        />
-    </div>
-</div>
+
+  <Bar :data="chartData" :id="barChart" :options="chartOptions" />
+
 </template>
   
 <script scoped>
@@ -25,23 +19,38 @@ export default {
         labels: ['Punctuality Percentage'],
         datasets: [{ 
           label: 'Late', 
-          backgroundColor: '#FF0000', 
+          backgroundColor: 'rgba(255, 0, 0, 0.3)',
+          hoverBackgroundColor: 'rgba(255, 0, 0, 0.8)',
+          borderColor: 'rgb(255, 0, 0)', 
+          borderWidth: 1,
           data: [store.insights["percentageLate"]] 
         },
         {
           label: 'Early/ontime', 
-          backgroundColor: '#4ADC57', 
+          backgroundColor: 'rgba(74, 220, 87, 0.3)',
+          hoverBackgroundColor: 'rgba(74, 220, 87), 0.8)',
+          borderColor: 'rgb(74, 220, 87)', 
+          borderWidth: 1, 
           data: [store.insights["percentageNotLate"]] 
         }]
       },
+
       chartOptions: {
-        responsive: false
+        responsive: true,
+        maintainAspectRatio: false
       }
+
     }
   }
 }
 </script>
 
+
 <style scoped>
+
+div{
+  width: 70%;
+}
+
 
 </style>
