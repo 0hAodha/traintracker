@@ -160,13 +160,13 @@ export default {
 
         getOrigin(publicMessage) {
             let startOrigin = publicMessage.indexOf("-") + 1
-            let endOrigin = publicMessage.indexOf("to") - 1;
-            return publicMessage.substring(startOrigin, endOrigin)
+            let endOrigin = publicMessage.indexOf("to ") - 1;
+            return publicMessage.substring(startOrigin, endOrigin);
         },
 
         getDestination(publicMessage) {
-            let endOrigin = publicMessage.indexOf("to") - 1;
-            let startDestination = endOrigin + 4;
+            let endOrigin = publicMessage.indexOf("to ");
+            let startDestination = endOrigin + 3;
             let endDestination = publicMessage.indexOf("(") - 1;
             return publicMessage.substring(startDestination, endDestination);
         },
