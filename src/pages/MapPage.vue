@@ -3,7 +3,7 @@
 <Navbar />
 <div id="mapCover">
   <div id="searchContainer">
-    <input id="searchBar" type="text" v-model="searchinput" placeholder="Search Trains" />
+    <input id="searchBar" type="text" v-model="searchinput" placeholder="Search Trains/Stations" />
   </div>
 </div>
 
@@ -89,7 +89,7 @@
     <div v-if="(!store.isWaitingForLoginStatus && !store.loggedIn) || (store.loggedIn && readyToDisplayMap)">
       <!-- train overlay -->
       <template v-for="coordinate, i in trainCoordinates" :position="inline-block">
-        <ol-overlay v-if="showTrains[i] && (!searchinput || (searchinput && this.allTrains[i]['PublicMessage'][0].toLowerCase().includes(searchinput) || this.allTrains[i]['Direction'][0].toLowerCase().includes(searchinput)))" :position="coordinate" :offset="[-14,-16]">
+        <ol-overlay v-if="showTrains[i] && (!searchinput || (searchinput && this.allTrains[i]['PublicMessage'][0].toLowerCase().includes(searchinput.toLowerCase()) || this.allTrains[i]['Direction'][0].toLowerCase().includes(searchinput.toLowerCase())))" :position="coordinate" :offset="[-14,-16]">
             <div class="overlay-content" @click="getSelectedTrain(i)">
                 <div v-if="getTrainType(i) === 'DART'">
                     <img v-if="isTrainRunning(i) && isTrainLate(i)" src="../assets/red-train-tram-solid.png" class="trainMapIcon" alt="Late DART Icon">
@@ -107,7 +107,7 @@
 
       <!-- station overlay -->
       <template v-for="coordinate, i in stationCoordinates" :position="inline-block">
-        <ol-overlay v-if="showStations[i]" :position="coordinate" :offset="[-14,-16]">
+        <ol-overlay v-if="showStations[i] && (!searchinput || (searchinput && this.allStations[i]['StationCode'][0].toLowerCase().includes(searchinput.toLowerCase()) || this.allStations[i]['StationDesc'][0].toLowerCase().includes(searchinput.toLowerCase())))" :position="coordinate" :offset="[-14,-16]">
           <div class="overlay-content" @click="getSelectedStation(i)">
             <img src="../assets/station.png" class="stationMapIcon" alt="Station Icon">
           </div>
