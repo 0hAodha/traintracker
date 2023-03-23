@@ -1,6 +1,11 @@
 <template>
-   <input type="text" v-model="searchinput" placeholder="Search Trains" />
+   
 <Navbar />
+<div id="mapCover">
+  <div id="searchContainer">
+    <input id="searchBar" type="text" v-model="searchinput" placeholder="Search Trains" />
+  </div>
+</div>
 
 <div id="preferenceDropdown" class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -498,6 +503,13 @@ export default {
 </script>
 
 <style scoped>
+
+#mapCover{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 .overlay-content {
   width: 1%;
 }
@@ -531,6 +543,30 @@ export default {
   /*In case we want to edit dropdown menu*/
   font-size: 14.6px;
 }
+
+#searchContainer{
+  position: absolute;
+  top: 11%;
+  background-color: #ffffff;
+  width: 190px;
+  height: 40px;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  box-shadow: 0 0 5px 2px #6e757dbe;
+  border-radius: 6%;
+}
+
+#searchBar{
+  text-align: center;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  border: none;
+  border-bottom: 1px solid black;
+  z-index: 3;
+}
+
 
 #preferenceDropdown {
   position: absolute;
@@ -610,5 +646,33 @@ export default {
   left:5%;
   top: 18%;
   }
+
+  #mapCover{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: left;
+  z-index: 3;
+}
+
+  #searchBar{
+    width: 100px;
+  }
+
+  #searchContainer{
+  position: absolute;
+  top: 11%;
+  left: 10px;
+  background-color: #ffffff;
+  width: 120px;
+  height: 40px;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  box-shadow: 0 0 5px 2px #6e757dbe;
+  border-radius: 6%;
+}
 }
 </style>
