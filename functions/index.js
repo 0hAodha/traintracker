@@ -208,6 +208,49 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
     let jsonData = jsonObj.ArrayOfObjTrainPositions.objTrainPositions;
     return jsonData;
   }
+
+  function getRunningOriginDestination(publicMessage) {
+    let startOrigin = publicMessage.indexOf("-") + 1
+    let endOrigin = publicMessage.indexOf("to ") - 1;
+    let origin = publicMessage.substring(startOrigin, endOrigin);
+    let startDestination = endOrigin + 4;
+    let endDestination = publicMessage.indexOf("(") - 1;
+    let destination = publicMessage.substring(startDestination, endDestination);
+    return {origin: origin, destination: destination}
+  }
+
+  function getTerminatedOriginDestination(publicMessage) {
+    let startOrigin = publicMessage.indexOf("-") + 1
+    let endOrigin = publicMessage.indexOf("to ") - 1;
+    let origin = publicMessage.substring(startOrigin, endOrigin);
+    let startDestination = endOrigin + 4;
+    let endDestination = publicMessage.indexOf("(");
+    let destination = publicMessage.substring(startDestination, endDestination);
+    return {origin: origin, destination: destination}
+  }
+
+  function getNotYetRunningOriginDestination(publicMessage) {
+    let startOrigin = publicMessage.indexOf(".") + 1
+    let endOrigin = publicMessage.indexOf("to ") - 1;
+    let origin = publicMessage.substring(startOrigin, endOrigin);
+    let startDestination = endOrigin + 3;
+    let endDestination = publicMessage.indexOf(". E");
+    let destination = publicMessage.substring(startDestination, endDestination);
+    return {origin: origin, destination: destination}
+  }
+
+  function getOriginDestination(publicMessage, trainType) {
+    if (trainType == "R") return getRunningOriginDestination(publicMessage)
+    else if (trainType == "T") return getTerminatedOriginDestination(publicMessage)
+    else if (trainType == "N") return getNotYetRunningOriginDestination(publicMessage)
+  }
+
+  function getPunctuality(publicMessage, trainType) {
+    if (trainType == "N") return
+    let start = publicMessage.indexOf("(") + 1
+    let end = publicMessage.indexOf(")")
+    return publicMessage.substring(start, end)
+  }
   
   // helper function to write to the database
   function batchWriteDB(request, response, db, jsonData, trainTypeCode) {
@@ -217,10 +260,22 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
 
     cors(request, response, () => {
       var batchWrite = db.batch();
-      jsonData.forEach((doc) => {
+       jsonData.forEach((doc) => {
         // ignore trains with longitudes or latitudes equal zero
         if (!(doc["TrainLongitude"] == 0 || doc["TrainLatitude"] == 0)) {
           doc["TrainType"] = [trainTypeCode]
+
+          // get the origin, destination and filter out \n from the public message
+          doc["PublicMessage"][0] = doc["PublicMessage"][0].replace(/\\n/g, ". ");
+          var originDestination = getOriginDestination(doc["PublicMessage"][0], doc["TrainStatus"][0])
+          doc["Origin"] = [originDestination.origin]
+          doc["Destination"] = [originDestination.destination]
+          
+          // get the lateness if the train is running or terminated
+          if (doc["TrainStatus"][0] == "R" || doc["TrainStatus"][0] == "T") {
+            doc["Punctuality"] = [getPunctuality(doc["PublicMessage"][0], doc["TrainStatus"][0])]
+          }
+
           var docID = db.collection('liveTrainData').doc(doc["TrainCode"][0]);
           batchWrite.set(docID, doc);
         }
@@ -275,13 +330,56 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
 })
 
 // scheduled version
-exports.scheduledPostLiveTrainData = functions.pubsub.schedule('every 10 minutes').onRun(async (context) => {
+exports.scheduledPostLiveTrainData = functions.pubsub.schedule('every 1 minutes').onRun(async (context) => {
   // helper function to parse train JSON objects
   function parseJSON(result) {
     let jsonStr = JSON.stringify(result);
     let jsonObj = JSON.parse(jsonStr);
     let jsonData = jsonObj.ArrayOfObjTrainPositions.objTrainPositions;
     return jsonData;
+  }
+
+  function getRunningOriginDestination(publicMessage) {
+    let startOrigin = publicMessage.indexOf("-") + 1
+    let endOrigin = publicMessage.indexOf("to ") - 1;
+    let origin = publicMessage.substring(startOrigin, endOrigin);
+    let startDestination = endOrigin + 4;
+    let endDestination = publicMessage.indexOf("(") - 1;
+    let destination = publicMessage.substring(startDestination, endDestination);
+    return {origin: origin, destination: destination}
+  }
+
+  function getTerminatedOriginDestination(publicMessage) {
+    let startOrigin = publicMessage.indexOf("-") + 1
+    let endOrigin = publicMessage.indexOf("to ") - 1;
+    let origin = publicMessage.substring(startOrigin, endOrigin);
+    let startDestination = endOrigin + 4;
+    let endDestination = publicMessage.indexOf("(");
+    let destination = publicMessage.substring(startDestination, endDestination);
+    return {origin: origin, destination: destination}
+  }
+
+  function getNotYetRunningOriginDestination(publicMessage) {
+    let startOrigin = publicMessage.indexOf(".") + 1
+    let endOrigin = publicMessage.indexOf("to ") - 1;
+    let origin = publicMessage.substring(startOrigin, endOrigin);
+    let startDestination = endOrigin + 3;
+    let endDestination = publicMessage.indexOf(". E");
+    let destination = publicMessage.substring(startDestination, endDestination);
+    return {origin: origin, destination: destination}
+  }
+
+  function getOriginDestination(publicMessage, trainType) {
+    if (trainType == "R") return getRunningOriginDestination(publicMessage)
+    else if (trainType == "T") return getTerminatedOriginDestination(publicMessage)
+    else if (trainType == "N") return getNotYetRunningOriginDestination(publicMessage)
+  }
+
+  function getPunctuality(publicMessage, trainType) {
+    if (trainType == "N") return
+    let start = publicMessage.indexOf("(") + 1
+    let end = publicMessage.indexOf(")")
+    return publicMessage.substring(start, end)
   }
 
   // helper function to write to the database
@@ -292,6 +390,18 @@ exports.scheduledPostLiveTrainData = functions.pubsub.schedule('every 10 minutes
       // ignore trains with longitudes or latitudes equal zero
       if (!(doc["TrainLongitude"] == 0 || doc["TrainLatitude"] == 0)) {
         doc["TrainType"] = [trainTypeCode]
+        
+        // get the origin, destination and filter out \n from the public message
+        doc["PublicMessage"][0] = doc["PublicMessage"][0].replace(/\\n/g, ". ");
+        var originDestination = getOriginDestination(doc["PublicMessage"][0], doc["TrainStatus"][0])
+        doc["Origin"] = [originDestination.origin]
+        doc["Destination"] = [originDestination.destination]
+
+        // get the lateness if the train is running or terminated
+        if (doc["TrainStatus"][0] == "R" || doc["TrainStatus"][0] == "T") {
+          doc["Punctuality"] = [getPunctuality(doc["PublicMessage"][0], doc["TrainStatus"][0])]
+        }
+
         var docID = db.collection('liveTrainData').doc(doc["TrainCode"][0]);
         batchWrite.set(docID, doc);
       }
