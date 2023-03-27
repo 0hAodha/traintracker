@@ -249,7 +249,13 @@ exports.postLiveTrainData = functions.https.onRequest((request, response) => {
     if (trainType == "N") return
     let start = publicMessage.indexOf("(") + 1
     let end = publicMessage.indexOf(")")
-    return publicMessage.substring(start, end)
+
+    // check if the train is early
+    if (publicMessage[start] != "-") {
+      return publicMessage.substring(start, end)
+    }
+    let endOfNum = publicMessage.indexOf(" mins")
+    return publicMessage.substring(start+1, endOfNum) + " mins early"
   }
   
   // helper function to write to the database
@@ -379,7 +385,13 @@ exports.scheduledPostLiveTrainData = functions.pubsub.schedule('every 1 minutes'
     if (trainType == "N") return
     let start = publicMessage.indexOf("(") + 1
     let end = publicMessage.indexOf(")")
-    return publicMessage.substring(start, end)
+
+    // check if the train is early
+    if (publicMessage[start] != "-") {
+      return publicMessage.substring(start, end)
+    }
+    let endOfNum = publicMessage.indexOf(" mins")
+    return publicMessage.substring(start+1, endOfNum) + " mins early"
   }
 
   // helper function to write to the database
