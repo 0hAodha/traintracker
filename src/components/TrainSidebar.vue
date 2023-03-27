@@ -20,21 +20,21 @@
       <div id="sidebarDiv">
         <div id="typeDiv">
           <div id="typeIcon">
-            <img id="typeImage" src = "src\assets\trainTypeIcon.png">
+            <img id="typeImage" src = "../assets/trainTypeIcon.png">
           </div>
           <p id="typeP"><span style="color:grey; font-size: 14px;">Type:</span><br>{{ store.selectedTrain["TrainType"][0] }}</p>
         </div>
 
         <div id="dateDiv">
           <div id="dateIcon">
-            <img id="dateImage" src = "src\assets\dateIcon.png">
+            <img id="dateImage" src = "../assets/dateIcon.png">
           </div>
           <p id="dateP"><span style="color:grey; font-size: 14px;">Date:</span><br>{{ store.selectedTrain["TrainDate"][0] }}</p>
         </div>
         
         <div id="positionDiv">
           <div id="positionIcon">
-            <img id="positionImage" src = "src\assets\locationIcon.png">
+            <img id="positionImage" src = "../assets/locationIcon.png">
           </div>
           <div id="positionParagraphDiv">
             <p id="longP"><span style="color:grey; font-size: 14px;">Longitude:</span><br>{{ store.selectedTrain["TrainLongitude"][0] }}</p>
@@ -44,18 +44,17 @@
 
         <div id="directionDiv">
           <div id="directionIcon">
-            <img id="directionImage" src="src\assets\directionIcon.png">
+            <img id="directionImage" src="../assets/directionIcon.png">
           </div>
           <p id="directionP"><span style="color:grey; font-size: 14px;">Direction:</span><br>{{ store.selectedTrain["Direction"][0] }}</p>
         </div>
 
         <div id="publicMessageDiv">
           <div id="publicMessageIcon">
-            <img id="publicMessageImage" src="src\assets\publicMessageIcon.png">
+            <img id="publicMessageImage" src="../assets/publicMessageIcon.png">
           </div>
           <p id="publicMessageP"><span style="color:grey; font-size: 14px;">Public Message:</span><br>Public Message: {{ store.selectedTrain["PublicMessage"][0] }}</p>
         </div>
-        <!--<p id="messageP">Public Message: {{ store.selectedTrain["PublicMessage"][0] }}</p> -->
       </div>
   </div>
   </template>
