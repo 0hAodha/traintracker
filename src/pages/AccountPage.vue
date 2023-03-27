@@ -6,25 +6,27 @@
         <p style="text-align:center" v-if="this.user">Your email: <b>{{ this.user.email }}</b><br><span id="passReset" @click="resetPasswordEmail()">Send password reset email</span></p>
 
         <h3>Enter your current password to edit the below settings</h3>
-        <input v-if="showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
+        <div id="imgDiv1">
+            <img v-if="!showCurrentPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showCurrentPassword = !this.showCurrentPassword" alt="show">
+            <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showCurrentPassword = !this.showCurrentPassword">
+        </div>
+
+        <input v-if="!showCurrentPassword" type="text" v-model="currentPassword" placeholder="Enter existing password">
         <input v-else type="password" v-model="currentPassword" placeholder="Enter existing password">
-        <!-- <div id="imgDiv1"> -->
-        <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
-        <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
-        <!--   </div> -->
 
         <h3>Change email</h3>
         <input type="email" v-model="newEmail" aria-describedby="emailHelp" placeholder="Enter new email">
         <button @click="updateUserEmail()" id="emailUpdate" type="button" class="btn btn-primary" value="Update Email">Update email</button>
 
         <h3>Change password</h3>
-        <input v-if="showNewPassword" type="text" v-model="newPassword" placeholder="Enter new password">
-        <input v-else type="password" v-model="newPassword" placeholder="Enter new password">
+        <div id="imgDiv2">
+            <img v-if="!showNewPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showNewPassword = !this.showNewPassword" alt="show">
+            <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showNewPassword = !this.showNewPassword">
+        </div>
 
-        <!-- <div id="imgDiv2"> -->
-        <!--     <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show"> -->
-        <!--     <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword"> -->
-        <!--   </div> -->
+        <input v-if="!showNewPassword" type="text" v-model="newPassword" placeholder="Enter existing password">
+        <input v-else type="password" v-model="newPassword" placeholder="Enter existing password">
+
         <button @click="updateUserPassword()" id="passUpdate" type="button" class="btn btn-primary">Update Password</button>
 
         <button @click="deleteUserPreferences()" id="delPref" type="button" class="btn btn-danger">Delete Map Preferences</button>
@@ -237,7 +239,7 @@ h3 {
     justify-content: center;
 }
 
-#accountDiv div {
+#mainDiv{
     position: inherit;
     padding: 15px;
     background-color: rgb(255, 255, 255);
@@ -246,12 +248,11 @@ h3 {
     top: 14%;
     text-align: left;
     box-shadow: 0 0 4px 4px #b6b6b6;
-    
 }
 
 #emailUpdate, #passUpdate {
     position: relative;
-    left:10px;
+    left:40px;
     width: 26%;
 }
 
@@ -272,5 +273,86 @@ input {
     position: absolute;
     bottom: 10px;
     left:160px;
+}
+
+#imgDiv1{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    top:180px;
+    left: 195px;
+}
+
+#imgDiv2{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    bottom:165px;
+    left: 195px;
+}
+
+#imgDiv1:hover, #imgDiv2:hover{
+    transform: scale(1.1);
+}
+
+#eyeImg{
+    width: 100%;
+}
+
+@media screen and (max-width: 786px) {
+
+    #mainDiv{
+    position: inherit;
+    padding: 15px;
+    background-color: rgb(255, 255, 255);
+    width: 90%;
+    height: 80%;
+    top: 14%;
+    text-align: left;
+    box-shadow: 0 0 4px 4px #b6b6b6;
+    }
+
+    #delAcc {
+    position: absolute;
+    bottom: 10px;
+    left:10px;
+    height: 10%;
+    }
+
+    #delPref {
+    width: 50%;
+    left: 150px;
+    right: 10px;
+    height: 10%;
+    }
+
+    button{
+        font-size: 12px;
+    }
+
+    #imgDiv1{
+    position: absolute;
+    width: 60px;
+    height: 40px;
+    top:175px;
+    left: 195px;
+    }
+
+    #imgDiv2{
+        position: absolute;
+        width: 60px;
+        height: 40px;
+        bottom:194px;
+        left: 195px;
+    }
+
+    #eyeImg{
+        width:60%;
+    }
+}
+
+@media screen and (max-width: 786px) {
+
+
 }
 </style>
