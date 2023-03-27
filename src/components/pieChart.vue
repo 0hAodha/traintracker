@@ -33,16 +33,20 @@ export default {
             trainData: {
                 labels: ['Trains', 'Darts'],
                 datasets: [{
-                    backgroundColor: ['#41B883', '#E46651', '#00D8FF'],
-                    data: [store.insights["numTrains"], store.insights["numDarts"]]
+                    backgroundColor: ['#ffdf9e', '#c3eefa', '#00D8FF'],
+                    data: [store.insights["numTrains"], store.insights["numDarts"]],
+                    borderColor: ['#000000', '#000000', '#00D8FF'],
+                    borderWidth: .5
                 }]
             },
             
             stationData: {
                 labels: ['Train Stations', 'Dart Stations'],
                 datasets: [{
-                    backgroundColor: ['#41B883', '#E46651', '#00D8FF'],
-                    data: [store.insights["numTrainStations"], store.insights["numDartStations"]]
+                    backgroundColor: ['#ffdf9e', '#c3eefa', '#00D8FF'],
+                    data: [store.insights["numTrainStations"], store.insights["numDartStations"]],
+                    borderColor: ['#000000', '#000000', '#00D8FF'],
+                    borderWidth: .5
                 }]
             },
 
