@@ -71,6 +71,22 @@
     </div>
 </div>
 
+
+<div id="legendDropdown" class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+    Legend
+  </button>
+  <div style="padding-bottom: 7px; padding-left:7px;" id="dropMenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton1" v-on:click.stop="handleClick">
+    <dl>
+      <dt style="color:red;">Red</dt>
+        <dd>Late Train</dd>
+      <dt style="color:green;">Green</dt>
+        <dd>Early/On Time Train</dd>
+      <dt style="color:black;">Black</dt>
+        <dd>Terminated/Not Yet Running Train</dd>
+    </dl>
+  </div>
+</div>
 <transition id="sidebar" name="slideLeft">
   <div v-if="store.displaySelectedTrain && store.selectedTrain">
     <TrainSidebar />
@@ -547,24 +563,28 @@ export default {
 #searchContainer{
   position: absolute;
   top: 11%;
-  background-color: #ffffff;
+  background-color: #6e757d;
   width: 190px;
   height: 40px;
   z-index: 3;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: black;
-  box-shadow: 0 0 5px 2px #6e757dbe;
+  box-shadow: 0 0 5px 2px #6e757d;
   border-radius: 6%;
 }
 
+::placeholder{
+  color: white;
+}
 #searchBar{
   text-align: center;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  color: white;
+  background-color: #6e757d;
   border: none;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid rgb(255, 255, 255);
   z-index: 3;
+  outline: none;
 }
 
 
@@ -573,6 +593,13 @@ export default {
   z-index: 3;
   right: 1%;
   top: 11%;
+}
+
+#legendDropdown {
+  position: absolute;
+  z-index: 2;
+  right: 1%;
+  top: 18%;
 }
 
 #prefHeader {
@@ -585,7 +612,7 @@ export default {
 #sidebar {
   position: absolute;
   height: 80%;
-  width: 20%;
+  width: 30%;
   left: 2%;
   top: 14%;
   z-index: 2;
@@ -605,8 +632,8 @@ export default {
   position: relative;
 }
 .slideLeft-enter-active, .slideLeft-leave-active {
-  transition: opacity .5s;
-  transition: all 0.8s;
+  transition: opacity .8s;
+  transition: all 1.2s;
 
 }
 .slideLeft-enter-from, .slideLeft-leave-to {
@@ -635,7 +662,8 @@ export default {
   color: black;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   text-align: bottom;
-  font-size: 16px;
+  font-size: 18px;
+  height: 4.2vh;
 }
 
 /* Phone Screen CSS */
@@ -653,26 +681,26 @@ export default {
   display: flex;
   justify-content: left;
   z-index: 3;
-}
+  }
 
   #searchBar{
     width: 100px;
+    color: white;
   }
 
   #searchContainer{
-  position: absolute;
-  top: 11%;
   left: 10px;
-  background-color: #ffffff;
   width: 120px;
   height: 40px;
-  z-index: 3;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: black;
-  box-shadow: 0 0 5px 2px #6e757dbe;
-  border-radius: 6%;
-}
+  
+  }
+
+  .slideLeft-enter-from, .slideLeft-leave-to {
+    opacity: 0;
+    transform: translateX(-750px);
+  }
 }
 </style>
