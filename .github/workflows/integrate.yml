@@ -21,5 +21,9 @@ jobs:
       - name: Run Vue.js unit tests
         run: npm run test:unit
 
+      - name: Run Firebase integration tests
+        run: npm run test
+        working-directory: ./functions
+
       - name: Build environment
         run: npm run build
