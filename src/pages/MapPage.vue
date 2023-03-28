@@ -434,8 +434,7 @@ export default {
                         if (train["TrainType"][0] == "Train") insights["numTrains"] += 1;
                         else if (train["TrainType"][0] == "DART") insights["numDarts"] += 1;
 
-                        // filter out \n in public messages
-                        train["PublicMessage"][0] = train["PublicMessage"][0].replace(/\\n/g, ". ");
+
                         let publicMessage = train["PublicMessage"][0];
                         currentMessages.push(publicMessage);
 
@@ -662,8 +661,8 @@ export default {
   color: black;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   text-align: bottom;
-  font-size: 18px;
-  height: 4.2vh;
+  font-size: 16.5px;
+  height: 4vh;
 }
 
 /* Phone Screen CSS */

@@ -3,7 +3,7 @@
     <div v-on:click="store.setDisplaySelectedTrain(false)" id="xButton">X</div>
     <h2 style="padding: 10px;">Train Code: {{ store.selectedTrain["TrainCode"][0] }}</h2>
       <div id="sidebarHeader">
-        <p id="originDiv">Origin:<br> {{ getOrigin(store.selectedTrain["PublicMessage"][0]) }}</p>
+        <p id="originDiv">Origin:<br> {{ store.selectedTrain["Origin"][0] }}</p>
           <div id = "imageDiv" v-if="getTrainType() === 'DART'">
             <img v-if="isTrainRunning() && isTrainLate()" src="../assets/red-train-tram-solid.png" class="headerImage" alt="Late DART Icon">
             <img v-else-if="isTrainRunning() && !isTrainLate()" src="../assets/green-train-tram-solid.png" class="headerImage" alt="On-Time DART Icon">
@@ -14,7 +14,7 @@
             <img v-else-if="isTrainRunning() && !isTrainLate()" src="../assets/green-train-solid.png" class="headerImage" alt="On-Time Train Icon">
             <img v-else src="../assets/train-solid.svg" class="headerImage" alt="Not Running Train Icon">
           </div>
-          <p id="destinationDiv">Destination:<br> {{ getDestination(store.selectedTrain["PublicMessage"][0]) }}</p>
+          <p id="destinationDiv">Destination:<br> {{ store.selectedTrain["Destination"][0] }}</p>
       </div>
   
       <div id="sidebarDiv">
@@ -47,6 +47,13 @@
             <img id="directionImage" src="../assets/directionIcon.png">
           </div>
           <p id="directionP"><span style="color:grey; font-size: 14px;">Direction:</span><br>{{ store.selectedTrain["Direction"][0] }}</p>
+        </div>
+
+        <div v-if="store.selectedTrain['TrainStatus'][0] != 'N'" id="punctualityDiv">
+          <div id="punctualityIcon">
+            <img id="punctualityImage" src="../assets/publicMessageIcon.png">
+          </div>
+          <p id="punctualityP"><span style="color:grey; font-size: 14px;">Punctuality:</span><br>{{ store.selectedTrain["Punctuality"][0] }}</p>
         </div>
 
         <div id="publicMessageDiv">
@@ -86,19 +93,6 @@ export default {
             return false;
         },
 
-        getOrigin(publicMessage) {
-            let startOrigin = publicMessage.indexOf("-") + 1
-            let endOrigin = publicMessage.indexOf("to ") - 1;
-            return publicMessage.substring(startOrigin, endOrigin);
-        },
-
-        getDestination(publicMessage) {
-            let endOrigin = publicMessage.indexOf("to ");
-            let startDestination = endOrigin + 3;
-            let endDestination = publicMessage.indexOf("(") - 1;
-            return publicMessage.substring(startDestination, endDestination);
-        },
-
         // method to determine whether or not a selected train is running
         isTrainRunning() {
             if (store.selectedTrain["TrainStatus"][0] == "R") {
@@ -112,7 +106,7 @@ export default {
         // method that returns the type of train (either "Train" or "DART")
         getTrainType() {
             return store.selectedTrain["TrainType"][0];
-        },
+        }
     }
 }
 </script>
@@ -130,6 +124,7 @@ export default {
   background-color: rgb(214, 214, 214);
   box-shadow: 0 0 5px 2px rgb(190, 190, 190);
 }
+
 #sidebarDiv{
   position: absolute;
   height: 80%;
@@ -137,11 +132,13 @@ export default {
   color: rgb(0, 0, 0);
   padding-top: 10px;
 }
+
 .headerImage{
   height: 100%;
   width: 100%;
   padding: 10px;
 }
+
 #imageDiv{
   background-color: rgb(230, 230, 230);
   border-radius: 50%;
@@ -157,6 +154,7 @@ export default {
   right:10px;
   z-index: 5;
 }
+
 #xButton:hover{
   color:red;
 }
@@ -168,6 +166,7 @@ export default {
   align-self: center;
   padding-top: 3%;
 }
+
 #originDiv{
   order:0;
 }
@@ -178,8 +177,7 @@ export default {
 
 
 /* Sidebar Section Divs */
-
-#typeDiv, #dateDiv, #positionDiv, #directionDiv, #publicMessageDiv{
+#typeDiv, #dateDiv, #positionDiv, #directionDiv, #publicMessageDiv, #punctualityDiv{
   background-color: rgb(230, 230, 230);
   height: 12%;
   position: absolute;
@@ -187,7 +185,7 @@ export default {
   width:100%;
 }
 
-#typeIcon, #dateIcon, #positionIcon, #directionIcon, #publicMessageIcon{
+#typeIcon, #dateIcon, #positionIcon, #directionIcon, #publicMessageIcon, #punctualityIcon{
   background-color: rgb(214, 214, 214);
   width:20%;
   height: 100%;
@@ -201,7 +199,7 @@ export default {
   align-items: center;
 }
 
-#typeP, #dateP, #longP, #latP, #directionP, #publicMessageP{
+#typeP, #dateP, #longP, #latP, #directionP, #publicMessageP, #punctualityP{
   font-size: 16px;
   position: relative;
   bottom: 2px;
@@ -226,6 +224,7 @@ export default {
 #typeImage{
   width: 70%;
 }
+
 #dateImage, #positionImage, #directionImage{
   padding-top: 2px; 
   padding-bottom: 2px;
@@ -241,12 +240,11 @@ export default {
 #dateDiv{top: 60px;}
 #positionDiv{top: 110px;}
 #directionDiv{top: 160px;}
+#punctualityDiv{top: 210px;}
 #publicMessageDiv{
-  top:210px;
+  top:260px;
   height: 40%;
 }
-
-
 
 @media screen and (max-width: 850px) {
   .headerImage{

@@ -45,7 +45,8 @@
 <table>
     <div style="left:3px; top:3px;" class="form-check form-switch">
         <input class="form-check-input" type="checkbox" role="switch" v-model="showTopEarliestLatest"/>
-        <label class="form-check-label" for="showTopEarliestLatest">Show All Train Entries</label>
+        <label v-if="showTopEarliestLatest" class="form-check-label" for="showTopEarliestLatest">Showing All Trains</label>
+        <label v-else class="form-check-label" for="showTopEarliestLatest">Showing Top 3 Earliest/Latest Trains</label>
     </div>
       <thead>
         <tr>
@@ -62,8 +63,8 @@
           <td v-if="train.time > 0"><span style="color: #fc1919;">{{ train.time }} mins late</span></td>
           <td v-else><span style="color: rgb(129, 213, 3);">{{ train.time * -1}} mins early</span></td>
           <td>{{ this.rawData[train.jsonIndex]["TrainType"][0] }}</td>
-          <td>{{ getOrigin(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
-          <td>{{ getDestination(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
+          <td>{{ this.rawData[train.jsonIndex]["Origin"][0] }}</td>
+          <td>{{ this.rawData[train.jsonIndex]["Destination"][0] }}</td>
         </tr>
       </tbody>
 
@@ -73,8 +74,8 @@
           <td v-if="train.time > 0"><span style="color: #fc1919;">{{ train.time }} mins late</span></td>
           <td v-else><span style="color: rgb(129, 213, 3);">{{ train.time * -1}} mins early</span></td>
           <td>{{ this.rawData[train.jsonIndex]["TrainType"][0] }}</td>
-          <td>{{ getOrigin(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
-          <td>{{ getDestination(this.rawData[train.jsonIndex]["PublicMessage"][0]) }}</td>
+          <td>{{ this.rawData[train.jsonIndex]["Origin"][0] }}</td>
+          <td>{{ this.rawData[train.jsonIndex]["Destination"][0] }}</td>
         </tr>
       </tbody>
 </table>
@@ -156,19 +157,6 @@ export default {
           this.toastMessage = message
           this.toastBackground = backgroundColour
           this.toast()
-        },
-
-        getOrigin(publicMessage) {
-            let startOrigin = publicMessage.indexOf("-") + 1
-            let endOrigin = publicMessage.indexOf("to ") - 1;
-            return publicMessage.substring(startOrigin, endOrigin);
-        },
-
-        getDestination(publicMessage) {
-            let endOrigin = publicMessage.indexOf("to ");
-            let startDestination = endOrigin + 3;
-            let endDestination = publicMessage.indexOf("(") - 1;
-            return publicMessage.substring(startDestination, endDestination);
         },
 
         postTrainAndStationData() {
