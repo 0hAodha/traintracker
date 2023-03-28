@@ -11,7 +11,7 @@
       <p class="card-text">Total number of trains: {{ this.insights["totalNumTrains"] }}</p>
             <ul>
                 <li><p class="card-stats">Trains: {{ this.insights["numTrains"] }}</p></li>
-                <li><p class="card-stats">Darts: {{ this.insights["numDarts"] }}</p></li>
+                <li><p class="card-stats">DARTs: {{ this.insights["numDarts"] }}</p></li>
             </ul>
     </div>
   </div>
@@ -23,7 +23,7 @@
       <p class="card-text">Total number of stations: {{ this.insights["totalNumStations"] }}</p>
             <ul>
                 <li><p class="card-stats">Trains: {{ this.insights["numTrainStations"] }}</p></li>
-                <li><p class="card-stats">Darts: {{ this.insights["numDartStations"] }}</p></li>
+                <li><p class="card-stats">DARTs: {{ this.insights["numDartStations"] }}</p></li>
             </ul>     
     </div>
   </div>
