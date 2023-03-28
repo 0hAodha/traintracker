@@ -97,7 +97,7 @@
 </transition>
 
 <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="position:absolute; height:90.6vh; width:100%;">
-    <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" />
+    <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" :extent="extent"/>
     <ol-tile-layer>
     <ol-source-osm />
     </ol-tile-layer>
@@ -172,6 +172,7 @@ export default {
 
       return {
           center: fromLonLat([-7.5029786, 53.4494762]),
+          extent: [-1552647.120208, 5561831.292724, 488742.222406, 8306950.728974],
           projection: 'EPSG:3857',
           zoom: 7,
           rotation: 0,
