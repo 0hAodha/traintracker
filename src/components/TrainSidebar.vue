@@ -49,20 +49,28 @@
           <p id="directionP"><span style="color:grey; font-size: 14px;">Direction:</span><br>{{ store.selectedTrain["Direction"][0] }}</p>
         </div>
 
-        <div v-if="store.selectedTrain['TrainStatus'][0] != 'N'" id="punctualityDiv">
-          <div id="punctualityIcon">
-            <img id="punctualityImage" src="../assets/publicMessageIcon.png">
-          </div>
-          <p id="punctualityP"><span style="color:grey; font-size: 14px;">Punctuality:</span><br>{{ store.selectedTrain["Punctuality"][0] }}</p>
-        </div>
-
-        <div id="publicMessageDiv">
+        <div v-if="isTrainRunning()" id="publicMessageDiv">
           <div id="publicMessageIcon">
             <img id="publicMessageImage" src="../assets/publicMessageIcon.png">
           </div>
           <p id="publicMessageP"><span style="color:grey; font-size: 14px;">Public Message:</span><br>Public Message: {{ store.selectedTrain["PublicMessage"][0] }}</p>
         </div>
-      </div>
+
+        <div v-else id="notRunningPublicMessageDiv">
+          <div id="publicMessageIcon">
+            <img id="publicMessageImage" src="../assets/publicMessageIcon.png">
+          </div>
+          <p id="publicMessageP"><span style="color:grey; font-size: 14px;">Public Message:</span><br>Public Message: {{ store.selectedTrain["PublicMessage"][0] }}</p>
+        </div>
+
+        <div v-if="store.selectedTrain['TrainStatus'][0] != 'N'" id="punctualityDiv">
+            <div id="punctualityIcon">
+              <img id="punctualityImage" src="../assets/punctualityIcon.png">
+            </div>
+            <p id="punctualityP"><span style="color:grey; font-size: 14px;">Punctuality:</span><br>{{ store.selectedTrain["Punctuality"][0] }}</p>
+        </div>
+
+    </div>
   </div>
   </template>
 
@@ -157,6 +165,7 @@ export default {
 
 #xButton:hover{
   color:red;
+  cursor: pointer;
 }
 
 #originDiv, #destinationDiv{
@@ -177,12 +186,13 @@ export default {
 
 
 /* Sidebar Section Divs */
-#typeDiv, #dateDiv, #positionDiv, #directionDiv, #publicMessageDiv, #punctualityDiv{
+#typeDiv, #dateDiv, #positionDiv, #directionDiv, #publicMessageDiv, #notRunningPublicMessageDiv, #punctualityDiv{
   background-color: rgb(230, 230, 230);
   height: 12%;
   position: absolute;
   right:0px;
   width:100%;
+  
 }
 
 #typeIcon, #dateIcon, #positionIcon, #directionIcon, #publicMessageIcon, #punctualityIcon{
@@ -195,17 +205,13 @@ export default {
   justify-content: center;
 }
 
-#publicMessageIcon{
-  align-items: center;
-}
-
 #typeP, #dateP, #longP, #latP, #directionP, #publicMessageP, #punctualityP{
-  font-size: 16px;
+  font-size: 15px;
   position: relative;
-  bottom: 2px;
   width: 40%;
   left: 22%;
   text-align: left;
+  bottom:4px;
 }
 
 #positionParagraphDiv{
@@ -225,32 +231,33 @@ export default {
   width: 70%;
 }
 
-#dateImage, #positionImage, #directionImage{
+#dateImage, #positionImage, #directionImage, #punctualityImage, #publicMessageImage{
   padding-top: 2px; 
   padding-bottom: 2px;
 }
-
-#publicMessageImage{
-  height: 40%;
-  position: relative;
-  top:-10px;
-}
-
 /*Positioning rows*/
-#dateDiv{top: 60px;}
-#positionDiv{top: 110px;}
-#directionDiv{top: 160px;}
-#punctualityDiv{top: 210px;}
-#publicMessageDiv{
-  top:260px;
-  height: 40%;
+#dateDiv{top: 16%;}
+#positionDiv{top: 29%;}
+#directionDiv{top: 42%;}
+#punctualityDiv{top: 55%;}
+#publicMessageDiv, #notRunningPublicMessageDiv{
+  top:68%;
+  height: fit-content;
 }
+
+#notRunningPublicMessageDiv{top: 55%;}
+
+
 
 @media screen and (max-width: 850px) {
   .headerImage{
   height: 100%;
   width: 100%;
   padding: 10px;
+  }
+
+  #typeImage{
+  width: 45%;
   }
 
 }
