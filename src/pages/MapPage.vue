@@ -81,9 +81,9 @@
       <dt style="color:red;">Red</dt>
         <dd>Late Train</dd>
       <dt style="color:green;">Green</dt>
-        <dd>Early/On Time Train</dd>
+        <dd>Early/On-Time Train</dd>
       <dt style="color:black;">Black</dt>
-        <dd>Terminated/Not Yet Running Train</dd>
+        <dd>Terminated/Not-Yet Running Train</dd>
     </dl>
   </div>
 </div>
@@ -185,6 +185,7 @@ export default {
           publicMessages: [],
           isPaused: false,
           readyToDisplayMap: false,
+          isFirstGET: true,
           store,
 
           searchinput: "",
@@ -218,6 +219,7 @@ export default {
     
     created() {
         this.readyToDisplayMap = false
+        this.isFirstGET = true
         let host = window.location.hostname
         if (host === '127.0.0.1' || host === 'localhost') {
             this.postTrainAndStationData();
@@ -226,7 +228,7 @@ export default {
             this.getTrainAndStationData();
         }
         // request new data every 60 seconds
-        // window.setInterval(this.getTrainAndStationData, 60000);
+        window.setInterval(this.getTrainAndStationData, 60000);
     },
 
     methods: {
@@ -421,6 +423,9 @@ export default {
                       "numTrainStations": 0,
                       "numDartStations": 0
                     };
+                    
+                    // fill showTrains with the default value - true
+                    if (this.isFirstGET) this.showTrains = new Array(response.data.length).fill(true)
 
                     // create an array of coordinates and hashmap with the key-values {index: JSON obj}
                     for (var i=0; i<response.data.length; i++) {
@@ -429,8 +434,6 @@ export default {
                         this.trainCoordinates[i] = fromLonLat([train["TrainLongitude"][0], train["TrainLatitude"][0]])
                         insights["totalNumTrains"] += 1
 
-                        // fill showTrains with the default value - true
-                        this.showTrains[i] = true;
                         if (train["TrainType"][0] == "Train") insights["numTrains"] += 1;
                         else if (train["TrainType"][0] == "DART") insights["numDarts"] += 1;
 
@@ -465,20 +468,22 @@ export default {
                     getStationData().then((response) => {
                       if (!response.data) throw new Error("Error fetching station from the database");
 
+                      // fill showStations with the default value - true
+                      if (this.isFirstGET) this.showStations = new Array(response.data.length).fill(true)
+
                       for (var i=0; i<response.data.length; i++) {
                         let station = response.data[i];
                         this.allStations[i] = station;
                         this.stationCoordinates[i] = fromLonLat([station["StationLongitude"][0], station["StationLatitude"][0]])
                         insights["totalNumStations"] += 1
 
-                        // setting the station to show on the map by default - true
-                        this.showStations[i] = true; 
                         if (station["StationType"][0] == "DART") insights["numDartStations"] += 1;
                         else if (station["StationType"][0] == "Train") insights["numTrainStations"] += 1;
                       }
 
                       store.setInsights(insights);
-                      // this.loader.hide()
+                      this.isFirstGET = false
+
                       // request the user's preferences
                       this.getPreferences()
                     })
