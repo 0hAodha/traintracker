@@ -53,14 +53,14 @@
           <div id="publicMessageIcon">
             <img id="publicMessageImage" src="../assets/publicMessageIcon.png">
           </div>
-          <p id="publicMessageP"><span style="color:grey; font-size: 14px;">Public Message:</span><br>Public Message: {{ store.selectedTrain["PublicMessage"][0] }}</p>
+          <p id="publicMessageP"><span style="color:grey; font-size: 14px;">Public Message:</span><br>{{ store.selectedTrain["PublicMessage"][0] }}</p>
         </div>
 
         <div v-else id="notRunningPublicMessageDiv">
           <div id="publicMessageIcon">
             <img id="publicMessageImage" src="../assets/publicMessageIcon.png">
           </div>
-          <p id="publicMessageP"><span style="color:grey; font-size: 14px;">Public Message:</span><br>Public Message: {{ store.selectedTrain["PublicMessage"][0] }}</p>
+          <p id="publicMessageP"><span style="color:grey; font-size: 14px;">Public Message:</span><br>{{ store.selectedTrain["PublicMessage"][0] }}</p>
         </div>
 
         <div v-if="store.selectedTrain['TrainStatus'][0] != 'N'" id="punctualityDiv">

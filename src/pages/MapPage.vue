@@ -16,7 +16,7 @@
       <div class="container-fluid" @change="decideShowStations();">
         <div class="form-check form-switch">
           <input @change="selectAllStations();" class="form-check-input" type="checkbox" role="switch" id="showAllStations" v-model="showAllStations"/>
-          <label class="form-check-label" for="showAllStations">Show Stations</label>
+          <label class="form-check-label" for="showAllStations">All Stations</label>
         </div>
         <hr/>
         <div class="form-check form-switch">
@@ -33,7 +33,7 @@
       <div class="container-fluid" @change="decideShowTrains();">
         <div class="form-check form-switch">
           <input @change="selectAllTrains();" class="form-check-input" type="checkbox" role="switch" id="showAllTrains" v-model="showAllTrains"/>
-          <label class="form-check-label" for="showAllTrains">Show Trains</label>
+          <label class="form-check-label" for="showAllTrains">All Trains</label>
         </div>
         <hr/>
         <div class="form-check form-switch">
@@ -177,7 +177,7 @@ export default {
           zoom: 7,
           rotation: 0,
           minZoom:6,
-          maxZoom:10,
+          maxZoom:13,
 
           showTrains: [],
           showStations: [],
