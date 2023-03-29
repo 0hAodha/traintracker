@@ -21,8 +21,8 @@
         <div id="newPassword">
             <img v-if="showNewPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showNewPassword = !this.showNewPassword" alt="show">
             <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showNewPassword = !this.showNewPassword">
-            <input v-if="showNewPassword" id="newPass" type="text" v-model="newPassword" placeholder="Enter existing password">
-            <input v-else type="password" id="newPass" v-model="newPassword" placeholder="Enter existing password">
+            <input v-if="showNewPassword" id="newPass" type="text" v-model="newPassword" placeholder="Enter new password">
+            <input v-else type="password" id="newPass" v-model="newPassword" placeholder="Enter new password">
             <button @click="updateUserPassword()" id="passUpdate" type="button" class="btn btn-primary">Update Password</button>
         </div>
         
@@ -276,9 +276,6 @@ input {
     align-items: center;
 }
 
-#imgDiv1:hover, #imgDiv2:hover{
-    transform: scale(1.1);
-}
 
 #eyeImg{
     width: 6%;
@@ -286,6 +283,9 @@ input {
     order: 2;
 }
 
+#eyeImg:hover{
+    transform: scale(1.1);
+}
 
 ::placeholder{
     font-size: 14px;;
