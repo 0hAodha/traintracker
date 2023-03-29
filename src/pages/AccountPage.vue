@@ -204,7 +204,6 @@ export default {
 </script>
 
 <style scoped>
-
 h1 {
     color:black;
     text-align: center;
@@ -292,37 +291,33 @@ input {
 }
 
 @media screen and (max-width: 786px) {
-
-    
     #mainDiv{
-    position: inherit;
-    padding: 15px;
-    background-color: rgb(255, 255, 255);
-    width: 90%;
-    height: 80%;
-    top: 14%;
-    text-align: left;
-    box-shadow: 0 0 4px 4px #b6b6b6;
+        position: inherit;
+        padding: 15px;
+        background-color: rgb(255, 255, 255);
+        width: 90%;
+        height: 80%;
+        top: 14%;
+        text-align: left;
+        box-shadow: 0 0 4px 4px #b6b6b6;
     }
 
     #delAcc {
-    position: absolute;
-    bottom: 10px;
-    left:10px;
-    height: 10%;
+        position: absolute;
+        bottom: 10px;
+        left:10px;
+        height: 10%;
     }
 
     #delPref {
-    width: 50%;
-    left: 150px;
-    right: 10px;
-    height: 10%;
+        width: 50%;
+        left: 150px;
+        right: 10px;
+        height: 10%;
     }
 
     button{
-    font-size: 12px;
+        font-size: 12px;
     }
-
 }
-
 </style>

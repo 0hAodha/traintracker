@@ -5,14 +5,14 @@
     <img src="https://cdn.discordapp.com/attachments/1017419092447207436/1063092138029625394/pixil-frame-0.png" class="avatar">
     <h1>Sign Up</h1>
     <p>Email Address</p>
-    <input type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
+    <input id="emailInput" type="email" v-model="email" aria-describedby="emailHelp" placeholder="Enter email">
     <p>Password (6+ characters)</p>
     <div id="imgDiv">
         <img v-if="showPassword" id="eyeImg" src="../assets/314858_hidden_eye_icon.png" @click="this.showPassword = !this.showPassword" alt="show">
         <img v-else id = "eyeImg" src="../assets/315220_eye_icon.png" @click="this.showPassword = !this.showPassword">
       </div>
-    <input v-if="showPassword" type="text" v-model="password" placeholder="Enter password">
-    <input v-else type="password" v-model="password" placeholder="Enter password">
+    <input id="passwordInput" v-if="showPassword" type="text" v-model="password" placeholder="Enter password">
+    <input id="passwordInput" v-else type="password" v-model="password" placeholder="Enter password">
     <input @click="signup" type="submit" name="" value="Sign Up">
     <a><router-link to="/login">Already have an account?</router-link></a>
   </div>
