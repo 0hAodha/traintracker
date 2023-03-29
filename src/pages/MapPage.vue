@@ -97,7 +97,7 @@
 </transition>
 
 <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="position:absolute; height:90.6vh; width:100%;">
-    <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" />
+    <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" :extent="extent" :minZoom="minZoom" :maxZoom="maxZoom"/>
     <ol-tile-layer>
     <ol-source-osm />
     </ol-tile-layer>
@@ -171,10 +171,13 @@ export default {
       });
 
       return {
+          extent: [-2220789.765956, 5561831.292724, 294742.222406, 8306950.728974],
           center: fromLonLat([-7.5029786, 53.4494762]),
           projection: 'EPSG:3857',
           zoom: 7,
           rotation: 0,
+          minZoom:6,
+          maxZoom:10,
 
           showTrains: [],
           showStations: [],
