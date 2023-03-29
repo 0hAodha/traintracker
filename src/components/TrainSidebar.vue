@@ -256,7 +256,7 @@ export default {
   height: fit-content;
 }
 
-#notRunningPublicMessageDiv{top: 68%;}
+#notRunningPublicMessageDiv{top: 55%;}
 
 
 
