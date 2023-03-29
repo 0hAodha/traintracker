@@ -235,6 +235,17 @@ export default {
   padding-top: 2px; 
   padding-bottom: 2px;
 }
+
+
+#publicMessageImage{
+  max-width: 70%;
+  max-height: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  display: block;
+}
 /*Positioning rows*/
 #dateDiv{top: 16%;}
 #positionDiv{top: 29%;}
@@ -260,5 +271,8 @@ export default {
   width: 45%;
   }
 
+  #originDiv, #destinationDiv{
+    font-size: 17px;
+  }
 }
 </style>

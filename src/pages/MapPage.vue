@@ -692,13 +692,13 @@ export default {
   }
 
   #searchBar{
-    width: 100px;
+    width: 130px;
     color: white;
   }
 
   #searchContainer{
   left: 10px;
-  width: 120px;
+  width: 150px;
   height: 40px;
   display: flex;
   justify-content: center;
