@@ -37,6 +37,3 @@ describe('Navbar.vue Component Test', () => {
     })
   })
 })
-
-
-// wrapper.find('input[type=checkbox]').setChecked();
