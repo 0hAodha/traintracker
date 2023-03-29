@@ -189,7 +189,7 @@ export default {
                 const deletePreferencesData = httpsCallable(functions, 'deletePreferences')
                 deletePreferencesData().then(() => {
                     this.resetCredentials()
-                    this.showToast("Successfully map deleted filter preferences", "green")
+                    this.showToast("Successfully deleted map filter preferences", "green")
                 })
                 .catch((error) => {
                     this.showToast(error.message, "red")
