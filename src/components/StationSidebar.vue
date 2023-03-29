@@ -86,6 +86,7 @@ export default {
 
 #xButton:hover{
     color:red;
+    cursor: pointer;
 }
 
 #typeDiv, #positionDiv, #descriptionDiv{
