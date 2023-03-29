@@ -18,6 +18,12 @@ describe('Firebase cloud function tests', function() {
         expect(result.body.data[0]).haveOwnProperty('TrainCode');
         expect(result.body.data[0]).haveOwnProperty('TrainDate');
         expect(result.body.data[0]).haveOwnProperty('TrainType');
+        expect(result.body.data[0]).haveOwnProperty('Destination');
+        expect(result.body.data[0]).haveOwnProperty('Origin');
+
+        if (result.body.data[0]["TrainStatus"] != "N") {
+            expect(result.body.data[0]).haveOwnProperty('Punctuality');
+        }
     }),
 
     this.timeout(100000);
