@@ -16,7 +16,7 @@
       <div class="container-fluid" @change="decideShowStations();">
         <div class="form-check form-switch">
           <input @change="selectAllStations();" class="form-check-input" type="checkbox" role="switch" id="showAllStations" v-model="showAllStations"/>
-          <label class="form-check-label" for="showAllStations">All Stations</label>
+          <label class="form-check-label" for="showAllStations">Show Stations</label>
         </div>
         <hr/>
         <div class="form-check form-switch">
@@ -33,7 +33,7 @@
       <div class="container-fluid" @change="decideShowTrains();">
         <div class="form-check form-switch">
           <input @change="selectAllTrains();" class="form-check-input" type="checkbox" role="switch" id="showAllTrains" v-model="showAllTrains"/>
-          <label class="form-check-label" for="showAllTrains">All Trains</label>
+          <label class="form-check-label" for="showAllTrains">Show Trains</label>
         </div>
         <hr/>
         <div class="form-check form-switch">
@@ -655,7 +655,8 @@ export default {
 #publicMessageTicker {
   z-index: 3;
   position: fixed;
-  bottom:0px;
+  bottom: 0px;
+  padding: 2px;
   width:100%;
   background-color: rgb(255, 255, 125);
   color: black;
