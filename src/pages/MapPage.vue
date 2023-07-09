@@ -96,7 +96,8 @@
   </div>
 </transition>
 
-<ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="position:absolute; height:90.6vh; width:100%;">
+<ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="position:absolute; height:90vh; width:100%;">
+    <ol-attribution-control id="ol-attribution-control"/>
     <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" :extent="extent" :minZoom="minZoom" :maxZoom="maxZoom"/>
     <ol-tile-layer>
     <ol-source-osm />
@@ -138,6 +139,7 @@
     <span v-for="message in publicMessages"> {{ message + " • " }} </span> 
   </MarqueeText>
 </div>
+
 </template>
 
 <script>
@@ -671,7 +673,7 @@ export default {
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   text-align: bottom;
   font-size: 16.5px;
-  height: 4vh;
+  height: 3vh;
 }
 
 /* Phone Screen CSS */
