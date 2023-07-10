@@ -5,8 +5,7 @@
 #### Prerequisites
 - Java 11 or greater
 - `npm`
-- `firebase`
-- `firebase-tools`
+
 #### Setup
 1. Run `npm install` in the root directory of the project (`traintracker/`). Note that this may require root privileges on certain operating systems (i.e., to be ran with `sudo`). 
 2. Run `npm install` in the `traintracker/functions/` directory. 
