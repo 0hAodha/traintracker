@@ -1,4 +1,16 @@
 # Irish Rail Tracker
+## Introduction
+A  webapp which tracks the current locations of Irish Rail trains and plots them on a live map, built with Vue.js, Bootstrap and Firebase. 
+Live train data is periodically fetched from the official Irish Rail Developer REST API, and stored in the Firestore databse. This data is fetched by the webapp client from the Firestore database upon page load and periodically after that. The data is plotted on a map using OpenLayers as the backend and OpenStreetMap as the source of the tile images. 
+
+Additional features include:
+- Train icons are coloured according to punctuality - red for late, green for on-time/early, and black for not-yet-running/terminated.
+- A robust & intuitive filtering system which allows the user to easily filter which trains are displayed on the map.
+- A powerful search system which allows the user to display only the trains which match the searched for string on the map using keywords and phrases such as "Galway", "departed dublin conolly", or "Late" for example. 
+- An Insights page which graphs current train data such as the number of currently running trains, the proportion of DARTs to Mainline Trains, the proportion of late trains to on-time trains, and more.
+- An accounts system which allows a user to save their filtering preferences to their account, and have these preferences be automatically applied on any device on which the account is signed in.
+- A live message ticker at the bottom of the page displaying the most recent public announcements from each train.
+- Optional plotting of each train station on the map, which can also be filtered via searching and the aforementioned filtering system.
 
 ## Setup
 ### Local Emulation
