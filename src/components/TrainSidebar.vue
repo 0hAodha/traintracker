@@ -142,12 +142,14 @@ export default {
 }
 
 .headerImage{
+  object-fit: contain;
   height: 100%;
   width: 100%;
   padding: 10px;
 }
 
 #imageDiv{
+  object-fit: contain;
   background-color: rgb(230, 230, 230);
   border-radius: 50%;
   order:1;
@@ -196,6 +198,7 @@ export default {
 }
 
 #typeIcon, #dateIcon, #positionIcon, #directionIcon, #publicMessageIcon, #punctualityIcon{
+  object-fit: contain;
   background-color: rgb(214, 214, 214);
   width:20%;
   height: 100%;
@@ -228,16 +231,19 @@ export default {
 
 /*Different Icons CSS*/
 #typeImage{
+  object-fit: contain;
   width: 70%;
 }
 
 #dateImage, #positionImage, #directionImage, #punctualityImage, #publicMessageImage{
+  object-fit: contain;
   padding-top: 2px; 
   padding-bottom: 2px;
 }
 
 
 #publicMessageImage{
+  object-fit: contain;
   max-width: 70%;
   max-height: 70%;
   margin-left: auto;
@@ -262,12 +268,14 @@ export default {
 
 @media screen and (max-width: 850px) {
   .headerImage{
+  object-fit: contain;
   height: 100%;
   width: 100%;
   padding: 10px;
   }
 
   #typeImage{
+  object-fit: contain;
   width: 45%;
   }
 
