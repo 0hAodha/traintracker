@@ -70,6 +70,7 @@ export default {
 }
 
 .headerImage{
+  object-fit: contain;
   height: 100%;
   width: 100%;
   padding: 10px;
@@ -98,6 +99,7 @@ export default {
 }
 
 #typeIcon, #positionIcon, #descriptionIcon{
+  object-fit: contain;
   background-color: rgb(214, 214, 214);
   width:20%;
   height: 100%;
@@ -108,6 +110,7 @@ export default {
 }
 
 #positionImage, #descriptionImage{
+  object-fit: contain;
   padding-top: 2px; 
   padding-bottom: 2px;
 }
@@ -132,12 +135,14 @@ export default {
 
 @media screen and (max-width: 850px) {
   .headerImage{
+  object-fit: contain;
   height: 100%;
   width: 100%;
   padding: 10px;
   }
 
   #typeImage{
+  bject-fit: contain;
   width: 50%;
   }
 
