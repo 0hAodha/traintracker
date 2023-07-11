@@ -1,6 +1,6 @@
 <template>
 <div id="sidebarDiv">
-    <div v-on:click="store.setDisplaySelectedStation(false)" id="xButton">X</div>
+    <div v-on:click="store.setDisplaySelectedStation(false)" id="xButton">🗙</div>
     <h2>Station Code: {{ store.selectedStation["StationCode"][0] }}</h2>
     <div id="sidebarHeader">
         <img id="headerImage" src="../assets/station.png" alt="Station Icon">
