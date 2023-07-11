@@ -1,6 +1,6 @@
 <template>
   <div id="sidebarDiv">
-    <div v-on:click="store.setDisplaySelectedTrain(false)" id="xButton">X</div>
+    <div v-on:click="store.setDisplaySelectedTrain(false)" id="xButton">🗙</div>
     <h2 style="padding: 10px;">Train Code: {{ store.selectedTrain["TrainCode"][0] }}</h2>
       <div id="sidebarHeader">
         <p id="originDiv">Origin:<br> {{ store.selectedTrain["Origin"][0] }}</p>
