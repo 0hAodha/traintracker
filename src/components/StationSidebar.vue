@@ -3,7 +3,7 @@
     <div v-on:click="store.setDisplaySelectedStation(false)" id="xButton">🗙</div>
     <h2>Station Code: {{ store.selectedStation["StationCode"][0] }}</h2>
     <div id="sidebarHeader">
-        <img id="headerImage" src="../assets/station.png" alt="Station Icon">
+        <img id="headerImage" src="../assets/station.png" alt="Station Icon" style="object-fit: contain;">
     </div>
 
     <div id="sidebarDiv">
@@ -91,6 +91,7 @@ export default {
 }
 
 #typeDiv, #positionDiv, #descriptionDiv{
+  object-fit: contain;
   background-color: rgb(230, 230, 230);
   height: 12%;
   position: absolute;
@@ -128,7 +129,10 @@ export default {
 
 #latP{left: 3%;}
 
-#typeImage{width: 70%;}
+#typeImage{
+  object-fit: contain;
+  width: 70%;
+}
 
 #positionDiv{top: 16%;}
 #descriptionDiv{top: 29.5%;}
@@ -142,7 +146,7 @@ export default {
   }
 
   #typeImage{
-  bject-fit: contain;
+  object-fit: contain;
   width: 50%;
   }
 
