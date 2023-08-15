@@ -68,3 +68,5 @@ node_modules/
 # ide configurations 
 .idea/ 
 .vscode/
+
+dist/
