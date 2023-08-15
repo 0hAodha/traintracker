@@ -20,8 +20,8 @@ exports.getStationData = functions.https.onRequest((request, response) => {
     // fetch the "stations" collection
     admin.firestore().collection('stations').get().then((snapshot) => {
       if (snapshot.empty) {
-        functions.logger.log("Error fetching station data from Firestore")
-        response.status(404).send({data: "Error fetching station data from Firestore"})
+        functions.logger.log("Empty snapshot received when fetching station data from Firestore")
+        response.status(404).send({data: "Empty snapshot received when fetching station data from Firestore"})
         return;
       }
       // iterate through each of the collection's documents
@@ -185,8 +185,8 @@ exports.getLiveTrainData = functions.https.onRequest((request, response) => {
     // fetch the "liveTrainData" collection
     admin.firestore().collection('liveTrainData').get().then((snapshot) => {
       if (snapshot.empty) {
-        functions.logger.log("Error fetching live train data from Firestore")
-        response.status(404).send({data: "Successfully fetched live train data from Firestore"});
+        functions.logger.log("Empty snapshot received when fetching live train data from Firestore")
+        response.status(404).send({data: "Empty snapshot received when fetching live train data from Firestore"});
         return;
       }
       // iterate through each of the collection's documents
