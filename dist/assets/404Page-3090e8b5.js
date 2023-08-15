@@ -1,1 +1,0 @@
-import{N as a}from"./Navbar-fcee2b9c.js";import{_ as o,r as n,o as t,c as r,a as s,F as c,b as _}from"./index-9a3ecfe5.js";const p={name:"404Page",components:{Navbar:a}},m=_("h1",null,"404 - You've been derailed :(",-1);function l(d,f,i,u,N,b){const e=n("Navbar");return t(),r(c,null,[s(e),m],64)}const g=o(p,[["render",l]]);export{g as default};
