@@ -12,7 +12,7 @@ Additional features include:
 - A live message ticker at the bottom of the page displaying the most recent public announcements from each train.
 - Optional plotting of each train station on the map, which can also be filtered via searching and the aforementioned filtering system.
 
-This webapp was developed as a group project by Andrew Hayes, Conor McNamara, Jack Lennox, & Owen Guillot for the CT216 Software Engineering module at the University of Galway. The project writeup can be read [here](CT216: Irish Rail Tracker Project Report.pdf)
+This webapp was developed as a group project by Andrew Hayes, Conor McNamara, Jack Lennox, & Owen Guillot for the CT216 Software Engineering module at the University of Galway. The project writeup can be read here: [CT216: Irish Rail Tracker Project Report.pdf](./CT216:%20Irish%20Rail%20Tracker%20Project%20Report.pdf).
 
 ## Setup
 ### Local Emulation
