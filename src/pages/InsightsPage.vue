@@ -189,7 +189,7 @@ export default {
             const getTrainData = httpsCallable(functions, 'getLiveTrainData');
             getTrainData().then((response) => {
                 try {
-                    if (!response.data) throw new Error("Error fetching live train data from the database")
+                    if (!response.data) console.warn("No train data in response!");
                     var unorderedTrains = [];
                     var insights =  {
                       "totalNumTrains": 0,
