@@ -12,6 +12,8 @@ Additional features include:
 - A live message ticker at the bottom of the page displaying the most recent public announcements from each train.
 - Optional plotting of each train station on the map, which can also be filtered via searching and the aforementioned filtering system.
 
+This webapp was developed as a group project by Andrew Hayes, Conor McNamara, Jack Lennox, & Owen Guillot for the CT216 Software Engineering module at the University of Galway. The project writeup can be read [here](CT216: Irish Rail Tracker Project Report.pdf)
+
 ## Setup
 ### Local Emulation
 #### Prerequisites
@@ -19,7 +21,7 @@ Additional features include:
 - `npm`
 
 #### Setup
-1. Run `npm install` in the root directory of the project (`traintracker/`). Note that this may require root privileges on certain operating systems (i.e., to be ran with `sudo`). 
+1. Run `npm install` in the root directory of the project (`traintracker/`). Note that this may require root privileges on many operating systems. 
 2. Run `npm install` in the `traintracker/functions/` directory. 
 4. Start the Firebase emulator, which is needed to emulate the Firebase functions locally. Note that the Firebase emulator will occupy the focus of your terminal while it is running, so you will either need to keep it in its own dedicated terminal window or fork it into the background by appending `&` to the following command:
 ```bash
