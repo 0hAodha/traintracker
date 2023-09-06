@@ -1,6 +1,7 @@
 # Irish Rail Tracker ([irishrailtracker.web.app](https://irishrailtracker.web.app/))
 **THIS PROJECT IS NO LONGER MAINTAINED AND THE HOSTING IS NO LONGER ACTIVE. THE WEBSITE HAS CEASED TO OPERATE AS OF 2023-09-06.**
 ## Introduction
+![screenshot](./screenshot.png)
 A  webapp which tracks the current locations of Irish Rail trains and plots them on a live map, built with Vue.js, Bootstrap and Firebase. 
 Live train data is periodically fetched from the official Irish Rail Developer REST API, and stored in the Firestore database. This data is fetched by the webapp client from the Firestore database upon page load and periodically after that. The data is plotted on a map using OpenLayers as the backend and OpenStreetMap as the source of the tile images. 
 
@@ -50,6 +51,7 @@ There are also a series of Firebase integration tests which are automatically ra
 ```bash
 cd functions && npm run test
 ```
+
 
 ## Manual Firebase Deployment
 The webapp is automatically deployed to Firebase via Github Actions automatically when a branch is merged into `main`, provided that it successfully passed the Vue.js unit & Firebase integration tests. It can also be manually deployed with the following command ran in the `traintracker/` directory, **but this is not to be done without explicit approval of each of the project owners**. You will need the appropriate Firebase authentication tokens to do this.
